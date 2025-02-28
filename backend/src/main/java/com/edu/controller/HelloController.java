@@ -1,3 +1,17 @@
+spring:
+  application:
+    name: backend
+  devtools:
+    restart:
+      enabled: false
+      additional-paths: src/main/java
+spring:
+  application:
+    name: backend
+  devtools:
+    restart:
+      enabled: false
+      additional-paths: src/main/java
 package com.edu.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
