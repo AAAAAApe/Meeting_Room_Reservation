@@ -1,17 +1,3 @@
-spring:
-  application:
-    name: backend
-  devtools:
-    restart:
-      enabled: false
-      additional-paths: src/main/java
-spring:
-  application:
-    name: backend
-  devtools:
-    restart:
-      enabled: false
-      additional-paths: src/main/java
 package com.edu.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class HelloController {
+public class TestController {
 
     @GetMapping("/hello")
     public String hello(String name) {
