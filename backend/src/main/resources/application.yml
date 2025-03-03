@@ -11,6 +11,12 @@ spring:
     password: ""
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  sql:
+    init:
+      mode: never
+      schema-locations: /sql/schema.sql
+      data-locations: /sql/data.sql
+
 mybatis-plus:
   mapper-locations: classpath:/mapper/*.xml
   type-aliases-package: com.edu.entity
