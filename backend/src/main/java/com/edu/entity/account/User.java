@@ -10,6 +10,6 @@ public class User
 {
     @TableId
     private String userId;
-    private String EncryptedPassword;
+    private String encryptedPassword;
     private String role;
 }
