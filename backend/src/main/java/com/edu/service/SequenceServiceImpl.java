@@ -4,11 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.edu.entity.sequence.Sequence;
 import com.edu.mapper.SequenceMapper;
+import com.github.jeffreyning.mybatisplus.service.MppServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class SequenceServiceImpl implements SequenceService {
+public class SequenceServiceImpl extends MppServiceImpl<SequenceMapper, Sequence> implements SequenceService {
     private final SequenceMapper sequenceMapper;
 
     public SequenceServiceImpl(SequenceMapper sequenceMapper) {
