@@ -15,13 +15,16 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User findUserById(String userId){
-        return userMapper.selectOne(new QueryWrapper<User>().eq("userId", userId));
+        return userMapper.selectOne(new QueryWrapper<User>().eq("user_id", userId));
     }
 
     @Override
     public boolean validateUser(String userId, String password) {
+        System.out.println("Validating user: " + userId);
+        System.out.println("Password: " + password);
         User user = findUserById(userId);
         if (user == null) {
+            System.out.println("User not found");
             return false;
         }
         return bCryptPasswordEncoder.matches(password, user.getEncryptedPassword());

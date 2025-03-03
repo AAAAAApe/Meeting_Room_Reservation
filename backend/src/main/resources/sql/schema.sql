@@ -6,8 +6,8 @@ create table if not exists sequence (
 );
 
 create table if not exists user (
-    userId char(9) not null,
-    hashedPassword varchar(60) not null,
+    user_id char(9) not null,
+    encrypted_password varchar(60) not null,
     role varchar(10) not null,
-    primary key (userId)
+    primary key (user_id)
 );
