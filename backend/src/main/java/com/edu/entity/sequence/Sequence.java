@@ -11,7 +11,6 @@ public class Sequence {
     // example: 2023+1+0001 = 2023010001 means the first teacher in 2023
     @TableId
     private Integer year;
-    @TableId
     private String role;
     private Integer currentValue;
 }
