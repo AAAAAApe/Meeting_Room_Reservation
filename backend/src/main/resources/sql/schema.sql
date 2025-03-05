@@ -1,5 +1,5 @@
 create table if not exists sequence (
-    year char(4) not null,
+    year integer not null,
     role varchar(10) not null,
     current_value int not null,
     primary key (year, role)
