@@ -6,6 +6,8 @@ import com.edu.mapper.UserMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService{
     private final UserMapper userMapper;
@@ -28,5 +30,20 @@ public class UserServiceImpl implements UserService{
             return false;
         }
         return bCryptPasswordEncoder.matches(password, user.getEncryptedPassword());
+    }
+
+    @Override
+    public List<User> findAllUsers() {
+        return userMapper.selectList(new QueryWrapper<User>().select("*"));
+    }
+
+    @Override
+    public void insertUser(User user) {
+        userMapper.insertOrUpdate(user);
+    }
+
+    @Override
+    public void deleteUser(String userId) {
+        userMapper.deleteById(userId);
     }
 }
