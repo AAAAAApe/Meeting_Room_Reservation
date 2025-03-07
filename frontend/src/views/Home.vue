@@ -19,12 +19,13 @@
       </el-aside>
 
       <el-main>
-        <el-scrollbar height="100vh">
-          <el-table :data="tableData">
+        <el-scrollbar>
+          <!-- <el-table :data="tableData">
             <el-table-column prop="date" label="Date" width="140" />
             <el-table-column prop="name" label="Name" width="120" />
             <el-table-column prop="address" label="Address" />
-          </el-table>
+          </el-table> -->
+          <AdminDashboard />
         </el-scrollbar>
       </el-main>
 
@@ -34,7 +35,9 @@
 
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { RouterView } from 'vue-router';
 import Sidebar from '../components/Sidebar.vue'  // 导入侧边栏组件
+import AdminDashboard from './admin/AdminDashboard.vue'
 
 const item = {
   date: '2016-05-02',
