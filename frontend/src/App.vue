@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import Login from './views/auth/Login.vue';
+import Home from './views/Home.vue';
 </script>
 
 <template>
   <div>
-    <Login />
+    <Home />
   </div>
 
 </template>
 
 <style scoped>
+
 </style>
