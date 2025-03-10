@@ -3,19 +3,19 @@
     <div class="login-box">
       <h1 class="title">Login Here</h1>
 
-      <el-form ref="form" :model="loginForm" :rules="rules">
-        <!-- 用户名输入 -->
-        <el-form-item label="用户名" prop="username">
-          <el-input placeholder="请输入用户名" v-model="loginForm.username" />
+      <el-form class="login-form" ref="form" :model="loginForm" :rules="rules">
+        <!-- 账号输入 -->
+        <el-form-item class="id-input" prop="username">
+          <el-input placeholder="请输入账号" v-model="loginForm.username" />
         </el-form-item>
 
         <!-- 密码输入 -->
-        <el-form-item label="密码" prop="password">
+        <el-form-item class="password-input" prop="password">
           <el-input type="password" placeholder="请输入密码" v-model="loginForm.password" />
         </el-form-item>
 
         <!-- 登陆按钮 -->
-        <el-button type="primary" @click="handleLogin">登陆</el-button>
+        <el-button class="login-btn" type="primary" @click="handleLogin">登陆</el-button>
       </el-form>
 
     </div>
@@ -37,40 +37,67 @@ const loading = ref(false)
 const errorMessage = ref('')
 
 // 定义表单验证规则
-const rules: {
-  name: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }
-}
+const rules = ref({
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+})
 
 // 处理登录事件
 const handleLogin = async () => {
   loading.value = true
   errorMessage.value = ''
 
-  try {
-    // 发送登录请求
-    const response = await axios.post('/login', {
-      userId: loginForm.value.username,
-      password: loginForm.value.password
-    })
-
-    // 如果登录成功，保存token并跳转到首页
-    if (response.data.code === 200) {
-      localStorage.setItem('token', response.data.token)
-      
-      window.location.href = '/'
-    } else {
-      // 如果登录失败，显示错误信息
-      errorMessage.value = response.data.message || '登录失败'
+  // 校验表单
+  const formRef = form.value
+  if (!formRef) return
+  await formRef.validate(async (valid) => {
+    if (!valid) {
+      loading.value = false
+      return
     }
-  } catch (error) {
-    // 如果发生错误，打印错误信息
-    console.error(error)
-  } finally {
-    // 无论登录成功与否，都关闭加载状态
-    loading.value = false
-  }
+
+    try {
+      // 发送登录请求
+      const response = await axios.post('/login', {
+        userId: loginForm.value.username,
+        password: loginForm.value.password
+      })
+
+      if (response.data.code === 200) {
+        // 存储 Token 并跳转到首页
+        localStorage.setItem('token', response.data.token)
+        window.location.href = '/'
+      } else {
+        errorMessage.value = response.data.message || '登录失败'
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      loading.value = false
+    }
+  })
 }
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+
+    .login-box {
+      width: 250px;
+      margin-bottom: 100px;
+      .title {
+        text-align: center;
+        margin: 10px;
+      }
+      .login-form {
+        .login-btn {
+          width: 100%;
+        }
+      }
+    }
+  }
+</style>
