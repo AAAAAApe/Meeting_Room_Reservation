@@ -4,6 +4,7 @@
 .LSOverride
 
 # 通用开发环境忽略
+.vscode/
 .idea/
 *.iml
 *.log
