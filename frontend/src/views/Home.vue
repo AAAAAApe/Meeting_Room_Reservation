@@ -3,29 +3,27 @@
     <!-- 顶栏 -->
     <el-header class="main-header">
       <div class="header-content">
+        <!-- title -->
         <h1>你好</h1>
+        <!-- 工具栏 -->
         <div class="toolbar">
-          <el-button type="danger">button</el-button>
+          <el-button type="danger" @click="handleSignOut">Sign Out</el-button>
         </div>
       </div>
     </el-header>
 
     <el-container class="main-container">
-
+      <!-- 侧边栏 -->
       <el-aside class="sidebar-container">
         <el-scrollbar height="100vh">
           <Sidebar />
         </el-scrollbar>
       </el-aside>
 
+      <!-- 主内容区 -->
       <el-main>
         <el-scrollbar>
-          <!-- <el-table :data="tableData">
-            <el-table-column prop="date" label="Date" width="140" />
-            <el-table-column prop="name" label="Name" width="120" />
-            <el-table-column prop="address" label="Address" />
-          </el-table> -->
-          <AdminDashboard />
+          <router-view />
         </el-scrollbar>
       </el-main>
 
@@ -34,17 +32,32 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-import { RouterView } from 'vue-router';
 import Sidebar from '../components/Sidebar.vue'  // 导入侧边栏组件
-import AdminDashboard from './admin/AdminDashboard.vue'
+import { useRouter } from 'vue-router'
+import { RouterView } from 'vue-router'
+import { ElMessageBox } from 'element-plus'
 
-const item = {
-  date: '2016-05-02',
-  name: 'Tom',
-  address: 'No. 189, Grove St, Los Angeles',
+const router = useRouter()
+
+// 处理退出登录
+const handleSignOut = async () => {
+  try {
+    await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    // 清除本地存储的用户信息和token
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    
+    // 跳转到登录页
+    router.push('/login')
+  } catch {
+    // 用户取消退出登录，不做任何操作
+  }
 }
-const tableData = ref(Array.from({ length: 40 }).fill(item))
 </script>
 
 <style lang="scss" scoped>
