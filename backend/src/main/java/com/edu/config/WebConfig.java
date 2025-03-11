@@ -16,7 +16,9 @@ public class WebConfig implements WebMvcConfigurer {
                         "/login",
                         "/swagger-ui/**",
                         "/webjars/**",
-                        "/v3/api-docs/**"
+                        "/v3/api-docs/**",
+                        "/hello",
+                        "validate-token"
                 );
     }
 }
