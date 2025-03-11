@@ -14,8 +14,11 @@
           <el-input type="password" placeholder="请输入密码" v-model="loginForm.password" />
         </el-form-item>
 
+        <!-- 错误信息显示 -->
+        <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+
         <!-- 登陆按钮 -->
-        <el-button class="login-btn" type="primary" @click="handleLogin">登陆</el-button>
+        <el-button class="login-btn" type="primary" :loading="loading" @click="handleLogin">登陆</el-button>
       </el-form>
 
     </div>
@@ -24,7 +27,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
+import type { ElForm } from 'element-plus'
+import request from '../../utils/request'
+import { useUserStore } from '../../stores/userStore'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const userStore = useUserStore()
 
 // 定义登录表单数据
 const loginForm = ref({
@@ -42,6 +51,8 @@ const rules = ref({
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
 })
 
+const form = ref<InstanceType<typeof ElForm>>()
+
 // 处理登录事件
 const handleLogin = async () => {
   loading.value = true
@@ -58,20 +69,24 @@ const handleLogin = async () => {
 
     try {
       // 发送登录请求
-      const response = await axios.post('/login', {
+      const response = await request.post('/login', {
         userId: loginForm.value.username,
         password: loginForm.value.password
       })
 
       if (response.data.code === 200) {
-        // 存储 Token 并跳转到首页
+        // 存储 Token
         localStorage.setItem('token', response.data.token)
-        window.location.href = '/'
+        // 使用 userStore 存储用户信息
+        userStore.setUser(response.data.user)
+        // 跳转到首页
+        router.push('/')
       } else {
-        errorMessage.value = response.data.message || '登录失败'
+        errorMessage.value = response.data.message || '账号或密码错误'
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error)
+      errorMessage.value = error.response?.data?.message || '登录失败，请稍后重试'
     } finally {
       loading.value = false
     }
@@ -96,6 +111,12 @@ const handleLogin = async () => {
       .login-form {
         .login-btn {
           width: 100%;
+        }
+        .error-message {
+          color: #f56c6c;
+          font-size: 12px;
+          margin-bottom: 10px;
+          text-align: center;
         }
       }
     }
