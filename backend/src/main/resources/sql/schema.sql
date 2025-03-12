@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS user_info
 
 CREATE TABLE IF NOT EXISTS department
 (
-    department_id   CHAR(4)     NOT NULL, -- 院系 ID
+    department_id   CHAR(2)     NOT NULL, -- 院系 ID
     department_name VARCHAR(20) NOT NULL, -- 院系名称
     PRIMARY KEY (department_id)
 );
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS major
 (
     major_id      CHAR(4)     NOT NULL, -- 专业 ID
     major_name    VARCHAR(20) NOT NULL, -- 专业名称
-    department_id CHAR(4)     NOT NULL, -- 所属院系 ID
+    department_id CHAR(2)     NOT NULL, -- 所属院系 ID
     PRIMARY KEY (major_id),
     FOREIGN KEY (department_id) REFERENCES department (department_id) ON DELETE CASCADE
 );
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS teacher_info
 (
     user_id       CHAR(9) NOT NULL, -- 教师 ID
     title         VARCHAR(20),      -- 职称
-    department_id CHAR(4),          -- 所属院系
+    department_id CHAR(2),          -- 所属院系
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE,
     FOREIGN KEY (department_id) REFERENCES department (department_id) ON DELETE SET NULL
@@ -73,10 +73,10 @@ CREATE TABLE IF NOT EXISTS teacher_info
 
 CREATE TABLE IF NOT EXISTS course
 (
-    course_id         CHAR(4)       NOT NULL,                     -- 课程 ID
+    course_id         CHAR(6)       NOT NULL,                     -- 课程 ID
     course_name       VARCHAR(20)   NOT NULL,                     -- 课程名称
     creator_id        CHAR(9)       NOT NULL,                     -- 创建者 ID（教师）
-    course_department CHAR(4)       NOT NULL,                     -- 所属院系 ID
+    course_department CHAR(2)       NOT NULL,                     -- 所属院系 ID
     credit            DECIMAL(2, 1) NOT NULL CHECK (credit >= 0), -- 课程学分
     description       TEXT,                                       -- 课程描述
     PRIMARY KEY (course_id),
@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS course
 
 CREATE TABLE IF NOT EXISTS course_teacher
 (
-    course_id CHAR(4) NOT NULL, -- 课程 ID
+    course_id CHAR(6) NOT NULL, -- 课程 ID
     user_id   CHAR(9) NOT NULL, -- 教师 ID
     PRIMARY KEY (course_id, user_id),
     FOREIGN KEY (course_id) REFERENCES course (course_id) ON DELETE CASCADE,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS course_teacher
 
 CREATE TABLE IF NOT EXISTS course_selection
 (
-    course_id      CHAR(4)       NOT NULL,                                 -- 课程 ID
+    course_id      CHAR(6)       NOT NULL,                                 -- 课程 ID
     student_id     CHAR(9)       NOT NULL,                                 -- 学生 ID
     teacher_id     CHAR(9)       NOT NULL,                                 -- 教师 ID
     selection_time DATETIME      NOT NULL DEFAULT NOW(),                   -- 选课时间
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS teaching_resource
 (
     resource_id   CHAR(36)     NOT NULL,               -- 资源唯一 ID
     resource_name VARCHAR(100) NOT NULL,               -- 资源名称
-    course_id     CHAR(4)      NOT NULL,               -- 课程 ID
+    course_id     CHAR(6)      NOT NULL,               -- 课程 ID
     uploader_id   CHAR(9)      NOT NULL,               -- 上传者 ID
     resource_url  VARCHAR(255) NOT NULL,               -- 资源存储路径
     upload_time   DATETIME     NOT NULL DEFAULT NOW(), -- 上传时间
@@ -122,8 +122,8 @@ CREATE TABLE IF NOT EXISTS teaching_resource
 
 CREATE TABLE IF NOT EXISTS assignment
 (
-    assignment_title    VARCHAR(20) NOT NULL,                             -- 作业标题
-    course_id           CHAR(4)     NOT NULL,                             -- 课程 ID
+    assignment_title    VARCHAR(100) NOT NULL,                             -- 作业标题
+    course_id           CHAR(6)     NOT NULL,                             -- 课程 ID
     teacher_id          CHAR(9)     NOT NULL,                             -- 教师 ID
     submission_deadline DATETIME    NOT NULL,                             -- 学生提交截止时间
     content             TEXT,                                             -- 作业内容
