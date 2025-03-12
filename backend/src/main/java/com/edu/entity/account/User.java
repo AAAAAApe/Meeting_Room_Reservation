@@ -11,5 +11,5 @@ public class User
     @TableId
     private String userId;
     private String encryptedPassword;
-    private Byte role;
+    private Byte roleId;
 }
