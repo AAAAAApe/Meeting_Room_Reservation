@@ -2,39 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.edu.mapper.UserMapper">
-
-    <!-- 查询学生信息 -->
-    <select id="getStudentInfo" resultType="com.edu.entity.account.UserDTO">
-        SELECT u.user_id,
-               r.role_name AS role,
-               ui.name     AS student_name,
-               ui.phone_number,
-               ui.email,
-               ui.start_year,
-               s.major_id  AS major
-        FROM user u
-                 INNER JOIN role r ON u.role = r.role_id
-                 LEFT JOIN student_info s ON u.user_id = s.user_id
-                 LEFT JOIN user_info ui ON u.user_id = ui.user_id
-        WHERE u.user_id = #{userId}
-          AND r.role_name = 'student'
+    <!-- 查询用户信息 -->
+    <select id="getUserInfoById" resultType="com.edu.entity.view.UserView">
+        SELECT *
+        FROM v_user_info
+        WHERE user_id = #{userId}
     </select>
-
-    <!-- 查询教师信息 -->
-    <select id="getTeacherInfo" resultType="com.edu.entity.account.UserDTO">
-        SELECT u.user_id,
-               r.role_name AS role,
-               ti.title,
-               ti.department_id,
-               d.department_name,
-               ui.name     AS teacher_name
-        FROM user u
-                 INNER JOIN role r ON u.role = r.role_id
-                 LEFT JOIN teacher_info ti ON u.user_id = ti.user_id
-                 LEFT JOIN department d ON ti.department_id = d.department_id
-                 LEFT JOIN user_info ui ON u.user_id = ui.user_id
-        WHERE u.user_id = #{userId}
-          AND r.role_name = 'teacher'
-    </select>
-
 </mapper>
