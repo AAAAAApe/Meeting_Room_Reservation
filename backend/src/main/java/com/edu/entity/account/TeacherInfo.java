@@ -9,6 +9,6 @@ import lombok.Data;
 public class TeacherInfo {
     @TableId
     private String userId;
-    private String title;
+    private Byte titleId;
     private String departmentId;
 }
