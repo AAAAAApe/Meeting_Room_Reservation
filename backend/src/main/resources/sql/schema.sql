@@ -4,22 +4,28 @@ CREATE TABLE IF NOT EXISTS role
     role_name ENUM ('admin', 'student', 'teacher') NOT NULL UNIQUE -- 角色名称，唯一约束
 );
 
+CREATE TABLE IF NOT EXISTS title
+(
+    title_id   TINYINT PRIMARY KEY,                                                                     -- 职称 ID
+    title_name ENUM ('professor', 'associate_professor', 'senior_lecturer', 'lecturer') NOT NULL UNIQUE -- 职称名称，唯一约束
+);
+
 CREATE TABLE IF NOT EXISTS sequence
 (
     year          YEAR    NOT NULL, -- 年份，用于生成序列号
-    role          TINYINT NOT NULL, -- 角色 ID，对应 role 表
+    role_id       TINYINT NOT NULL, -- 角色 ID，对应 role_id 表
     current_value INTEGER NOT NULL, -- 当前序列值
-    PRIMARY KEY (year, role),
-    FOREIGN KEY (role) REFERENCES role (role_id) ON DELETE CASCADE
+    PRIMARY KEY (year, role_id),
+    FOREIGN KEY (role_id) REFERENCES role (role_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS user
 (
     user_id            CHAR(9)     NOT NULL, -- 用户 ID，唯一标识用户
     encrypted_password VARCHAR(60) NOT NULL, -- 加密后的密码
-    role               TINYINT     NOT NULL, -- 角色 ID，外键关联 role 表
+    role_id               TINYINT     NOT NULL, -- 角色 ID，外键关联 role_id 表
     PRIMARY KEY (user_id),
-    FOREIGN KEY (role) REFERENCES role (role_id) ON DELETE CASCADE
+    FOREIGN KEY (role_id) REFERENCES role (role_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS user_info
@@ -64,11 +70,12 @@ CREATE TABLE IF NOT EXISTS student_info
 CREATE TABLE IF NOT EXISTS teacher_info
 (
     user_id       CHAR(9) NOT NULL, -- 教师 ID
-    title         VARCHAR(20),      -- 职称
+    title_id      TINYINT,          -- 职称
     department_id CHAR(2),          -- 所属院系
     PRIMARY KEY (user_id),
     FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE,
-    FOREIGN KEY (department_id) REFERENCES department (department_id) ON DELETE SET NULL
+    FOREIGN KEY (department_id) REFERENCES department (department_id) ON DELETE SET NULL,
+    FOREIGN KEY (title_id) REFERENCES title (title_id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS course
@@ -122,10 +129,10 @@ CREATE TABLE IF NOT EXISTS teaching_resource
 
 CREATE TABLE IF NOT EXISTS assignment
 (
-    assignment_title    VARCHAR(100) NOT NULL,                             -- 作业标题
-    course_id           CHAR(6)     NOT NULL,                             -- 课程 ID
-    teacher_id          CHAR(9)     NOT NULL,                             -- 教师 ID
-    submission_deadline DATETIME    NOT NULL,                             -- 学生提交截止时间
+    assignment_title    VARCHAR(100) NOT NULL,                            -- 作业标题
+    course_id           CHAR(6)      NOT NULL,                            -- 课程 ID
+    teacher_id          CHAR(9)      NOT NULL,                            -- 教师 ID
+    submission_deadline DATETIME     NOT NULL,                            -- 学生提交截止时间
     content             TEXT,                                             -- 作业内容
     submission_url      VARCHAR(255),                                     -- 提交链接
     grade               ENUM ('A', 'B', 'C', 'D', 'E', 'F') DEFAULT NULL, -- 评分
