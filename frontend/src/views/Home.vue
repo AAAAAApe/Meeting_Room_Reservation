@@ -45,12 +45,9 @@ const userStore = useUserStore()
 const userName = ref('')
 
 onMounted(() => {
-  // 从localStorage获取用户信息
-  const userStr = localStorage.getItem('user')
-  if (userStr) {
-    const user = JSON.parse(userStr)
-    userName.value = user.name || user.userId
-  }
+  // 从userStore获取用户信息
+  userStore.loadUserFromStorage()
+  userName.value = userStore.user?.userName || userStore.user?.userId || ''
 })
 
 // 处理退出登录
@@ -61,18 +58,12 @@ const handleSignOut = async () => {
       cancelButtonText: '取消',
       type: 'warning'
     })
-    
-    // 清除token
-    tokenService.removeToken()
-    
-    // 清除本地存储的用户信息
-    localStorage.removeItem('user')
-    
-    // 清除userStore中的用户信息
-    userStore.clearUser()
-    
+
+    // 发送 logout 请求，同时清除用户信息和 cookie
+    await tokenService.logout()
     // 跳转到登录页
     router.push('/login')
+    
   } catch {
     // 用户取消退出登录，不做任何操作
   }
