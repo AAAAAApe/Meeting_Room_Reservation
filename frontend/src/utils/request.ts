@@ -58,11 +58,40 @@ noAuthInterceptor.applyToClient(noAuthHttpClient)
 // 获取不带认证功能的axios实例
 const requestWithoutAuth = noAuthHttpClient.getAxiosInstance()
 
+// 创建禁用token自动添加但启用token自动刷新的HTTP客户端实例
+const refreshOnlyHttpClient = createHttpClient({
+  baseURL: '/api',  // 基础URL，指向后端API服务
+  timeout: 5000,    // 请求超时时间，单位毫秒
+  headers: {
+    'Content-Type': 'application/json'  // 默认请求头，指定内容类型为JSON
+  },
+  enableErrorMessage: true  // 启用错误消息提示
+})
+
+// 创建禁用token自动添加但启用token自动刷新的认证拦截器
+const refreshOnlyInterceptor = createAuthInterceptor({
+  enableTokenAuth: false,     // 禁用token自动添加
+  enableTokenRefresh: true,   // 启用token自动刷新
+  refreshTokenUrl: '/refresh-token'
+})
+
+// 将拦截器应用到HTTP客户端
+refreshOnlyInterceptor.applyToClient(refreshOnlyHttpClient)
+
+// 获取禁用token自动添加但启用token自动刷新的axios实例
+const requestWithRefreshOnly = refreshOnlyHttpClient.getAxiosInstance()
+
 // 导出HTTP客户端实例，方便需要更高级功能的模块使用
-export { httpClient, noAuthHttpClient }
+export { httpClient, noAuthHttpClient, refreshOnlyHttpClient }
 
 /**
  * 导出不带token认证的请求实例
  * 可用于不需要认证的API请求，如登录、注册等
  */
 export { requestWithoutAuth }
+
+/**
+ * 导出禁用token自动添加但启用token自动刷新的请求实例
+ * 可用于需要刷新token但不需要在请求头中添加token的API请求
+ */
+export { requestWithRefreshOnly }
