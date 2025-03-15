@@ -6,6 +6,7 @@ import com.edu.entity.view.StudentView;
 import com.edu.entity.view.TeacherView;
 import com.edu.entity.view.UserView;
 import com.edu.mapper.UserMapper;
+import com.edu.mapper.UserViewMapper;
 import com.edu.mapper.TeacherViewMapper;
 import com.edu.mapper.StudentViewMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,11 +17,13 @@ import java.util.List;
 @Service
 public class UserServiceImpl implements UserService{
     private final UserMapper userMapper;
+    private final UserViewMapper userViewMapper;
     private final TeacherViewMapper teacherViewMapper;
     private final StudentViewMapper studentViewMapper;
 
-    public UserServiceImpl(UserMapper userMapper, TeacherViewMapper teacherViewMapper, StudentViewMapper studentViewMapper){
+    public UserServiceImpl(UserMapper userMapper, UserViewMapper userViewMapper, TeacherViewMapper teacherViewMapper, StudentViewMapper studentViewMapper){
         this.userMapper = userMapper;
+        this.userViewMapper = userViewMapper;
         this.teacherViewMapper = teacherViewMapper;
         this.studentViewMapper = studentViewMapper;
     }
@@ -29,22 +32,36 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User findUserWithPasswordById(String userId){
-        return userMapper.selectOne(new QueryWrapper<User>().eq("user_id", userId));
+        return userMapper.selectById(userId);
     }
 
     @Override
     public UserView getUserInfo(String userId){
-        return userMapper.getUserInfoById(userId);
+        return userViewMapper.selectById(userId);
+    }
+
+    @Override
+    public UserView getUserInfoWithUserName(String userId){
+        UserView userView = userViewMapper.selectById(userId);
+        if (userView == null) {
+            return null;
+        }
+        userView.setUserName(switch (userView.getRoleName()) {
+            case "teacher" -> teacherViewMapper.selectById(userId).getName();
+            case "student" -> studentViewMapper.selectById(userId).getName();
+            default -> null;
+        });
+        return userView;
     }
 
     @Override
     public TeacherView getTeacherInfo(String userId) {
-        return teacherViewMapper.selectOne(new QueryWrapper<TeacherView>().eq("user_id", userId));
+        return teacherViewMapper.selectById(userId);
     }
 
     @Override
     public StudentView getStudentInfo(String userId) {
-        return studentViewMapper.selectOne(new QueryWrapper<StudentView>().eq("user_id", userId));
+        return studentViewMapper.selectById(userId);
     }
 
     @Override

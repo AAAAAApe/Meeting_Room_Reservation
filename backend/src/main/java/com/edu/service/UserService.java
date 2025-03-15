@@ -10,6 +10,7 @@ import java.util.List;
 public interface UserService {
     User findUserWithPasswordById(String userId);
     UserView getUserInfo(String userId);
+    UserView getUserInfoWithUserName(String userId);
     TeacherView getTeacherInfo(String userId);
     StudentView getStudentInfo(String userId);
     boolean validateUserCredentials(String userId, String password);
