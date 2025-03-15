@@ -1,8 +1,8 @@
-import axios from 'axios'
 import { useTokenStore } from '../stores/tokenStore'
 import { useUserStore } from '../stores/userStore'
 import router from '../router'
 import { ElMessage } from 'element-plus'
+import { requestWithRefreshOnly } from './request'
 
 // 认证服务模块配置
 const AUTH_API = {
@@ -15,18 +15,6 @@ const AUTH_API = {
 let isRefreshing = false
 // 等待刷新token的请求队列
 let requestsQueue: Array<() => void> = []
-
-/**
- * 创建一个不带拦截器的axios实例，用于认证请求
- * 避免与主request实例的循环依赖
- */
-const authAxios = axios.create({
-  baseURL: '/api',
-  timeout: 5000,
-  headers: {
-    'Content-Type': 'application/json'
-  }
-})
 
 /**
  * Token服务类
@@ -85,7 +73,7 @@ export class TokenService {
     
     try {
       // 发送登出请求，清除服务器端的refreshToken cookie
-      await authAxios.post(AUTH_API.LOGOUT)
+      await requestWithRefreshOnly.post(AUTH_API.LOGOUT)
       
       // 清除本地token和用户信息
       this.removeToken()
@@ -117,7 +105,7 @@ export class TokenService {
     
     try {
       // 发送刷新token请求，refreshToken由浏览器自动通过cookie发送
-      const response = await authAxios.post(AUTH_API.REFRESH_TOKEN)
+      const response = await requestWithRefreshOnly.post(AUTH_API.REFRESH_TOKEN)
       
       if (response.data.code === 200) {
         // 更新token
@@ -170,7 +158,7 @@ export class TokenService {
   public async validateToken(): Promise<boolean> {
     try {
       const token = this.getToken()
-      await authAxios.get(AUTH_API.VALIDATE_TOKEN, {
+      await requestWithRefreshOnly.get(AUTH_API.VALIDATE_TOKEN, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
