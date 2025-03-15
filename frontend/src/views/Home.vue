@@ -4,7 +4,7 @@
     <el-header class="main-header">
       <div class="header-content">
         <!-- title -->
-        <h1>你好</h1>
+        <h1>你好，{{ userName }}</h1>
         <!-- 工具栏 -->
         <div class="toolbar">
           <el-button type="danger" @click="handleSignOut">Sign Out</el-button>
@@ -36,8 +36,22 @@ import Sidebar from '../components/Sidebar.vue'  // 导入侧边栏组件
 import { useRouter } from 'vue-router'
 import { RouterView } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
+import { ref, onMounted } from 'vue'
+import { useUserStore } from '../stores/userStore'
+import tokenService from '../utils/tokenService'
 
 const router = useRouter()
+const userStore = useUserStore()
+const userName = ref('')
+
+onMounted(() => {
+  // 从localStorage获取用户信息
+  const userStr = localStorage.getItem('user')
+  if (userStr) {
+    const user = JSON.parse(userStr)
+    userName.value = user.name || user.userId
+  }
+})
 
 // 处理退出登录
 const handleSignOut = async () => {
@@ -48,9 +62,14 @@ const handleSignOut = async () => {
       type: 'warning'
     })
     
-    // 清除本地存储的用户信息和token
-    localStorage.removeItem('token')
+    // 清除token
+    tokenService.removeToken()
+    
+    // 清除本地存储的用户信息
     localStorage.removeItem('user')
+    
+    // 清除userStore中的用户信息
+    userStore.clearUser()
     
     // 跳转到登录页
     router.push('/login')
