@@ -58,8 +58,6 @@ const form = ref<InstanceType<typeof ElForm>>()
 
 // 处理登录事件
 const handleLogin = async () => {
-  console.log('handleLogin')
-
   loading.value = true
   errorMessage.value = ''
 
@@ -73,8 +71,6 @@ const handleLogin = async () => {
     }
 
     try {
-      console.log(loginForm.value)
-
       // 发送登录请求（使用不带token验证的请求实例）
       const response = await requestWithoutAuth.post('/login', {
         userId: loginForm.value.username,
