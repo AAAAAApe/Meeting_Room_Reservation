@@ -1,6 +1,5 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { ElMessage } from 'element-plus'
 
 /**
  * HTTP客户端配置选项
@@ -25,7 +24,7 @@ const defaultOptions: HttpClientOptions = {
   headers: {
     'Content-Type': 'application/json'
   },
-  enableErrorMessage: true,
+  enableErrorMessage: false,
   errorMessageMap: {
     400: '请求参数错误',
     401: '未授权，请登录',
@@ -66,23 +65,15 @@ export class HttpClient {
 
   /**
    * 设置基础响应拦截器
-   * 处理常见HTTP错误
+   * 注意：httpClient不处理错误提示，所有的认证错误处理由authInterceptor负责
+   * 这里只是简单地传递错误，不做任何处理
    */
   private setupBaseInterceptors(): void {
     this.instance.interceptors.response.use(
       (response) => response,
       (error) => {
-        // 处理HTTP错误
-        if (error.response && this.options.enableErrorMessage) {
-          const status = error.response.status
-          const errorMap = this.options.errorMessageMap || {}
-          
-          // 显示对应状态码的错误消息
-          if (errorMap[status]) {
-            ElMessage.error(errorMap[status])
-          }
-        }
-        
+        // 直接传递错误，不做任何处理
+        // 错误提示和token刷新等逻辑由authInterceptor处理
         return Promise.reject(error)
       }
     )
