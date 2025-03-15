@@ -14,11 +14,12 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")  // 拦截所有请求
                 .excludePathPatterns(     // 允许访问的路径
                         "/login",
+                        "/refresh-token",
                         "/swagger-ui/**",
                         "/webjars/**",
                         "/v3/api-docs/**",
                         "/hello",
-                        "validate-token"
+                        "/validate-token"
                 );
     }
 }
