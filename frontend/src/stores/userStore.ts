@@ -4,7 +4,7 @@ import { ref, computed } from "vue";
 // 定义用户类型
 interface User {
     userId: string;
-    role: 'admin' | 'teacher' | 'student';
+    roleName: 'admin' | 'teacher' | 'student';
 
     // 公共字段
     userName?: string;
@@ -35,7 +35,7 @@ export const useUserStore = defineStore('user', () => {
     
     // getters
     const isLoggedIn = computed(() => !!user.value);
-    const userRole = computed(() => user.value?.role);
+    const userRole = computed(() => user.value?.roleName);
     const userId = computed(() => user.value?.userId);
     
     // 设置用户信息
