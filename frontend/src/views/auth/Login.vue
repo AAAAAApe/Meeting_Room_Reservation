@@ -16,17 +16,28 @@ onMounted(async () => {
   if (token) {
     try {
       const response = await request.get('/user')
-      if (response.data.code === 200) {
-        // 创建用户对象
-        const userData = {
-          userId: response.data.userId,
-          role: response.data.roleName,
-          name: response.data.userName
-        }
-        // 使用 userStore 存储用户信息
-        userStore.setUser(userData)
-        // 跳转到首页
-        router.push('/')
+      // 创建用户对象
+      const userData = {
+        userId: response.data.userId,
+        roleName: response.data.roleName,
+        name: response.data.userName
+      }
+      // 使用 userStore 存储用户信息
+      userStore.setUser(userData)
+      // 跳转到首页
+      switch (userData.roleName) {
+        case 'admin':
+          router.push('/admin')
+          break;
+        case 'teacher':
+          router.push('/teacher')
+          break;
+        case 'student':
+          router.push('/student')
+          break;
+        default:
+          router.push('/')
+          break;
       }
     }
     catch (error) {
@@ -40,7 +51,7 @@ onMounted(async () => {
 
 // 定义登录表单数据
 const loginForm = ref({
-  username: '',
+  userId: '',
   password: ''
 })
 
@@ -50,7 +61,7 @@ const errorMessage = ref('')
 
 // 定义表单验证规则
 const rules = ref({
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  userId: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
 })
 
@@ -73,7 +84,7 @@ const handleLogin = async () => {
     try {
       // 发送登录请求（使用不带token验证的请求实例）
       const response = await requestWithoutAuth.post('/login', {
-        userId: loginForm.value.username,
+        userId: loginForm.value.userId,
         password: loginForm.value.password
       })
 
@@ -84,8 +95,8 @@ const handleLogin = async () => {
 
         // 创建用户对象
         const userData = {
-          userId: loginForm.value.username,
-          role: response.data.role,
+          userId: loginForm.value.userId,
+          roleName: response.data.roleName,
           name: response.data.userName
         }
 
@@ -93,13 +104,27 @@ const handleLogin = async () => {
         userStore.setUser(userData)
 
         // 跳转到首页
-        router.push('/')
+        switch (userData.roleName) {
+          case 'admin':
+            router.push('/admin')
+            break;
+          case 'teacher':
+            router.push('/teacher')
+            break;
+          case 'student':
+            router.push('/student')
+            break;
+          default:
+            router.push('/')
+            break;
+        }
       } else {
+        // 显示错误信息（服务器返回的错误信息）
         errorMessage.value = response.data.message || '账号或密码错误'
       }
-    } catch (error: any) {
-      console.error(error)
-      errorMessage.value = error.response?.data?.message || '登录失败，请稍后重试'
+    } catch (error) {
+      // 登录失败，错误处理由拦截器统一处理
+      console.error('登录失败', error)
     } finally {
       loading.value = false
     }
@@ -117,7 +142,7 @@ const handleLogin = async () => {
       <el-form class="login-form" ref="form" :model="loginForm" :rules="rules">
         <!-- 账号输入 -->
         <el-form-item class="id-input" prop="username">
-          <el-input placeholder="请输入账号" v-model="loginForm.username" />
+          <el-input placeholder="请输入账号" v-model="loginForm.userId" />
         </el-form-item>
 
         <!-- 密码输入 -->
