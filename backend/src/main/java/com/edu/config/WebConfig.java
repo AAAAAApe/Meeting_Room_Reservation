@@ -19,7 +19,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/webjars/**",
                         "/v3/api-docs/**",
                         "/hello",
-                        "/validate-token"
+                        "/validate-token",
+                        "/logout"
                 );
     }
 }
