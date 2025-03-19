@@ -22,9 +22,7 @@
 
       <!-- 主内容区 -->
       <el-main>
-        <el-scrollbar>
-          <router-view />
-        </el-scrollbar>
+        <router-view />
       </el-main>
 
     </el-container>
