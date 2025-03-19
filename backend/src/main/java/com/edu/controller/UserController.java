@@ -1,5 +1,6 @@
 package com.edu.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.edu.constants.TokenConstants;
 import com.edu.dto.LoginRequest;
 import com.edu.entity.account.User;
@@ -80,6 +81,23 @@ public class UserController {
     @GetMapping("/users")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
+    }
+    
+    /**
+     * 分页获取所有用户信息
+     * <p>
+     * 该方法用于分页获取系统中所有注册用户的基本信息。通过UserService调用数据访问层，
+     * 检索并返回指定页码和每页记录数的用户记录。
+     * 
+     * @param current 当前页码，默认为1
+     * @param size 每页记录数，默认为10
+     * @return 返回包含分页用户信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     */
+    @GetMapping("/users/page")
+    public Page<User> getUsersByPage(
+            @RequestParam(value = "current", defaultValue = "1") long current,
+            @RequestParam(value = "size", defaultValue = "10") long size) {
+        return userService.getUsersByPage(current, size);
     }
 
     /**

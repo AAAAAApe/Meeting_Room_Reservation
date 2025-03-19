@@ -1,6 +1,7 @@
 package com.edu.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.edu.entity.account.User;
 import com.edu.entity.view.StudentView;
 import com.edu.entity.view.TeacherView;
@@ -81,6 +82,12 @@ public class UserServiceImpl implements UserService{
     @Override
     public List<User> getAllUsers() {
         return userMapper.selectList(new QueryWrapper<User>().select("*"));
+    }
+    
+    @Override
+    public Page<User> getUsersByPage(long current, long size) {
+        Page<User> page = new Page<>(current, size);
+        return userMapper.selectPage(page, new QueryWrapper<User>().select("*"));
     }
 
     @Override
