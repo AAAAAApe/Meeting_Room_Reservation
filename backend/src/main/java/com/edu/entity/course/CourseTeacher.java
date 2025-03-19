@@ -10,9 +10,11 @@ import lombok.Data;
 public class CourseTeacher {
     @MppMultiId
     @TableField(value = "course_id")
-    private String courseId;
+    private Integer courseId;
     
     @MppMultiId
     @TableField(value = "user_id")
     private String userId;
-} 
+
+    private Integer studentCount;
+}

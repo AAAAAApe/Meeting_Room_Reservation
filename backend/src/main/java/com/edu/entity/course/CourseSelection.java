@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @TableName("course_selection")
 public class CourseSelection {
     @MppMultiId
-    private String courseId;
+    private Integer courseId;
     
     @MppMultiId
     private String studentId;
@@ -20,4 +20,4 @@ public class CourseSelection {
     
     private LocalDateTime selectionTime;
     private Double score;
-} 
+}

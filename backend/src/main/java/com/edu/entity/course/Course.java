@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @TableName("course")
 public class Course {
     @TableId
-    private String courseId;
+    private Integer courseId;
     private String courseName;
     private String creatorId;
     private String courseDepartment;
