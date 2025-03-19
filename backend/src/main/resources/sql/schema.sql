@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS user
 (
     user_id            CHAR(9)     NOT NULL, -- 用户 ID，唯一标识用户
     encrypted_password VARCHAR(60) NOT NULL, -- 加密后的密码
-    role_id               TINYINT     NOT NULL, -- 角色 ID，外键关联 role_id 表
+    role_id            TINYINT     NOT NULL, -- 角色 ID，外键关联 role_id 表
     PRIMARY KEY (user_id),
     FOREIGN KEY (role_id) REFERENCES role (role_id) ON DELETE CASCADE
 );
@@ -80,9 +80,9 @@ CREATE TABLE IF NOT EXISTS teacher_info
 
 CREATE TABLE IF NOT EXISTS course
 (
-    course_id         CHAR(6)       NOT NULL,                     -- 课程 ID
+    course_id         INTEGER       NOT NULL AUTO_INCREMENT,      -- 课程 ID，自增
     course_name       VARCHAR(20)   NOT NULL,                     -- 课程名称
-    creator_id        CHAR(9)       NOT NULL,                     -- 创建者 ID（教师）
+    creator_id        CHAR(9)       NOT NULL,                     -- 创建者 ID（教师/管理员）
     course_department CHAR(2)       NOT NULL,                     -- 所属院系 ID
     credit            DECIMAL(2, 1) NOT NULL CHECK (credit >= 0), -- 课程学分
     description       TEXT,                                       -- 课程描述
@@ -93,8 +93,9 @@ CREATE TABLE IF NOT EXISTS course
 
 CREATE TABLE IF NOT EXISTS course_teacher
 (
-    course_id CHAR(6) NOT NULL, -- 课程 ID
-    user_id   CHAR(9) NOT NULL, -- 教师 ID
+    course_id     INTEGER NOT NULL,                    -- 课程 ID
+    user_id       CHAR(9) NOT NULL,                    -- 教师 ID
+    student_count INTEGER NOT NULL DEFAULT 0,          -- 选课人数
     PRIMARY KEY (course_id, user_id),
     FOREIGN KEY (course_id) REFERENCES course (course_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE
@@ -102,7 +103,7 @@ CREATE TABLE IF NOT EXISTS course_teacher
 
 CREATE TABLE IF NOT EXISTS course_selection
 (
-    course_id      CHAR(6)       NOT NULL,                                 -- 课程 ID
+    course_id      INTEGER       NOT NULL,                                 -- 课程 ID
     student_id     CHAR(9)       NOT NULL,                                 -- 学生 ID
     teacher_id     CHAR(9)       NOT NULL,                                 -- 教师 ID
     selection_time DATETIME      NOT NULL DEFAULT NOW(),                   -- 选课时间
@@ -117,7 +118,7 @@ CREATE TABLE IF NOT EXISTS teaching_resource
 (
     resource_id   CHAR(36)     NOT NULL,               -- 资源唯一 ID
     resource_name VARCHAR(100) NOT NULL,               -- 资源名称
-    course_id     CHAR(6)      NOT NULL,               -- 课程 ID
+    course_id     INTEGER      NOT NULL,               -- 课程 ID
     uploader_id   CHAR(9)      NOT NULL,               -- 上传者 ID
     resource_url  VARCHAR(255) NOT NULL,               -- 资源存储路径
     upload_time   DATETIME     NOT NULL DEFAULT NOW(), -- 上传时间
@@ -130,7 +131,7 @@ CREATE TABLE IF NOT EXISTS teaching_resource
 CREATE TABLE IF NOT EXISTS assignment
 (
     assignment_title    VARCHAR(100) NOT NULL,                            -- 作业标题
-    course_id           CHAR(6)      NOT NULL,                            -- 课程 ID
+    course_id           INTEGER      NOT NULL,                            -- 课程 ID
     teacher_id          CHAR(9)      NOT NULL,                            -- 教师 ID
     submission_deadline DATETIME     NOT NULL,                            -- 学生提交截止时间
     content             TEXT,                                             -- 作业内容
@@ -140,3 +141,27 @@ CREATE TABLE IF NOT EXISTS assignment
     FOREIGN KEY (course_id) REFERENCES course (course_id) ON DELETE CASCADE,
     FOREIGN KEY (teacher_id) REFERENCES user (user_id) ON DELETE CASCADE
 );
+
+-- 创建触发器：当学生选课时，自动增加对应教师课程的选课人数
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS after_course_selection_insert
+AFTER INSERT ON course_selection
+FOR EACH ROW
+BEGIN
+    UPDATE course_teacher
+    SET student_count = student_count + 1
+    WHERE course_id = NEW.course_id AND user_id = NEW.teacher_id;
+END //
+DELIMITER ;
+
+-- 创建触发器：当学生退课时，自动减少对应教师课程的选课人数
+DELIMITER //
+CREATE TRIGGER IF NOT EXISTS after_course_selection_delete
+AFTER DELETE ON course_selection
+FOR EACH ROW
+BEGIN
+    UPDATE course_teacher
+    SET student_count = student_count - 1
+    WHERE course_id = OLD.course_id AND user_id = OLD.teacher_id;
+END //
+DELIMITER ;
