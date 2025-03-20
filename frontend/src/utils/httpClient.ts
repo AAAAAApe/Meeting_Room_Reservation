@@ -13,7 +13,7 @@ export interface HttpClientOptions {
   // 拦截器配置
   enableErrorMessage?: boolean // 是否启用错误消息提示
   errorMessageMap?: Record<number, string> // 错误状态码对应的消息
-}
+} 
 
 /**
  * 创建HTTP客户端的默认配置
@@ -65,15 +65,22 @@ export class HttpClient {
 
   /**
    * 设置基础响应拦截器
-   * 注意：httpClient不处理错误提示，所有的认证错误处理由authInterceptor负责
-   * 这里只是简单地传递错误，不做任何处理
+   * 处理基本的HTTP错误，显示友好的错误提示
+   * 注意：认证相关的错误处理（如token刷新）由authInterceptor负责
    */
   private setupBaseInterceptors(): void {
     this.instance.interceptors.response.use(
       (response) => response,
       (error) => {
-        // 直接传递错误，不做任何处理
-        // 错误提示和token刷新等逻辑由authInterceptor处理
+        // 如果启用了错误消息提示，则使用ErrorHandler处理错误
+        if (this.options.enableErrorMessage) {
+          // 动态导入ErrorHandler，避免循环依赖
+          import('./errorHandler').then(({ default: ErrorHandler }) => {
+            // 使用自定义错误消息映射（如果有）
+            ErrorHandler.handleHttpError(error, this.options.errorMessageMap)
+          })
+        }
+        // 继续传递错误，让后续拦截器处理
         return Promise.reject(error)
       }
     )

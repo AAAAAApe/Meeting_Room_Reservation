@@ -150,6 +150,8 @@ export class AuthInterceptor {
       }
     }
 
+    // 对于非401错误或不需要刷新token的情况，直接返回错误
+    // 错误消息提示由HttpClient的基础拦截器处理
     return Promise.reject(error)
   }
 }
