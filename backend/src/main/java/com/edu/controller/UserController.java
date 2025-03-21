@@ -33,7 +33,7 @@ public class UserController {
 
     /**
      * 构造函数，通过依赖注入初始化服务
-     * 
+     *
      * @param userService     用户服务，处理用户相关的业务逻辑
      * @param sequenceService 序列服务，处理ID生成等功能
      * @param tokenService    令牌服务，处理令牌的生成、验证和刷新
@@ -49,7 +49,7 @@ public class UserController {
      * <p>
      * 该方法通过路径参数中的用户ID查询并返回用户的详细信息，包括用户名等相关数据。
      * 如果指定ID的用户不存在，将根据服务层的实现返回相应的错误信息或空对象。
-     * 
+     *
      * @param userId 要查询的用户ID，作为路径变量传入
      * @return 返回包含用户详细信息的UserView对象
      */
@@ -78,7 +78,7 @@ public class UserController {
      * <p>
      * 该方法从HTTP请求中提取当前登录用户的ID，然后查询并返回该用户的详细信息。
      * 用户ID通常由认证过滤器在请求处理过程中设置到请求属性中。
-     * 
+     *
      * @param request HTTP请求对象，包含当前登录用户的ID信息
      * @return 返回包含当前登录用户详细信息的UserView对象
      */
@@ -93,23 +93,23 @@ public class UserController {
      * <p>
      * 该方法用于获取系统中所有注册用户的基本信息。通过UserService调用数据访问层，
      * 检索并返回所有用户记录。
-     * 
+     *
      * @return 返回包含所有用户信息的List集合，每个元素为User对象
-     *         如果没有用户记录，将返回空列表
+     * 如果没有用户记录，将返回空列表
      */
     @GetMapping("/users")
     public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
-    
+
     /**
      * 分页获取所有用户信息
      * <p>
      * 该方法用于分页获取系统中所有注册用户的基本信息。通过UserService调用数据访问层，
      * 检索并返回指定页码和每页记录数的用户记录。
-     * 
+     *
      * @param current 当前页码，默认为1
-     * @param size 每页记录数，默认为10
+     * @param size    每页记录数，默认为10
      * @return 返回包含分页用户信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @GetMapping("/users/page")
@@ -124,7 +124,7 @@ public class UserController {
      * <p>
      * 根据提供的用户对象更新数据库中对应用户的信息。如果用户不存在，则创建新用户。
      * 该方法支持部分字段更新，未提供的字段将保持原值不变。
-     * 
+     *
      * @param user 需要更新的用户对象，包含用户ID和需要更新的字段
      *             用户对象必须包含有效的userId
      * @throws IllegalArgumentException 如果提供的用户对象为null或缺少必要字段
@@ -138,24 +138,21 @@ public class UserController {
     /**
      * 用户登录接口
      * <p>
-     * 验证用户凭据并生成JWT令牌。
-     * 登录成功后，JWT令牌将同时在响应头和响应体中返回，便于客户端后续请求的身份验证。
-     * 
-     * @param request 登录请求对象，包含以下必要信息：
+     * 此方法用于验证用户凭据并生成JWT令牌。
+     * 登录成功后，JWT令牌将被返回在响应头和响应体中，以便客户端进行后续请求的身份验证。
+     *
+     * @param request 包含用户登录信息的请求对象，包括：
      *                - userId: 用户唯一标识符
-     *                - password: 用户密码（明文，将与数据库中加密密码进行比对）
+     *                - password: 用户密码（明文，与数据库中加密密码进行比对）
+     * @param response HTTP响应对象，用于设置cookie等信息
      * @return 响应实体，包含以下信息：
-     *         - 成功（状态码200）：
-     *           - code: 状态码(200)
-     *           - token: JWT身份令牌
-     *           - Authorization头部: Bearer格式的JWT令牌
-     *         - 失败（状态码401）：
-     *           - code: 状态码(401)
-     *           - message: 错误信息("Invalid credentials")
-     *         - 错误（状态码500）：
-     *           - code: 状态码(500)
-     *           - message: 错误信息("Authentication failed")
-     * @throws Exception 身份验证过程中发生的异常，如数据库连接失败或令牌生成错误
+     * - 成功（状态码200）：
+     *   - token: JWT身份令牌
+     *   - roleName: 用户角色名称
+     *   - Authorization头部: Bearer格式的JWT令牌
+     * - 失败（状态码401）：身份验证失败
+     * - 错误（状态码500）：身份验证过程中发生错误
+     * @throws Exception 在身份验证过程中发生的异常，例如数据库连接失败或令牌生成错误
      */
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
@@ -163,30 +160,25 @@ public class UserController {
         String password = request.password();
         try {
             if (userService.validateUserCredentials(userId, password)) {
-                System.out.println("验证通过");
-                System.out.println("生成 access token 和 refresh token...");
                 // 一次性生成 access token 和 refresh token
-                System.out.println("generating...");
                 TokenService.TokenPair tokenPair = tokenService.createTokenPair(userId);
                 String accessToken = tokenPair.accessToken();
-                System.out.println("access token: " + accessToken);
                 String refreshToken = tokenPair.refreshToken();
-                System.out.println("refresh token: " + refreshToken);
-                System.out.println("ok");
 
-                System.out.println("设置refreshToken到httpOnly cookie...");
                 // 设置refreshToken到httpOnly cookie
                 Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
-                refreshTokenCookie.setHttpOnly(true);  // 防止JavaScript访问
-                refreshTokenCookie.setPath("/");      // 所有路径都可以访问
-                refreshTokenCookie.setMaxAge(TokenConstants.REFRESH_TOKEN_COOKIE_MAX_AGE);  // 使用常量设置30天有效期
-                refreshTokenCookie.setSecure(true);   // 仅在HTTPS连接中传输
+                refreshTokenCookie.setHttpOnly(true); // 防止JavaScript访问
+                refreshTokenCookie.setPath("/"); // 所有路径都可以访问
+                refreshTokenCookie.setMaxAge(TokenConstants.REFRESH_TOKEN_COOKIE_MAX_AGE); // 使用常量设置30天有效期
+                refreshTokenCookie.setSecure(true); // 仅在HTTPS连接中传输
                 response.addCookie(refreshTokenCookie);
-                System.out.println("ok");
+
+                String roleName = userService.getUserRoleNameByUserId(userId);
 
                 Map<String, Object> responseBody;
-                    responseBody = Map.of(
-                            "token", accessToken);
+                responseBody = Map.of(
+                        "token", accessToken,
+                        "roleName", roleName);
 
                 return ResponseEntity.ok()
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
@@ -207,12 +199,12 @@ public class UserController {
      * <p>
      * 从请求头中提取Bearer令牌并验证其有效性。该方法用于客户端验证当前持有的令牌是否仍然有效，
      * 通常在用户会话期间定期调用以确保会话的有效性。
-     * 
+     *
      * @param authHeader 包含Bearer令牌的Authorization请求头
      *                   格式必须为："Bearer {token}"
      * @return 无内容的响应实体
-     *         - 成功：状态码200（令牌有效）
-     *         - 失败：状态码401（令牌无效、过期或格式错误）
+     * - 成功：状态码200（令牌有效）
+     * - 失败：状态码401（令牌无效、过期或格式错误）
      * @throws Exception 当令牌验证过程中发生未预期的错误时抛出
      *                   例如令牌格式错误或签名验证失败
      */
@@ -230,12 +222,12 @@ public class UserController {
      * 用户登出
      * <p>
      * 清除用户的refreshToken cookie
-     * 
+     *
      * @param response HTTP响应对象，用于清除Cookie
      * @return 响应实体，包含以下信息：
-     *         - 成功（状态码200）：
-     *           - code: 状态码(200)
-     *           - message: 成功信息("Logout successful")
+     * - 成功（状态码200）：
+     * - code: 状态码(200)
+     * - message: 成功信息("Logout successful")
      */
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logout(
@@ -245,9 +237,9 @@ public class UserController {
         Cookie refreshTokenCookie = new Cookie("refreshToken", "");
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setMaxAge(0);  // 设置为0表示立即删除
+        refreshTokenCookie.setMaxAge(0); // 设置为0表示立即删除
         refreshTokenCookie.setSecure(true);
-        
+
         // 添加到响应中
         response.addCookie(refreshTokenCookie);
 
@@ -257,7 +249,7 @@ public class UserController {
             // 删除数据库中的refreshToken
             tokenService.removeRefreshToken(refreshToken);
         }
-        
+
         // 返回成功响应
         return ResponseEntity.ok()
                 .body(Map.of(
