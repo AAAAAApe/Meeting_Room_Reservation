@@ -19,7 +19,6 @@ public class CourseController {
     public Page<CourseView> getAllCourse(
             @RequestParam(value = "current", defaultValue = "1") long current,
             @RequestParam(value = "size", defaultValue = "10") long size) {
-        System.out.println("current: " + current + " size: " + size);
         return courseService.getAllCoursesPage(current, size);
     }
 }
