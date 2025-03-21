@@ -31,16 +31,31 @@ public class UserServiceImpl implements UserService{
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
+    /**
+     * 根据用户ID查找用户信息（包含密码）
+     * @param userId 用户ID
+     * @return 用户对象
+     */
     @Override
     public User findUserWithPasswordById(String userId){
         return userMapper.selectById(userId);
     }
 
+    /**
+     * 获取用户基本信息
+     * @param userId 用户ID
+     * @return 用户视图对象
+     */
     @Override
     public UserView getUserInfo(String userId){
         return userViewMapper.selectById(userId);
     }
 
+    /**
+     * 获取包含用户名的用户信息
+     * @param userId 用户ID
+     * @return 包含用户名的用户视图对象
+     */
     @Override
     public UserView getUserInfoWithUserName(String userId){
         UserView userView = userViewMapper.selectById(userId);
@@ -55,16 +70,42 @@ public class UserServiceImpl implements UserService{
         return userView;
     }
 
+    /**
+     * 根据用户ID获取用户角色名称
+     * @param userId 用户ID
+     * @return 角色名称
+     */
+    @Override
+    public String getUserRoleNameByUserId(String userId) {
+        return userViewMapper.selectById(userId).getRoleName();
+    }
+
+    /**
+     * 获取教师信息
+     * @param userId 用户ID
+     * @return 教师视图对象
+     */
     @Override
     public TeacherView getTeacherInfo(String userId) {
         return teacherViewMapper.selectById(userId);
     }
 
+    /**
+     * 获取学生信息
+     * @param userId 用户ID
+     * @return 学生视图对象
+     */
     @Override
     public StudentView getStudentInfo(String userId) {
         return studentViewMapper.selectById(userId);
     }
 
+    /**
+     * 验证用户凭证
+     * @param userId 用户ID
+     * @param password 密码
+     * @return 验证是否成功
+     */
     @Override
     public boolean validateUserCredentials(String userId, String password) {
         // debug
@@ -79,22 +120,40 @@ public class UserServiceImpl implements UserService{
         return bCryptPasswordEncoder.matches(password, user.getEncryptedPassword());
     }
 
+    /**
+     * 获取所有用户信息（不分页）
+     * @return 所有用户列表
+     */
     @Override
     public List<User> getAllUsers() {
         return userMapper.selectList(new QueryWrapper<User>().select("*"));
     }
     
+    /**
+     * 分页获取所有用户信息
+     * @param current 当前页码
+     * @param size 每页记录数
+     * @return 分页用户列表
+     */
     @Override
     public Page<User> getUsersByPage(long current, long size) {
         Page<User> page = new Page<>(current, size);
         return userMapper.selectPage(page, new QueryWrapper<User>().select("*"));
     }
 
+    /**
+     * 创建或更新用户信息
+     * @param user 用户对象
+     */
     @Override
     public void createOrUpdateUser(User user) {
         userMapper.insertOrUpdate(user);
     }
 
+    /**
+     * 根据用户ID删除用户
+     * @param userId 用户ID
+     */
     @Override
     public void removeUserById(String userId) {
         userMapper.deleteById(userId);
