@@ -5,10 +5,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName("student")
-public class Student {
+@TableName("role_id")
+public class Role {
     @TableId
-    private String userId;
-    private String studentName;
-    private String major;
+    private Byte roleId;
+    private String roleName;
 }
