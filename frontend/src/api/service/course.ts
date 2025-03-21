@@ -14,7 +14,7 @@ const courseService = {
    * @returns Promise
    */
   getCourseList(params: PaginationParams & { keyword?: string }) {
-    return request.get<PaginationResult<CourseInfo>>('/courses', params);
+    return request.get<PaginationResult<CourseInfo>>('/course/getAll', params);
   },
 
   /**
