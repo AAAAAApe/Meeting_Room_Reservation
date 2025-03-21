@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import type { ElForm } from 'element-plus'
 import { useTokenStore } from '../../stores/tokenStore'
+import { useUserStore } from '../../stores/userStore'
 import { useRouter } from 'vue-router'
 import { userService } from '../../api'
 import tokenService from '../../utils/http/tokenService'
@@ -10,8 +11,23 @@ import useRequest from '../../hooks/useRequest'
 const router = useRouter()
 
 const tokenStore = useTokenStore()
-if (tokenStore.token) {
-  router.push('/')
+const userStore = useUserStore()
+
+if (tokenStore.token && userStore.user?.roleName) {
+  switch (userStore.user.roleName) {
+    case 'admin':
+      router.push('/admin')
+      break
+    case 'teacher':
+      router.push('/teacher')
+      break
+    case 'student':
+      router.push('/student')
+      break
+    default:
+      router.push('/')
+      break
+  }
 }
 
 // 定义登录表单数据
@@ -59,7 +75,20 @@ const handleLogin = async () => {
         // refreshToken由服务器通过httpOnly cookie管理，不需要在前端处理
 
         // 跳转到首页
-        router.push('/')
+        switch (response.roleName) {
+          case 'admin':
+            router.push('/admin')
+            break
+          case 'teacher':
+            router.push('/teacher')
+            break
+          case 'student':
+            router.push('/student')
+            break
+          default:
+            router.push('/')
+            break
+        }
       } else {
         // 显示错误信息
       }
