@@ -53,20 +53,6 @@ useRequest(
         roleName: response.roleName
       }
       userStore.setUser(userInfo)
-      switch (userStore.user?.roleName) {
-        case 'admin':
-          router.push('/admin')
-          break
-        case 'teacher':
-          router.push('/teacher')
-          break
-        case 'student':
-          router.push('/student')
-          break
-        default:
-          router.push('/login')
-          break
-      }
     }
   }
 )
