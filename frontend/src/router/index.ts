@@ -44,4 +44,39 @@ const router = createRouter({
     routes
 })
 
+// 全局导航守卫：根据用户角色自动重定向
+import { useUserStore } from "../stores/userStore";
+import { useTokenStore } from "../stores/tokenStore";
+
+router.beforeEach((to, from, next) => {
+    const userStore = useUserStore();
+    const tokenStore = useTokenStore();
+    
+    // 如果需要认证但没有token，重定向到登录页
+    if (to.meta.requiresAuth && !tokenStore.isAuthenticated) {
+        next('/login');
+        return;
+    }
+    
+    // 当访问根路径时，根据用户角色重定向
+    if (to.path === '/' && tokenStore.isAuthenticated && userStore.user?.roleName) {
+        switch (userStore.user.roleName) {
+            case 'admin':
+                next('/admin');
+                break;
+            case 'teacher':
+                next('/teacher');
+                break;
+            case 'student':
+                next('/student');
+                break;
+            default:
+                next();
+                break;
+        }
+    } else {
+        next();
+    }
+});
+
 export default router;
