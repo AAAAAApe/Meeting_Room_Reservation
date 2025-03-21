@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @TableName("v_course_info")
 public class CourseView {
-    private String courseId;
+    private Integer courseId;
     private String courseName;
     private Double credit;
     private String description;
