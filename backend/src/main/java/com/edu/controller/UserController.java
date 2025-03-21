@@ -11,6 +11,7 @@ import com.edu.service.TokenService;
 import com.edu.service.UserService;
 import com.edu.utils.HttpHeaderUtils;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,15 @@ public class UserController {
         this.tokenService = tokenService;
     }
 
+    /**
+     * 根据用户ID获取用户信息
+     * <p>
+     * 该方法通过路径参数中的用户ID查询并返回用户的详细信息，包括用户名等相关数据。
+     * 如果指定ID的用户不存在，将根据服务层的实现返回相应的错误信息或空对象。
+     * 
+     * @param userId 要查询的用户ID，作为路径变量传入
+     * @return 返回包含用户详细信息的UserView对象
+     */
     @GetMapping("/user/{userId}")
     public UserView getUserByUserId(@PathVariable String userId) {
         return userService.getUserInfoWithUserName(userId);
@@ -63,9 +73,18 @@ public class UserController {
         throw new UnauthorizedException("Invalid or expired token");
     }
 
+    /**
+     * 获取当前登录用户的信息
+     * <p>
+     * 该方法从HTTP请求中提取当前登录用户的ID，然后查询并返回该用户的详细信息。
+     * 用户ID通常由认证过滤器在请求处理过程中设置到请求属性中。
+     * 
+     * @param request HTTP请求对象，包含当前登录用户的ID信息
+     * @return 返回包含当前登录用户详细信息的UserView对象
+     */
     @GetMapping("/user")
-    public UserView getUserByRequest(@RequestHeader(HttpHeaders.AUTHORIZATION) String authHeader) {
-        String userId = validateAndExtractUserId(authHeader);
+    public UserView getCurrentUserInfo(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
         return userService.getUserInfoWithUserName(userId);
     }
 
@@ -119,7 +138,7 @@ public class UserController {
     /**
      * 用户登录接口
      * <p>
-     * 验证用户凭据并生成JWT令牌。根据用户角色（教师、学生或其他）返回相应的用户信息。
+     * 验证用户凭据并生成JWT令牌。
      * 登录成功后，JWT令牌将同时在响应头和响应体中返回，便于客户端后续请求的身份验证。
      * 
      * @param request 登录请求对象，包含以下必要信息：
@@ -129,8 +148,6 @@ public class UserController {
      *         - 成功（状态码200）：
      *           - code: 状态码(200)
      *           - token: JWT身份令牌
-     *           - role: 用户角色(admin/teacher/student/其他)
-     *           - userName: 用户名称（教师/学生姓名或用户ID）
      *           - Authorization头部: Bearer格式的JWT令牌
      *         - 失败（状态码401）：
      *           - code: 状态码(401)
@@ -157,15 +174,6 @@ public class UserController {
                 System.out.println("refresh token: " + refreshToken);
                 System.out.println("ok");
 
-                System.out.println("获取用户信息...");
-                // 获取用户信息
-                UserView userView = userService.getUserInfoWithUserName(userId);
-                String roleName = userView.getRoleName();
-                System.out.println("role name:" + roleName);
-                String userName = userView.getUserName();
-                System.out.println("user name:" + userName);
-                System.out.println("ok");
-
                 System.out.println("设置refreshToken到httpOnly cookie...");
                 // 设置refreshToken到httpOnly cookie
                 Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
@@ -176,20 +184,9 @@ public class UserController {
                 response.addCookie(refreshTokenCookie);
                 System.out.println("ok");
 
-                // userName为可选值
                 Map<String, Object> responseBody;
-                if (userName != null && !userName.isEmpty()) {
                     responseBody = Map.of(
-                            "code", 200,
-                            "token", accessToken,
-                            "roleName", roleName,
-                            "userName", userName);
-                } else {
-                    responseBody = Map.of(
-                            "code", 200,
-                            "token", accessToken,
-                            "roleName", roleName);
-                }
+                            "token", accessToken);
 
                 return ResponseEntity.ok()
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
@@ -197,17 +194,11 @@ public class UserController {
             }
             // 身份验证失败
             System.out.println("身份验证失败");
-            return ResponseEntity.status((HttpStatus.UNAUTHORIZED))
-                    .body(Map.of(
-                            "code", 401,
-                            "message", "Invalid credentials"));
+            return ResponseEntity.status((HttpStatus.UNAUTHORIZED)).build();
         } catch (Exception e) {
             // 身份验证过程中发生错误
             System.out.println("身份验证过程中发生错误");
-            return ResponseEntity.internalServerError()
-                    .body(Map.of(
-                            "code", 500,
-                            "message", "Authentication failed"));
+            return ResponseEntity.internalServerError().build();
         }
     }
 
