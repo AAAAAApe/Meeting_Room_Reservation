@@ -11,14 +11,17 @@ export interface BaseResponse<T = any> {
 
 // 分页请求参数
 export interface PaginationParams {
-  page: number;
+  current: number;
   size: number;
 }
 
 // 分页响应数据
 export interface PaginationResult<T> {
   total: number;
-  list: T[];
+  size: number;
+  current: number;
+  pages: number;
+  records: T[];
 }
 
 // 用户信息接口
@@ -48,16 +51,17 @@ export interface TeacherInfo extends UserInfo {
 
 // 课程信息接口
 export interface CourseInfo {
-  courseId: string;
+  courseId: number;
   courseName: string;
   credit: number;
+  description?: string;
+  createrId: string;
+  createrName: string;
+  departmentId: string;
+  departmentName: string;
   teacherId: string;
   teacherName: string;
-  departmentName: string;
-  description?: string;
-  capacity: number;
-  enrolled: number;
-  semester: string;
+  studentCount: number;
 }
 
 // 登录请求参数
@@ -69,4 +73,5 @@ export interface LoginParams {
 // 登录响应数据
 export interface LoginResult {
   token: string;
+  roleName: string;
 }
