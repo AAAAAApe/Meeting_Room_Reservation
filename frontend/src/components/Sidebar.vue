@@ -16,7 +16,7 @@
             <Reading />
           </el-icon>课程管理
         </template>
-        <el-menu-item index="/admin/courses">课程列表</el-menu-item>
+        <el-menu-item index="/courses">课程列表</el-menu-item>
         <el-menu-item index="/admin/courses/audit">课程审核</el-menu-item>
         <el-menu-item index="/admin/courses/categories">课程分类</el-menu-item>
       </el-sub-menu>
@@ -162,7 +162,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/userStore'
 import {
@@ -178,11 +178,13 @@ import {
 const userStore = useUserStore()
 
 const router = useRouter()
-const userRole = ref('')
+// const userRole = ref('')
 
-onMounted(() => {
-  userRole.value = userStore.userRole || ''
-})
+// onMounted(() => {
+//   userRole.value = userStore.user?.roleName || ''
+// })
+
+const userRole = computed(() => userStore.user?.roleName || '')
 
 // 添加默认导出
 defineOptions({

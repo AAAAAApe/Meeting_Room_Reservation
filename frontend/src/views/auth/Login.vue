@@ -1,53 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import type { ElForm } from 'element-plus'
-import request from '../../utils/request'
-import { requestWithoutAuth } from '../../utils/request'
-import { useUserStore } from '../../stores/userStore'
+import { useTokenStore } from '../../stores/tokenStore'
 import { useRouter } from 'vue-router'
-import tokenService from '../../utils/tokenService'
+import { userService } from '../../api'
+import tokenService from '../../utils/http/tokenService'
+import useRequest from '../../hooks/useRequest'
 
 const router = useRouter()
-const userStore = useUserStore()
 
-// 在组件挂载时检查token是否有效
-onMounted(async () => {
-  const token = tokenService.getToken()
-  if (token) {
-    try {
-      const response = await request.get('/user')
-      // 创建用户对象
-      const userData = {
-        userId: response.data.userId,
-        roleName: response.data.roleName,
-        name: response.data.userName
-      }
-      // 使用 userStore 存储用户信息
-      userStore.setUser(userData)
-      // 跳转到首页
-      switch (userData.roleName) {
-        case 'admin':
-          router.push('/admin')
-          break;
-        case 'teacher':
-          router.push('/teacher')
-          break;
-        case 'student':
-          router.push('/student')
-          break;
-        default:
-          router.push('/')
-          break;
-      }
-    }
-    catch (error) {
-      // 请求失败，可能是token无效或已过期
-      // 拦截器会自动处理token刷新和重试
-      // 如果刷新失败，拦截器会清除token并重定向到登录页
-      console.error('获取用户信息失败', error)
-    }
-  }
-})
+const tokenStore = useTokenStore()
+if (tokenStore.token) {
+  router.push('/')
+}
 
 // 定义登录表单数据
 const loginForm = ref({
@@ -56,7 +21,7 @@ const loginForm = ref({
 })
 
 // 定义加载状态和错误信息
-const loading = ref(false)
+// const loading = ref(false)
 const errorMessage = ref('')
 
 // 定义表单验证规则
@@ -66,6 +31,10 @@ const rules = ref({
 })
 
 const form = ref<InstanceType<typeof ElForm>>()
+
+const { loading, run: runLogin } = useRequest(
+  userService.login,
+  { showErrorMessage: false })
 
 // 处理登录事件
 const handleLogin = async () => {
@@ -82,48 +51,19 @@ const handleLogin = async () => {
     }
 
     try {
-      // 发送登录请求（使用不带token验证的请求实例）
-      const response = await requestWithoutAuth.post('/login', {
-        userId: loginForm.value.userId,
-        password: loginForm.value.password
-      })
-
-      if (response.data.code === 200) {
+      // 发送登录请求
+      const response = await runLogin(loginForm.value)
+      if (response?.token) {
         // 存储 Token
-        tokenService.setToken(response.data.token)
+        tokenService.setToken(response.token)
         // refreshToken由服务器通过httpOnly cookie管理，不需要在前端处理
 
-        // 创建用户对象
-        const userData = {
-          userId: loginForm.value.userId,
-          roleName: response.data.roleName,
-          name: response.data.userName
-        }
-
-        // 使用 userStore 存储用户信息
-        userStore.setUser(userData)
-
         // 跳转到首页
-        switch (userData.roleName) {
-          case 'admin':
-            router.push('/admin')
-            break;
-          case 'teacher':
-            router.push('/teacher')
-            break;
-          case 'student':
-            router.push('/student')
-            break;
-          default:
-            router.push('/')
-            break;
-        }
+        router.push('/')
       } else {
-        // 显示错误信息（服务器返回的错误信息）
-        errorMessage.value = response.data.message || '账号或密码错误'
+        // 显示错误信息
       }
     } catch (error) {
-      // 登录失败，错误处理由拦截器统一处理
       console.error('登录失败', error)
     } finally {
       loading.value = false

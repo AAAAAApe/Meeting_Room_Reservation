@@ -34,19 +34,44 @@ import Sidebar from '../components/Sidebar.vue'  // 导入侧边栏组件
 import { useRouter } from 'vue-router'
 import { RouterView } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
-import { ref, onMounted } from 'vue'
 import { useUserStore } from '../stores/userStore'
-import tokenService from '../utils/tokenService'
+import tokenService from '../utils/http/tokenService'
+import { userService } from '../api/index'
+import useRequest from '../hooks/useRequest'
+import { computed } from 'vue';
 
 const router = useRouter()
 const userStore = useUserStore()
-const userName = ref('')
+useRequest(
+  userService.getCurrentUser,
+  {
+    immediate: true,
+    onSuccess: (response) => {
+      const userInfo = {
+        userId: response.userId,
+        userName: response.userName,
+        roleName: response.roleName
+      }
+      userStore.setUser(userInfo)
+      switch (userStore.user?.roleName) {
+        case 'admin':
+          router.push('/admin')
+          break
+        case 'teacher':
+          router.push('/teacher')
+          break
+        case 'student':
+          router.push('/student')
+          break
+        default:
+          router.push('/login')
+          break
+      }
+    }
+  }
+)
 
-onMounted(() => {
-  // 从userStore获取用户信息
-  userStore.loadUserFromStorage()
-  userName.value = userStore.user?.userName || userStore.user?.userId || ''
-})
+const userName = computed(() => userStore.user?.userName ?? userStore.user?.userId);
 
 // 处理退出登录
 const handleSignOut = async () => {
@@ -58,10 +83,13 @@ const handleSignOut = async () => {
     })
 
     // 发送 logout 请求，同时清除用户信息和 cookie
-    await tokenService.logout()
+    await userService.logout()
+    // 清除用户信息
+    userStore.clearUser()
+    // 清除 cookie
+    tokenService.clearToken()
     // 跳转到登录页
     router.push('/login')
-    
   } catch {
     // 用户取消退出登录，不做任何操作
   }
