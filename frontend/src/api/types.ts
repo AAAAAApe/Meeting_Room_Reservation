@@ -1,50 +1,72 @@
 /**
- * API响应类型定义文件
- * 定义了API响应的通用格式和类型
+ * API通用类型定义
  */
 
-/**
- * 通用API响应接口
- */
-export interface ApiResponse<T = any> {
-  code: number;       // 响应状态码
-  message: string;    // 响应消息
-  data: T;            // 响应数据
-  success: boolean;   // 是否成功
+// 通用响应接口
+export interface BaseResponse<T = any> {
+  code: number;
+  message: string;
+  data: T;
 }
 
-/**
- * 分页请求参数接口
- */
-export interface PageParams {
-  current?: number;   // 当前页码
-  size?: number;      // 每页大小
-  [key: string]: any; // 其他可能的查询参数
+// 分页请求参数
+export interface PaginationParams {
+  page: number;
+  size: number;
 }
 
-/**
- * 分页响应接口
- */
-export interface PageResponse<T> {
-  records: T[];       // 数据记录
-  total: number;      // 总记录数
-  size: number;       // 每页大小
-  current: number;    // 当前页码
-  pages: number;      // 总页数
+// 分页响应数据
+export interface PaginationResult<T> {
+  total: number;
+  list: T[];
 }
 
-/**
- * 排序参数接口
- */
-export interface SortParams {
-  field: string;      // 排序字段
-  order: 'asc' | 'desc'; // 排序方向
+// 用户信息接口
+export interface UserInfo {
+  userId: string;
+  userName: string;
+  roleName: 'admin' | 'teacher' | 'student';
+  lastLoginTime?: string;
 }
 
-/**
- * 查询参数接口
- */
-export interface QueryParams extends PageParams {
-  sort?: SortParams;  // 排序参数
-  [key: string]: any; // 其他查询参数
+// 学生信息接口
+export interface StudentInfo extends UserInfo {
+  studentName: string;
+  departmentName: string;
+  major: string;
+  credit: number;
+}
+
+// 教师信息接口
+export interface TeacherInfo extends UserInfo {
+  birthday?: string;
+  phoneNumber?: string;
+  departmentName: string;
+  startYear?: number;
+  title?: string;
+}
+
+// 课程信息接口
+export interface CourseInfo {
+  courseId: string;
+  courseName: string;
+  credit: number;
+  teacherId: string;
+  teacherName: string;
+  departmentName: string;
+  description?: string;
+  capacity: number;
+  enrolled: number;
+  semester: string;
+}
+
+// 登录请求参数
+export interface LoginParams {
+  userId: string;
+  password: string;
+}
+
+// 登录响应数据
+export interface LoginResult {
+  token: string;
 }

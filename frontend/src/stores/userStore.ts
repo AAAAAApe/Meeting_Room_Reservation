@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { ref } from "vue";
 
 // 定义用户类型
 interface User {
@@ -33,11 +33,6 @@ export const useUserStore = defineStore('user', () => {
     // 使用ref定义响应式状态
     const user = ref<User | null>(null);
     
-    // getters
-    const isLoggedIn = computed(() => !!user.value);
-    const userRole = computed(() => user.value?.roleName);
-    const userId = computed(() => user.value?.userId);
-    
     // 设置用户信息
     function setUser(userData: User | null) {
         user.value = userData;
@@ -70,9 +65,6 @@ export const useUserStore = defineStore('user', () => {
     // 返回所有状态和方法
     return {
         user,
-        isLoggedIn,
-        userRole,
-        userId,
         setUser,
         loadUserFromStorage,
         clearUser

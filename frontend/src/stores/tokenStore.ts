@@ -19,6 +19,14 @@ export const useTokenStore = defineStore('token', () => {
         }
     }
 
+    // 获取 access token
+    function getToken(): string | null {
+        if (!token.value) {
+            token.value = localStorage.getItem('token');
+        }
+        return token.value;
+    }
+
     // 从localStorage加载token
     function loadTokenFromStorage() {
         const storedToken = localStorage.getItem('token');
@@ -38,6 +46,7 @@ export const useTokenStore = defineStore('token', () => {
         token,
         isAuthenticated,
         setToken,
+        getToken,
         loadTokenFromStorage,
         clearToken
     };
