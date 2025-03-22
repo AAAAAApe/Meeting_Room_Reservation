@@ -163,7 +163,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/userStore'
 import {
   House,
@@ -177,13 +176,6 @@ import {
 
 const userStore = useUserStore()
 
-const router = useRouter()
-// const userRole = ref('')
-
-// onMounted(() => {
-//   userRole.value = userStore.user?.roleName || ''
-// })
-
 const userRole = computed(() => userStore.user?.roleName || '')
 
 // 添加默认导出
@@ -192,7 +184,7 @@ defineOptions({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .el-aside {
   color: var(--el-text-color-primary);
   background: var(--el-color-primary-light-8);
