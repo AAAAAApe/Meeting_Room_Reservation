@@ -21,9 +21,7 @@
       </el-aside>
 
       <!-- 主内容区 -->
-      <el-main>
-        <router-view />
-      </el-main>
+      <router-view class="main-content" />
 
     </el-container>
   </el-container>
@@ -87,7 +85,7 @@ const handleSignOut = async () => {
   height: 100vh;
 
   .main-header {
-    height: $header-height;
+    height: $main-header-height;
     border-bottom: 1px solid #ddd;
 
     .header-content {
@@ -102,10 +100,15 @@ const handleSignOut = async () => {
   }
 
   .main-container {
-    height: calc(100% - $header-height);
+    height: calc(100% - $main-header-height);
 
     .sidebar-container {
       width: 250px;
+      border-right: 1px solid #ddd;
+    }
+
+    .main-content {
+      height: 100%;
     }
   }
 }
