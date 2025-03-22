@@ -46,7 +46,7 @@ const loadCourseList = () => {
     current: pagination.value.current,
     size: pagination.value.size
   };
-  
+
   fetchCourseList(params).finally(() => {
     loading.value = false;
   });
@@ -59,61 +59,91 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="course-list-container">
-        <el-container>
-            <el-header>
-                <h2>课程列表</h2>
-            </el-header>
-            <el-main>
-                <el-table :data="courseList" border stripe v-loading="loading">
-                    <el-table-column label="课程编号" prop="courseId" width="100">
-                    </el-table-column>
-                    <el-table-column label="所属院系" prop="departmentName">
-                    </el-table-column>
-                    <el-table-column label="课程名称" prop="courseName">
-                    </el-table-column>
-                    <el-table-column label="授课教师" prop="teacherName">
-                    </el-table-column>
-                    <el-table-column label="课程学分" prop="credit">
-                    </el-table-column>
-                    <el-table-column label="已选人数" prop="studentCount">
-                    </el-table-column>
-                    <el-table-column label="课程简介" prop="description">
-                    </el-table-column>
-                    <el-table-column label="创建者" prop="creatorName">
-                    </el-table-column>
-                </el-table>
-            </el-main>
-            <el-footer>
-                <div class="pagination-container">
-                    <el-pagination 
-                        background 
-                        layout="prev, pager, next" 
-                        :total="pagination.total" 
-                        :current-page="pagination.current"
-                        :page-size="pagination.size"
-                        @current-change="handleCurrentChange" />
-                </div>
-            </el-footer>
-        </el-container>
-    </div>
+  <el-container class="main-container">
+    <el-header class="main-header">
+      <div class="title-container">
+        <h2>课程列表</h2>
+      </div>
+      <div class="tool-bar">
+        toolbar
+      </div>
+    </el-header>
+    <el-main class="table-container">
+      <el-table class="table-content" :data="courseList" border stripe v-loading="loading">
+        <el-table-column label="课程编号" prop="courseId" width="100">
+          <template #default="scope">
+            {{ String(scope.row.courseId).padStart(6, '0') }}
+          </template>
+        </el-table-column>
+        <el-table-column label="所属院系" prop="departmentName">
+        </el-table-column>
+        <el-table-column label="课程名称" prop="courseName">
+        </el-table-column>
+        <el-table-column label="授课教师" prop="teacherName">
+        </el-table-column>
+        <el-table-column label="课程学分" prop="credit">
+        </el-table-column>
+        <el-table-column label="已选人数" prop="studentCount">
+        </el-table-column>
+        <el-table-column label="课程简介" prop="description">
+        </el-table-column>
+        <el-table-column label="创建者" prop="creatorName">
+        </el-table-column>
+      </el-table>
+    </el-main>
+    <el-footer class="main-footer">
+      <el-pagination class="pagination" background layout="prev, pager, next" :total="pagination.total"
+        :current-page="pagination.current" :page-size="pagination.size" @current-change="handleCurrentChange" />
+    </el-footer>
+  </el-container>
 </template>
 
-<style scoped>
-.course-list-container {
-    padding: 20px;
-}
+<style lang="scss" scoped>
+.main-container {
+  height: 1px;
 
-.el-header {
-    display: flex;
-    align-items: center;
+  .main-header {
+    height: $main-content-header-footer-height;
     background-color: #f5f7fa;
     padding: 0 20px;
-}
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-.pagination-container {
+    .title-container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .tool-bar {
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .table-container {
+    height: calc(100% - 2 * $main-content-header-footer-height);
+    overflow: auto;
+    padding: 20px;
+
+    .table-content {
+      height: 100%;
+    }
+  }
+
+  .main-footer {
+    height: $main-content-header-footer-height;
+    background-color: #f5f7fa;
+    padding: 0 20px;
     display: flex;
     justify-content: center;
-    margin-top: 20px;
+    align-items: center;
+
+    .pagination {
+      height: 100%;
+    }
+  }
 }
 </style>
