@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.edu.constants.TokenConstants;
 import com.edu.dto.LoginRequest;
 import com.edu.entity.account.User;
+import com.edu.entity.view.StudentView;
+import com.edu.entity.view.TeacherView;
 import com.edu.entity.view.UserView;
 import com.edu.exception.UnauthorizedException;
 import com.edu.service.SequenceService;
@@ -17,8 +19,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,6 +59,34 @@ public class UserController {
     }
 
     /**
+     * 根据用户ID获取教师信息
+     * <p>
+     * 该方法通过路径参数中的用户ID查询并返回教师的详细信息，包括姓名、职称等相关数据。
+     * 如果指定ID的教师不存在，将根据服务层的实现返回相应的错误信息或空对象。
+     *
+     * @param userId 要查询的教师用户ID，作为路径变量传入
+     * @return 返回包含教师详细信息的TeacherView对象
+     */
+    @GetMapping("/user/teacher/{userId}")
+    public TeacherView getTeacherByUserId(@PathVariable String userId) {
+        return userService.getTeacherInfoByUserId(userId);
+    }
+
+    /**
+     * 根据用户ID获取学生信息
+     * <p>
+     * 该方法通过路径参数中的用户ID查询并返回学生的详细信息，包括姓名、班级等相关数据。
+     * 如果指定ID的学生不存在，将根据服务层的实现返回相应的错误信息或空对象。
+     *
+     * @param userId 要查询的学生用户ID，作为路径变量传入
+     * @return 返回包含学生详细信息的StudentView对象
+     */
+    @GetMapping("/user/student/{userId}")
+    public StudentView getStudentByUserId(@PathVariable String userId) {
+        return userService.getStudentInfoByUserId(userId);
+    }
+
+    /**
      * 验证并提取token中的用户ID
      *
      * @param authHeader 包含Bearer令牌的Authorization请求头
@@ -89,20 +117,6 @@ public class UserController {
     }
 
     /**
-     * 获取所有用户信息
-     * <p>
-     * 该方法用于获取系统中所有注册用户的基本信息。通过UserService调用数据访问层，
-     * 检索并返回所有用户记录。
-     *
-     * @return 返回包含所有用户信息的List集合，每个元素为User对象
-     * 如果没有用户记录，将返回空列表
-     */
-    @GetMapping("/users")
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
-    }
-
-    /**
      * 分页获取所有用户信息
      * <p>
      * 该方法用于分页获取系统中所有注册用户的基本信息。通过UserService调用数据访问层，
@@ -110,13 +124,47 @@ public class UserController {
      *
      * @param current 当前页码，默认为1
      * @param size    每页记录数，默认为10
-     * @return 返回包含分页用户信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     * @return 包含分页用户信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
-    @GetMapping("/users/page")
+    @GetMapping("/user/getAll")
     public Page<User> getUsersByPage(
             @RequestParam(value = "current", defaultValue = "1") long current,
             @RequestParam(value = "size", defaultValue = "10") long size) {
-        return userService.getUsersByPage(current, size);
+        return userService.getAllUsersByPage(current, size);
+    }
+
+    /**
+     * 分页获取所有用户信息
+     * <p>
+     * 该方法用于分页获取系统中所有注册教师的基本信息。通过UserService调用数据访问层，
+     * 检索并返回指定页码和每页记录数的教师记录。
+     *
+     * @param current 当前页码，默认为1
+     * @param size    每页记录数，默认为10
+     * @return 包含分页教师信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     */
+    @GetMapping("user/teacher/getAll")
+    public Page<TeacherView> getTeachersByPage(
+            @RequestParam(value = "current", defaultValue = "1") long current,
+            @RequestParam(value = "size", defaultValue = "10") long size) {
+        return userService.getAllTeachersByPage(current, size);
+    }
+
+    /**
+     * 分页获取所有用户信息
+     * <p>
+     * 该方法用于分页获取系统中所有注册学生的基本信息。通过UserService调用数据访问层，
+     * 检索并返回指定页码和每页记录数的学生记录。
+     *
+     * @param current 当前页码，默认为1
+     * @param size    每页记录数，默认为10
+     * @return 包含分页学生信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     */
+    @GetMapping("user/student/getAll")
+    public Page<StudentView> getStudentsByPage(
+            @RequestParam(value = "current", defaultValue = "1") long current,
+            @RequestParam(value = "size", defaultValue = "10") long size) {
+        return userService.getAllStudentsByPage(current, size);
     }
 
     /**
@@ -141,21 +189,22 @@ public class UserController {
      * 此方法用于验证用户凭据并生成JWT令牌。
      * 登录成功后，JWT令牌将被返回在响应头和响应体中，以便客户端进行后续请求的身份验证。
      *
-     * @param request 包含用户登录信息的请求对象，包括：
-     *                - userId: 用户唯一标识符
-     *                - password: 用户密码（明文，与数据库中加密密码进行比对）
+     * @param request  包含用户登录信息的请求对象，包括：
+     *                 - userId: 用户唯一标识符
+     *                 - password: 用户密码（明文，与数据库中加密密码进行比对）
      * @param response HTTP响应对象，用于设置cookie等信息
      * @return 响应实体，包含以下信息：
      * - 成功（状态码200）：
-     *   - token: JWT身份令牌
-     *   - roleName: 用户角色名称
-     *   - Authorization头部: Bearer格式的JWT令牌
+     * - token: JWT身份令牌
+     * - roleName: 用户角色名称
+     * - Authorization头部: Bearer格式的JWT令牌
      * - 失败（状态码401）：身份验证失败
      * - 错误（状态码500）：身份验证过程中发生错误
      * @throws Exception 在身份验证过程中发生的异常，例如数据库连接失败或令牌生成错误
      */
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request, HttpServletResponse
+            response) {
         String userId = request.userId();
         String password = request.password();
         try {
