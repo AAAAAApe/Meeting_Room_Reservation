@@ -56,23 +56,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /**
-     * 根据部门ID获取课程列表
-     *
-     * @param departmentId 部门ID
-     * @return 该部门下的所有课程列表
-     */
-    @Override
-    public List<CourseView> getCoursesByDepartment(String departmentId) {
-        return courseViewMapper.selectList(new LambdaQueryWrapper<CourseView>().eq(CourseView::getDepartmentId, departmentId));
-    }
-
-    /**
      * 根据部门ID获取课程列表（分页）
      *
      * @param departmentId 部门ID
      * @param current 当前页码
      * @param size 每页大小
-     * @return 分页后的课程列表
+     * @return 包含分页课程信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
     public Page<CourseView> getCoursesByDepartmentPage(String departmentId, long current, long size) {
@@ -81,23 +70,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /**
-     * 根据教师ID获取课程列表
-     *
-     * @param teacherId 教师ID
-     * @return 该教师教授的所有课程列表
-     */
-    @Override
-    public List<CourseView> getCoursesByTeacher(String teacherId) {
-        return courseViewMapper.selectList(new LambdaQueryWrapper<CourseView>().eq(CourseView::getTeacherId, teacherId));
-    }
-
-    /**
      * 根据教师ID获取课程列表（分页）
      *
      * @param teacherId 教师ID
      * @param current 当前页码
      * @param size 每页大小
-     * @return 分页后的课程列表
+     * @return 包含分页课程信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
     public Page<CourseView> getCoursesByTeacherPage(String teacherId, long current, long size) {
@@ -106,23 +84,12 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /**
-     * 根据学生ID获取课程列表
-     *
-     * @param studentId 学生ID
-     * @return 该学生选修的所有课程列表
-     */
-    @Override
-    public List<CourseSelectView> getCoursesByStudent(String studentId) {
-        return courseSelectViewMapper.selectList(new LambdaQueryWrapper<CourseSelectView>().eq(CourseSelectView::getStudentId, studentId));
-    }
-
-    /**
      * 根据学生ID获取课程列表（分页）
      *
      * @param studentId 学生ID
      * @param current 当前页码
      * @param size 每页大小
-     * @return 分页后的课程列表
+     * @return 包含分页选课信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
     public Page<CourseSelectView> getCoursesByStudentPage(String studentId, long current, long size) {
@@ -131,24 +98,14 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /**
-     * 获取所有课程列表
-     *
-     * @return 所有课程列表
-     */
-    @Override
-    public List<CourseView> getAllCourses() {
-        return courseViewMapper.selectList(null);
-    }
-
-    /**
      * 获取所有课程（分页）
      *
      * @param current 当前页码
      * @param size 每页大小
-     * @return 分页后的课程列表
+     * @return 包含分页课程信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
-    public Page<CourseView> getAllCoursesPage(long current, long size) {
+    public Page<CourseView> getAllCoursesByPage(long current, long size) {
         Page<CourseView> page = new Page<>(current, size);
         return courseViewMapper.selectPage(page, null);
     }

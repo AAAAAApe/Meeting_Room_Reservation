@@ -22,14 +22,6 @@ public interface CourseService {
     CourseView getCourseById(String courseId);
 
     /**
-     * 根据部门ID获取课程列表
-     *
-     * @param departmentId 部门ID
-     * @return 课程列表
-     */
-    List<CourseView> getCoursesByDepartment(String departmentId);
-
-    /**
      * 根据部门ID获取课程列表（分页）
      *
      * @param departmentId 部门ID
@@ -38,14 +30,6 @@ public interface CourseService {
      * @return 分页课程列表
      */
     Page<CourseView> getCoursesByDepartmentPage(String departmentId, long current, long size);
-
-    /**
-     * 根据教师ID获取课程列表
-     *
-     * @param teacherId 教师ID
-     * @return 课程列表
-     */
-    List<CourseView> getCoursesByTeacher(String teacherId);
 
     /**
      * 根据教师ID获取课程列表（分页）
@@ -58,14 +42,6 @@ public interface CourseService {
     Page<CourseView> getCoursesByTeacherPage(String teacherId, long current, long size);
 
     /**
-     * 根据学生ID获取课程列表
-     *
-     * @param studentId 学生ID
-     * @return 课程列表
-     */
-    List<CourseSelectView> getCoursesByStudent(String studentId);
-
-    /**
      * 根据学生ID获取课程列表（分页）
      *
      * @param studentId 学生ID
@@ -76,20 +52,13 @@ public interface CourseService {
     Page<CourseSelectView> getCoursesByStudentPage(String studentId, long current, long size);
 
     /**
-     * 获取所有课程列表
-     *
-     * @return 所有课程列表
-     */
-    List<CourseView> getAllCourses();
-
-    /**
      * 获取所有课程（分页）
      *
      * @param current 当前页码
      * @param size    每页大小
      * @return 分页课程列表
      */
-    Page<CourseView> getAllCoursesPage(long current, long size);
+    Page<CourseView> getAllCoursesByPage(long current, long size);
 
     /**
      * 创建新课程
