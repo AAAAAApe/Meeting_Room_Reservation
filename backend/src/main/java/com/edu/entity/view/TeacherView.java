@@ -12,23 +12,12 @@ import java.time.LocalDate;
 public class TeacherView {
     @TableId(value = "user_id")
     private String userId;         // 用户ID
-
     private String name;    // 教师姓名
-    
-    private Boolean gender;        // 性别
-    
+    private String gender;        // 性别
     private LocalDate birthday;    // 生日
-    
-    @TableField(value = "phone_number")
     private String phoneNumber;    // 电话号码
-    
     private String email;          // 邮箱
-    
-    @TableField(value = "start_year")
     private Integer startYear;     // 入职年份
-    
-    private String title;          // 职称
-    
-    @TableField(value = "department_name")
     private String departmentName; // 所在部门名称
-} 
+    private String title;          // 职称
+}
