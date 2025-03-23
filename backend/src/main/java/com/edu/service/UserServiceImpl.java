@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService{
      * @return 用户视图对象
      */
     @Override
-    public UserView getUserInfo(String userId){
+    public UserView getUserInfoByUserId(String userId){
         return userViewMapper.selectById(userId);
     }
 
@@ -86,7 +86,7 @@ public class UserServiceImpl implements UserService{
      * @return 教师视图对象
      */
     @Override
-    public TeacherView getTeacherInfo(String userId) {
+    public TeacherView getTeacherInfoByUserId(String userId) {
         return teacherViewMapper.selectById(userId);
     }
 
@@ -96,7 +96,7 @@ public class UserServiceImpl implements UserService{
      * @return 学生视图对象
      */
     @Override
-    public StudentView getStudentInfo(String userId) {
+    public StudentView getStudentInfoByUserId(String userId) {
         return studentViewMapper.selectById(userId);
     }
 
@@ -119,26 +119,41 @@ public class UserServiceImpl implements UserService{
         }
         return bCryptPasswordEncoder.matches(password, user.getEncryptedPassword());
     }
-
-    /**
-     * 获取所有用户信息（不分页）
-     * @return 所有用户列表
-     */
-    @Override
-    public List<User> getAllUsers() {
-        return userMapper.selectList(new QueryWrapper<User>().select("*"));
-    }
     
     /**
      * 分页获取所有用户信息
      * @param current 当前页码
      * @param size 每页记录数
-     * @return 分页用户列表
+     * @return 包含分页用户信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
-    public Page<User> getUsersByPage(long current, long size) {
+    public Page<User> getAllUsersByPage(long current, long size) {
         Page<User> page = new Page<>(current, size);
-        return userMapper.selectPage(page, new QueryWrapper<User>().select("*"));
+        return userMapper.selectPage(page, null);
+    }
+
+    /**
+     * 分页获取所有用户信息
+     * @param current 当前页码
+     * @param size 每页记录数
+     * @return 包含分页教师信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     */
+    @Override
+    public Page<TeacherView> getAllTeachersByPage(long current, long size) {
+        Page<TeacherView> page = new Page<>(current, size);
+        return teacherViewMapper.selectPage(page, null);
+    }
+
+    /**
+     * 分页获取所有用户信息
+     * @param current 当前页码
+     * @param size 每页记录数
+     * @return 包含分页学生信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     */
+    @Override
+    public Page<StudentView> getAllStudentsByPage(long current, long size) {
+        Page<StudentView> page = new Page<>(current, size);
+        return studentViewMapper.selectPage(page, null);
     }
 
     /**

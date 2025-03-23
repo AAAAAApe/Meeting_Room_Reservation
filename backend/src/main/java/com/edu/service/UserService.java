@@ -6,8 +6,6 @@ import com.edu.entity.view.StudentView;
 import com.edu.entity.view.TeacherView;
 import com.edu.entity.view.UserView;
 
-import java.util.List;
-
 public interface UserService {
     /**
      * 根据用户ID查找用户信息（包含密码）
@@ -21,7 +19,7 @@ public interface UserService {
      * @param userId 用户ID
      * @return 用户视图对象
      */
-    UserView getUserInfo(String userId);
+    UserView getUserInfoByUserId(String userId);
     
     /**
      * 获取包含用户名的用户信息
@@ -42,14 +40,14 @@ public interface UserService {
      * @param userId 用户ID
      * @return 教师视图对象
      */
-    TeacherView getTeacherInfo(String userId);
+    TeacherView getTeacherInfoByUserId(String userId);
     
     /**
      * 获取学生信息
      * @param userId 用户ID
      * @return 学生视图对象
      */
-    StudentView getStudentInfo(String userId);
+    StudentView getStudentInfoByUserId(String userId);
     
     /**
      * 验证用户凭证
@@ -58,20 +56,31 @@ public interface UserService {
      * @return 验证是否成功
      */
     boolean validateUserCredentials(String userId, String password);
-    /**
-     * 获取所有用户信息（不分页）
-     * @return 所有用户列表
-     */
-    List<User> getAllUsers();
-    
+
     /**
      * 分页获取所有用户信息
      * @param current 当前页码
      * @param size 每页记录数
-     * @return 分页用户列表
+     * @return 包含分页用户信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
-    Page<User> getUsersByPage(long current, long size);
-    
+    Page<User> getAllUsersByPage(long current, long size);
+
+    /**
+     * 分页获取所有教师信息
+     * @param current 当前页码
+     * @param size 每页记录数
+     * @return 包含分页教师信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     */
+    Page<TeacherView> getAllTeachersByPage(long current, long size);
+
+    /**
+     * 分页获取所有学生信息
+     * @param current 当前页码
+     * @param size 每页记录数
+     * @return 包含分页学生信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     */
+    Page<StudentView> getAllStudentsByPage(long current, long size);
+
     void createOrUpdateUser(User user);
     void removeUserById(String userId);
 }
