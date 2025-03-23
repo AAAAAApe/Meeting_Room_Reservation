@@ -10,7 +10,7 @@ CREATE OR REPLACE VIEW v_student_info AS
 SELECT 
     u.user_id,
     ui.name,
-    ui.gender,
+    CASE WHEN ui.gender IS NULL THEN NULL WHEN ui.gender = 1 THEN '男' ELSE '女' END AS gender,
     ui.birthday,
     ui.phone_number,
     ui.email,
@@ -33,7 +33,7 @@ CREATE OR REPLACE VIEW v_teacher_info AS
 SELECT 
     u.user_id,
     ui.name,
-    ui.gender,
+    CASE WHEN ui.gender IS NULL THEN NULL WHEN ui.gender = 1 THEN '男' ELSE '女' END AS gender,
     ui.birthday,
     ui.phone_number,
     ui.email,
