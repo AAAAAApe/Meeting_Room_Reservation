@@ -25,28 +25,30 @@ export interface PaginationResult<T> {
 }
 
 // 用户信息接口
-export interface UserInfo {
+export interface UserBaseInfo {
   userId: string;
   userName: string;
   roleName: 'admin' | 'teacher' | 'student';
   lastLoginTime?: string;
 }
 
-// 学生信息接口
-export interface StudentInfo extends UserInfo {
-  studentName: string;
-  departmentName: string;
-  major: string;
-  credit: number;
+export interface UserDetailInfo extends UserBaseInfo {
+  gender?: boolean;
+  birthday?: Date;
+  phoneNumber?: string;
+  email?: string;
+  startYear?: number;
 }
 
 // 教师信息接口
-export interface TeacherInfo extends UserInfo {
-  birthday?: string;
-  phoneNumber?: string;
-  departmentName: string;
-  startYear?: number;
+export interface TeacherInfo extends UserDetailInfo {
   title?: string;
+}
+
+// 学生信息接口
+export interface StudentInfo extends UserDetailInfo {
+  major?: string;
+  credit?: number;
 }
 
 // 课程信息接口

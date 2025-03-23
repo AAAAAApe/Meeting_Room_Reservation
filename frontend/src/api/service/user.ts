@@ -2,7 +2,7 @@
  * 用户相关API
  */
 import request from '../../utils/http/request';
-import type { LoginParams, LoginResult, UserInfo } from '../types';
+import type { LoginParams, LoginResult, UserBaseInfo } from '../types';
 
 /**
  * 用户API服务
@@ -30,7 +30,7 @@ const userService = {
    * @returns Promise
    */
   getCurrentUser() {
-    return request.get<UserInfo>('/user');
+    return request.get<UserBaseInfo>('/user');
   },
 
   /**
@@ -59,7 +59,7 @@ const userService = {
    * @param userInfo 用户信息
    * @returns Promise
    */
-  updateUserInfo(userInfo: Partial<UserInfo>) {
+  updateUserInfo(userInfo: Partial<UserBaseInfo>) {
     return request.put<void>('/user', userInfo);
   }
 };
