@@ -61,11 +61,16 @@ const createAxiosInstance = (withToken: boolean = true): AxiosInstance => {
 
       /**
        * 处理401未授权错误
-       * 1. 尝试刷新token
-       * 2. 如果刷新成功，重试原请求
-       * 3. 如果刷新失败，跳转到登录页
+       * 1. 如果是不带token的请求(status === 401 && !withToken)，直接跳过处理
+       * 2. 如果是带token的请求，尝试刷新token
+       * 3. 如果刷新成功，重试原请求
+       * 4. 如果刷新失败，跳转到登录页
        */
-      if (status === 401 && withToken) {
+      if (status === 401) {
+        if (!withToken) {
+          // 跳过处理，直接返回错误
+          return Promise.reject(error);
+        }
         try {
           // 尝试刷新token
           const refreshResult = await tokenService.refreshToken();
