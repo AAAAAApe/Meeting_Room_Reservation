@@ -117,6 +117,36 @@ public class UserController {
     }
 
     /**
+     * 获取当前登录教师的个人资料信息
+     * <p>
+     * 该方法从HTTP请求中提取当前登录教师的用户ID，然后查询并返回该教师的详细个人资料信息。
+     * 用户ID通常由认证过滤器在请求处理过程中设置到请求属性中。
+     *
+     * @param request HTTP请求对象，包含当前登录教师用户的ID信息
+     * @return 返回包含当前登录教师详细个人资料信息的TeacherView对象
+     */
+    @GetMapping("/user/teacher/profile")
+    public TeacherView getTeacherProfile(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return userService.getTeacherInfoByUserId(userId);
+    }
+
+    /**
+     * 获取当前登录学生的个人资料信息
+     * <p>
+     * 该方法从HTTP请求中提取当前登录学生的用户ID，然后查询并返回该学生的详细个人资料信息。
+     * 用户ID通常由认证过滤器在请求处理过程中设置到请求属性中。
+     *
+     * @param request HTTP请求对象，包含当前登录学生的ID信息
+     * @return 返回包含当前登录学生详细个人资料信息的StudentView对象
+     */
+    @GetMapping("/user/student/profile")
+    public StudentView getStudentProfile(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        return userService.getStudentInfoByUserId(userId);
+    }
+
+    /**
      * 分页获取所有用户信息
      * <p>
      * 该方法用于分页获取系统中所有注册用户的基本信息。通过UserService调用数据访问层，
