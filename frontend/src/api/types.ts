@@ -27,9 +27,8 @@ export interface PaginationResult<T> {
 // 用户信息接口
 export interface UserBaseInfo {
   userId: string;
-  userName: string;
+  name: string;
   roleName: 'admin' | 'teacher' | 'student';
-  lastLoginTime?: string;
 }
 
 export interface UserDetailInfo extends UserBaseInfo {
@@ -38,6 +37,7 @@ export interface UserDetailInfo extends UserBaseInfo {
   phoneNumber?: string;
   email?: string;
   startYear?: number;
+  departmentName?: string;
 }
 
 // 教师信息接口
