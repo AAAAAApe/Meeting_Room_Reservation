@@ -35,7 +35,7 @@ import { ElMessageBox } from 'element-plus'
 import { useUserStore } from '../stores/userStore'
 import tokenService from '../utils/http/tokenService'
 import { userService } from '../api/index'
-import useRequest from '../hooks/useRequest'
+import { useRequest } from 'vue-hooks-plus'
 import { computed } from 'vue';
 
 const router = useRouter()
@@ -43,12 +43,11 @@ const userStore = useUserStore()
 useRequest(
   userService.getCurrentUser,
   {
-    immediate: true,
-    onSuccess: (response) => {
+    onSuccess: data => {
       const userInfo = {
-        userId: response.userId,
-        userName: response.userName,
-        roleName: response.roleName
+        userId: data.data.userId,
+        userName: data.data.userName,
+        roleName: data.data.roleName
       }
       userStore.setUser(userInfo)
     }
