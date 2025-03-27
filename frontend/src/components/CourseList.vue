@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import useRequest from '../hooks/useRequest';
+import { useRequest } from 'vue-hooks-plus'
 import courseService from '../api/service/course';
 import type { CourseInfo, PaginationParams } from '../api/types';
 
@@ -14,22 +14,18 @@ const pagination = ref({
   total: 0
 });
 
-// 加载状态
-const loading = ref(false);
-
 // 使用useRequest hook获取课程列表数据
-const { run: fetchCourseList, loading: fetchLoading } = useRequest(
+const { run: fetchCourseList, loading } = useRequest(
   courseService.getCourseList,
   {
-    onSuccess: (data) => {
+    onSuccess: data => {
       // 更新课程列表数据
-      courseList.value = data.records;
+      courseList.value = data.data.records;
       // 更新分页信息
-      pagination.value.total = data.total;
-      pagination.value.current = data.current;
-      pagination.value.size = data.size;
-    },
-    showErrorMessage: true
+      pagination.value.total = data.data.total;
+      pagination.value.current = data.data.current;
+      pagination.value.size = data.data.size;
+    }
   }
 );
 
@@ -41,15 +37,12 @@ const handleCurrentChange = (current: number) => {
 
 // 加载课程列表数据
 const loadCourseList = () => {
-  loading.value = true;
   const params: PaginationParams = {
     current: pagination.value.current,
     size: pagination.value.size
   };
 
-  fetchCourseList(params).finally(() => {
-    loading.value = false;
-  });
+  fetchCourseList(params);
 };
 
 // 组件挂载时加载数据
