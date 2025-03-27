@@ -30,6 +30,11 @@ const routes = [
                 path: "courses",
                 component: () => import("../components/CourseList.vue"),
                 meta: { requiresAuth: false }
+            },
+            {
+                path: "profile",
+                component: () => import("../components/Profile.vue"),
+                meta: { requiresAuth: false }
             }
         ]
     },
