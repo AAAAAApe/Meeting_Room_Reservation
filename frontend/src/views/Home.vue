@@ -24,7 +24,7 @@
       </el-aside>
 
       <!-- 主内容区 -->
-      <router-view class="main-content" />
+      <router-view class="main-content-container" />
 
     </el-container>
   </el-container>
@@ -47,7 +47,7 @@ const userStore = useUserStore()
 userService.fetchCurrentUser();
 
 // 计算用户名显示逻辑：优先显示用户名，若不存在则显示用户ID
-const userName = computed(() => userStore.user?.userName ?? userStore.user?.userId);
+const userName = computed(() => userStore.user?.name ?? userStore.user?.userId);
 
 // 处理退出登录
 const handleSignOut = async () => {
@@ -105,8 +105,9 @@ const handleSignOut = async () => {
       border-right: 1px solid #ddd;
     }
 
-    .main-content {
+    .main-content-container {
       height: 100%;
+      width: 100%;
     }
   }
 }
