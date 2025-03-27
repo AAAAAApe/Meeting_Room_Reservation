@@ -1,4 +1,5 @@
 /**
+ * @deprecated 该Hook在此项目中已被弃用，请使用 vue-hooks-plus 的 useRequest
  * API请求Hook
  * 用于封装API请求，提供加载状态管理、错误处理和数据缓存功能
  * 简化异步请求的使用，使组件代码更加简洁和可维护
@@ -9,6 +10,7 @@ import { ElMessage } from 'element-plus';
 import type { AxiosResponse } from 'axios';
 
 /**
+ * @deprecated 该Hook在此项目中已被弃用，请使用 vue-hooks-plus 的 useRequest
  * useRequest Hook返回值类型
  * @template T 响应数据类型
  * @template P 请求参数类型数组
@@ -29,6 +31,7 @@ interface UseRequestReturn<T, P extends any[]> {
 }
 
 /**
+ * @deprecated 该Hook在此项目中已被弃用，请使用 vue-hooks-plus 的 useRequest
  * API请求Hook，用于简化API调用并提供加载状态和错误处理
  * 
  * @template T 响应数据类型
@@ -45,17 +48,16 @@ interface UseRequestReturn<T, P extends any[]> {
  * @returns {UseRequestReturn<T, P>} 包含data、loading、error和run方法的对象
  * 
  * @example
- * // 基本用法
+ * // 新方案用法（推荐）
+ * import { useRequest } from 'vue-hooks-plus';
  * const { data, loading, error, run } = useRequest(api.getUsers);
- * // 之后可以调用run方法发起请求
- * run(params);
  * 
  * @example
  * // 立即执行并设置默认值
+ * import { useRequest } from 'vue-hooks-plus';
  * const { data, loading, error } = useRequest(api.getUsers, {
- *   defaultValue: [],
- *   immediate: true,
- *   initialParams: [{ page: 1 }],
+ *   defaultParams: [{ page: 1 }],
+ *   manual: false,
  *   onSuccess: (data) => console.log('请求成功', data)
  * });
  */
