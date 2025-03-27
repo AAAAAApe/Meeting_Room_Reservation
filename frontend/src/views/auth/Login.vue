@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
+import axios from 'axios'
 import type { ElForm } from 'element-plus'
 import { useTokenStore } from '../../stores/tokenStore'
 import { useUserStore } from '../../stores/userStore'
 import { useRouter } from 'vue-router'
 import { userService } from '../../api'
 import tokenService from '../../utils/http/tokenService'
-import useRequest from '../../hooks/useRequest'
+import { useRequest } from 'vue-hooks-plus'
 
 const router = useRouter()
 
@@ -36,10 +38,6 @@ const loginForm = ref({
   password: ''
 })
 
-// 定义加载状态和错误信息
-// const loading = ref(false)
-const errorMessage = ref('')
-
 // 定义表单验证规则
 const rules = ref({
   userId: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
@@ -48,34 +46,31 @@ const rules = ref({
 
 const form = ref<InstanceType<typeof ElForm>>()
 
-const { loading, run: runLogin } = useRequest(
+const { loading, runAsync: runLogin, data } = useRequest(
   userService.login,
-  { showErrorMessage: false })
+  { manual: true })
 
 // 处理登录事件
 const handleLogin = async () => {
-  loading.value = true
-  errorMessage.value = ''
-
   // 校验表单
   const formRef = form.value
   if (!formRef) return
   await formRef.validate(async (valid) => {
     if (!valid) {
-      loading.value = false
+      // loading.value = false
       return
     }
 
     try {
       // 发送登录请求
-      const response = await runLogin(loginForm.value)
-      if (response?.token) {
+      await runLogin(loginForm.value)
+      if (data.value?.data.token) {
         // 存储 Token
-        tokenService.setToken(response.token)
+        tokenService.setToken(data.value?.data.token)
         // refreshToken由服务器通过httpOnly cookie管理，不需要在前端处理
 
         // 跳转到首页
-        switch (response.roleName) {
+        switch (data.value.data.roleName) {
           case 'admin':
             router.push('/admin')
             break
@@ -93,9 +88,12 @@ const handleLogin = async () => {
         // 显示错误信息
       }
     } catch (error) {
-      console.error('登录失败', error)
-    } finally {
-      loading.value = false
+      console.error('登录失败', error);
+
+      // 其他类型错误由响应拦截器处理
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        ElMessage.error('账号或密码错误');
+      }
     }
   })
 }
@@ -118,9 +116,6 @@ const handleLogin = async () => {
         <el-form-item class="password-input" prop="password">
           <el-input type="password" placeholder="请输入密码" v-model="loginForm.password" />
         </el-form-item>
-
-        <!-- 错误信息显示 -->
-        <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
         <!-- 登陆按钮 -->
         <el-button class="login-btn" type="primary" :loading="loading" @click="handleLogin">登陆</el-button>
