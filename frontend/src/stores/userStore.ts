@@ -5,27 +5,7 @@ import { ref } from "vue";
 interface User {
     userId: string;
     roleName: 'admin' | 'teacher' | 'student';
-
-    // 公共字段
-    userName?: string;
-    gender?: boolean;
-    phone?: string;
-    email?: string;
-    lastLoginTime?: string;
-
-    // 学生/教师
-    departmentName?: string;
-    
-    // 教师特有字段
-    birthday?: string;
-    phoneNumber?: string;
-    startYear?: number;
-    title?: string;
-
-    // 学生特有字段
-    studentName?: string;
-    major?: string;
-    credit?: number;
+    name?: string;
 }
 
 // 定义一个名为user的store (使用组合式API)  
