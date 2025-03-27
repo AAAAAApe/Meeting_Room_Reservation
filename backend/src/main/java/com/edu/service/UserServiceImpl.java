@@ -1,6 +1,5 @@
 package com.edu.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.edu.entity.account.User;
 import com.edu.entity.view.StudentView;
@@ -12,8 +11,6 @@ import com.edu.mapper.TeacherViewMapper;
 import com.edu.mapper.StudentViewMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -62,7 +59,7 @@ public class UserServiceImpl implements UserService{
         if (userView == null) {
             return null;
         }
-        userView.setUserName(switch (userView.getRoleName()) {
+        userView.setName(switch (userView.getRoleName()) {
             case "teacher" -> teacherViewMapper.selectById(userId).getName();
             case "student" -> studentViewMapper.selectById(userId).getName();
             default -> null;
