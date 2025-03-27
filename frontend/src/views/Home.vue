@@ -1,6 +1,8 @@
 <template>
+  <!-- 整体布局容器 -->
   <el-container class="layout-container">
     <!-- 顶栏 -->
+    <!-- 顶部导航栏 -->
     <el-header class="main-header">
       <div class="header-content">
         <!-- title -->
@@ -14,6 +16,7 @@
 
     <el-container class="main-container">
       <!-- 侧边栏 -->
+      <!-- 左侧导航菜单 -->
       <el-aside class="sidebar-container">
         <el-scrollbar height="100vh">
           <Sidebar />
@@ -35,25 +38,15 @@ import { ElMessageBox } from 'element-plus'
 import { useUserStore } from '../stores/userStore'
 import tokenService from '../utils/http/tokenService'
 import { userService } from '../api/index'
-import { useRequest } from 'vue-hooks-plus'
 import { computed } from 'vue';
 
 const router = useRouter()
 const userStore = useUserStore()
-useRequest(
-  userService.getCurrentUser,
-  {
-    onSuccess: data => {
-      const userInfo = {
-        userId: data.data.userId,
-        userName: data.data.userName,
-        roleName: data.data.roleName
-      }
-      userStore.setUser(userInfo)
-    }
-  }
-)
 
+// 初始化时获取当前用户信息
+userService.fetchCurrentUser();
+
+// 计算用户名显示逻辑：优先显示用户名，若不存在则显示用户ID
 const userName = computed(() => userStore.user?.userName ?? userStore.user?.userId);
 
 // 处理退出登录
@@ -65,7 +58,10 @@ const handleSignOut = async () => {
       type: 'warning'
     })
 
-    // 发送 logout 请求，同时清除用户信息和 cookie
+    // 1. 调用登出API接口
+    // 2. 清除Pinia用户状态
+    // 3. 移除本地存储的token
+    // 4. 跳转至登录页面
     await userService.logout()
     // 清除用户信息
     userStore.clearUser()
@@ -85,6 +81,7 @@ const handleSignOut = async () => {
 
   .main-header {
     height: $main-header-height;
+    /* 顶部导航栏固定高度 */
     border-bottom: 1px solid #ddd;
 
     .header-content {
@@ -100,9 +97,11 @@ const handleSignOut = async () => {
 
   .main-container {
     height: calc(100% - $main-header-height);
+    /* 动态计算内容区高度避免溢出 */
 
     .sidebar-container {
       width: 250px;
+      /* 侧边栏固定宽度保持导航结构稳定 */
       border-right: 1px solid #ddd;
     }
 
