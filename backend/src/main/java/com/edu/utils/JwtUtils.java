@@ -31,10 +31,9 @@ public class JwtUtils {
 
     /**
      * 令牌过期时间（毫秒）
-     * 当前设置为5分钟
+     * 当前设置为30分钟
      */
-//    private static final long EXPIRATION = 1000 * 60 * 5;
-    private static final long EXPIRATION = 1000 * 5;
+    private static final long EXPIRATION = 1000 * 60 * 30;
 
     /**
      * 生成JWT令牌
