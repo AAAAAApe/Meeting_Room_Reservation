@@ -13,5 +13,5 @@ public class UserView {
     private String roleName;        // 角色 (admin, student, teacher)
 
     @TableField(exist = false)
-    private String userName;
+    private String name;
 }
