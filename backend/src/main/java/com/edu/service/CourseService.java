@@ -5,6 +5,7 @@ import com.edu.entity.course.Course;
 import com.edu.entity.course.CourseSelection;
 import com.edu.entity.view.CourseSelectView;
 import com.edu.entity.view.CourseView;
+import com.edu.entity.view.CourseWithTeacherView;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public interface CourseService {
      * @param size      每页大小
      * @return 分页课程列表
      */
-    Page<CourseView> getCoursesByTeacherPage(String teacherId, long current, long size);
+    Page<CourseWithTeacherView> getCoursesByTeacherPage(String teacherId, long current, long size);
 
     /**
      * 根据学生ID获取课程列表（分页）
@@ -52,13 +53,14 @@ public interface CourseService {
     Page<CourseSelectView> getCoursesByStudentPage(String studentId, long current, long size);
 
     /**
-     * 获取所有课程（分页）
+     * 获取所有课程（分页），支持按院系ID列表筛选
      *
      * @param current 当前页码
      * @param size    每页大小
+     * @param departmentIds 院系ID列表，为null时获取所有课程
      * @return 分页课程列表
      */
-    Page<CourseView> getAllCoursesByPage(long current, long size);
+    Page<CourseView> getAllCoursesByPage(long current, long size, List<String> departmentIds);
 
     /**
      * 创建新课程
@@ -117,24 +119,6 @@ public interface CourseService {
      * @return 分页已选课程列表
      */
     Page<CourseSelectView> getStudentCoursesPage(String studentId, long current, long size);
-
-    /**
-     * 获取教师教授的课程列表
-     *
-     * @param teacherId 教师ID
-     * @return 教授课程列表
-     */
-    List<CourseView> getTeacherCourses(String teacherId);
-
-    /**
-     * 获取教师教授的课程列表（分页）
-     *
-     * @param teacherId 教师ID
-     * @param current   当前页码
-     * @param size      每页大小
-     * @return 分页教授课程列表
-     */
-    Page<CourseView> getTeacherCoursesPage(String teacherId, long current, long size);
 
     /**
      * 更新学生成绩
