@@ -51,6 +51,11 @@ export interface StudentInfo extends UserDetailInfo {
   credit?: number;
 }
 
+export interface department {
+  departmentId: string;
+  departmentName: string;
+}
+
 // 课程信息接口
 export interface CourseInfo {
   courseId: number;
@@ -61,9 +66,6 @@ export interface CourseInfo {
   createrName: string;
   departmentId: string;
   departmentName: string;
-  teacherId: string;
-  teacherName: string;
-  studentCount: number;
 }
 
 // 登录请求参数
