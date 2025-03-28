@@ -14,6 +14,7 @@
                 <el-descriptions-item label="电子邮件">{{ profile?.email }}</el-descriptions-item>
                 <el-descriptions-item :label="startYearLabelName">{{ profile?.startYear }}</el-descriptions-item>
                 <el-descriptions-item label="所属部门">{{ profile?.departmentName }}</el-descriptions-item>
+                <el-descriptions-item label="职称" v-if="userStore.user.roleName === 'teacher'">{{ profile?.title }}</el-descriptions-item>
                 <el-descriptions-item label="专业名称" v-if="userStore.user?.roleName === 'student'">
                     {{ profile?.major }}
                 </el-descriptions-item>
