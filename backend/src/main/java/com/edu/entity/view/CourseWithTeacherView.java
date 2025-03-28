@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @TableName("v_course_info")
-public class CourseWithTeacherView11 {
+public class CourseView {
     private Integer courseId;
     private String courseName;
     private Double credit;
