@@ -1,54 +1,73 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
-import courseService from '../api/service/course';
+import { courseService, departmentService } from '../api/index';
 import type { CourseInfo, PaginationParams } from '../api/types';
 
-// 课程列表数据
+// 存储课程列表数据，用于表格展示
 const courseList = ref<CourseInfo[]>([]);
 
-// 分页参数
+// 存储用户选择的院系ID数组，用于筛选课程
+const departmentsSelected = ref([]);
+
+// 获取院系列表数据，用于下拉筛选框
+// 使用vue-hooks-plus的useRequest自动处理请求状态
+const { data: departmentList } = useRequest(
+  departmentService.getDepartmentList,
+);
+
+// 分页参数配置
+// current: 当前页码
+// size: 每页显示数量
+// total: 总记录数
 const pagination = ref({
   current: 1,
-  size: 10,
+  size: 16,
   total: 0
 });
 
-// 使用useRequest hook获取课程列表数据
+// 请求参数，初始值与分页参数同步
+const params = ref<PaginationParams>({
+  current: pagination.value.current,
+  size: pagination.value.size
+});
+
+// 获取课程列表数据
+// run: 手动执行请求的方法
+// loading: 请求加载状态
 const { run: fetchCourseList, loading } = useRequest(
   courseService.getCourseList,
   {
+    // 请求成功回调
     onSuccess: data => {
       // 更新课程列表数据
       courseList.value = data.data.records;
       // 更新分页信息
-      pagination.value.total = data.data.total;
       pagination.value.current = data.data.current;
+      pagination.value.total = data.data.total;
       pagination.value.size = data.data.size;
-    }
+    },
   }
 );
 
-// 监听分页变化
+// 处理分页变化事件
+// current: 新的页码
 const handleCurrentChange = (current: number) => {
-  pagination.value.current = current;
-  loadCourseList();
+  params.value.current = current;
+  fetchCourseList(params.value);
 };
 
-// 加载课程列表数据
-const loadCourseList = () => {
-  const params: PaginationParams = {
-    current: pagination.value.current,
+// 处理院系筛选变化事件
+// 当用户点击确认按钮时触发
+const handleDepartmentChange = () => {
+  console.log(departmentsSelected.value);
+  // 重置页码为1并重新获取数据
+  fetchCourseList({
+    current: 1,
     size: pagination.value.size
-  };
-
-  fetchCourseList(params);
+  },
+    departmentsSelected.value);
 };
-
-// 组件挂载时加载数据
-onMounted(() => {
-  loadCourseList();
-});
 </script>
 
 <template>
@@ -58,7 +77,13 @@ onMounted(() => {
         <h2>课程列表</h2>
       </div>
       <div class="tool-bar">
-        toolbar
+        <!-- 院系筛选 多选下拉框 -->
+        <el-select class="toolbar-item dp-selector" v-model="departmentsSelected" placeholder="院系筛选" multiple collapse-tags collapse-tags-tooltip>
+          <el-option v-for="item in departmentList?.data" :key="item.departmentId" :label="item.departmentName"
+            :value="item.departmentId" />
+        </el-select>
+        <!-- 确认按钮 -->
+        <el-button class="toolbar-item" type="success" plain @click="handleDepartmentChange">确认</el-button>
       </div>
     </el-header>
     <el-main class="table-container">
@@ -72,15 +97,17 @@ onMounted(() => {
         </el-table-column>
         <el-table-column label="课程名称" prop="courseName">
         </el-table-column>
-        <el-table-column label="授课教师" prop="teacherName">
-        </el-table-column>
         <el-table-column label="课程学分" prop="credit">
+          <template #default="scope">
+            {{ scope.row.credit.toFixed(1) }}
+          </template>
         </el-table-column>
-        <el-table-column label="已选人数" prop="studentCount">
-        </el-table-column>
-        <el-table-column label="课程简介" prop="description">
+        <el-table-column label="课程简介" prop="description" show-overflow-tooltip>
         </el-table-column>
         <el-table-column label="创建者" prop="creatorName">
+          <template #default="scope">
+            {{ scope.row.creatorName || scope.row.creatorId }}
+          </template>
         </el-table-column>
       </el-table>
     </el-main>
@@ -113,6 +140,14 @@ onMounted(() => {
       height: 100%;
       display: flex;
       align-items: center;
+
+      .toolbar-item {
+        margin-left: 10px;
+      }
+
+      .dp-selector {
+        width: 240px;
+      }
     }
   }
 
