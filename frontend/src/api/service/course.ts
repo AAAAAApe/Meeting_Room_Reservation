@@ -13,8 +13,8 @@ const courseService = {
    * @param params 分页参数
    * @returns Promise
    */
-  getCourseList(params: PaginationParams & { keyword?: string }) {
-    return request.get<PaginationResult<CourseInfo>>('/course/getAll', params);
+  getCourseList(params: PaginationParams, departmentIds?: string[]) {
+    return request.get<PaginationResult<CourseInfo>>('/course/getPage', { ...params, departmentIds });
   },
 
   /**
