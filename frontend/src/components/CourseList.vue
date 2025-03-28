@@ -10,6 +10,9 @@ const courseList = ref<CourseInfo[]>([]);
 // 存储用户选择的院系ID数组，用于筛选课程
 const departmentsSelected = ref([]);
 
+// 翻页时携带参数，作用是提交筛选后，翻页时保留筛选条件
+let departmentIdsParams: string[] = [];
+
 // 获取院系列表数据，用于下拉筛选框
 // 使用vue-hooks-plus的useRequest自动处理请求状态
 const { data: departmentList } = useRequest(
@@ -29,7 +32,7 @@ const pagination = ref({
 // 请求参数，初始值与分页参数同步
 const params = ref<PaginationParams>({
   current: pagination.value.current,
-  size: pagination.value.size
+  size: pagination.value.size,
 });
 
 // 获取课程列表数据
@@ -54,13 +57,13 @@ const { run: fetchCourseList, loading } = useRequest(
 // current: 新的页码
 const handleCurrentChange = (current: number) => {
   params.value.current = current;
-  fetchCourseList(params.value);
+  fetchCourseList(params.value, departmentIdsParams);
 };
 
 // 处理院系筛选变化事件
 // 当用户点击确认按钮时触发
 const handleDepartmentChange = () => {
-  console.log(departmentsSelected.value);
+  departmentIdsParams = departmentsSelected.value;
   // 重置页码为1并重新获取数据
   fetchCourseList({
     current: 1,
