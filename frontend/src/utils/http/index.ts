@@ -1,4 +1,5 @@
 import axios from 'axios';
+import qs from 'qs';
 import type { AxiosInstance, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import tokenService from './tokenService';
 import { useUserStore } from '../../stores/userStore';
@@ -32,6 +33,17 @@ const createAxiosInstance = (withToken: boolean = true): AxiosInstance => {
           config.headers['Authorization'] = `Bearer ${token}`;
         }
       }
+      
+      /**
+       * 对GET请求参数进行序列化处理
+       * 使用qs库的stringify方法将参数对象转换为URL查询字符串
+       * 设置arrayFormat为'repeat'模式，避免默认的'brackets'模式生成非法字符
+       * 例如：{ids: [1,2]} 会转换为 'ids=1&ids=2' 而不是 'ids[]=1&ids[]=2'
+       */
+      if (config.method?.toLowerCase() === 'get' && config.params) {
+        config.paramsSerializer = params => qs.stringify(params, { arrayFormat: 'repeat' });
+      }
+      
       return config;
     },
     (error) => {
