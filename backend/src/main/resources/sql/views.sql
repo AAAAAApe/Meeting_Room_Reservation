@@ -61,15 +61,41 @@ SELECT
     ui_creator.name AS creator_name,
     d.department_id,
     d.department_name,
-    ct.user_id AS teacher_id,
-    ui_teacher.name AS teacher_name,
-    ct.student_count AS student_count
+    COUNT(ct.user_id) AS teacher_count
 FROM 
     course c
     LEFT JOIN department d ON c.course_department = d.department_id
     LEFT JOIN user_info ui_creator ON c.creator_id = ui_creator.user_id
     LEFT JOIN course_teacher ct ON c.course_id = ct.course_id
-    LEFT JOIN user_info ui_teacher ON ct.user_id = ui_teacher.user_id;
+GROUP BY
+    c.course_id,
+    c.course_name,
+    c.credit,
+    c.description,
+    c.creator_id,
+    ui_creator.name,
+    d.department_id,
+    d.department_name;
+
+CREATE OR REPLACE VIEW v_course_info_with_teacher AS
+SELECT
+    c.course_id,
+    c.course_name,
+    c.credit,
+    c.description,
+    c.creator_id,
+    ui_creator.name AS creator_name,
+    d.department_id,
+    d.department_name,
+    ct.user_id AS teacher_id,
+    ui_teacher.name AS teacher_name,
+    ct.student_count AS student_count
+FROM
+    course c
+        LEFT JOIN department d ON c.course_department = d.department_id
+        LEFT JOIN user_info ui_creator ON c.creator_id = ui_creator.user_id
+        LEFT JOIN course_teacher ct ON c.course_id = ct.course_id
+        LEFT JOIN user_info ui_teacher ON ct.user_id = ui_teacher.user_id;
 
 CREATE OR REPLACE VIEW v_course_selection_info AS
 SELECT 
