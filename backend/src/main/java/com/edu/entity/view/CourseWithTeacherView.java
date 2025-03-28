@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 @Data
-@TableName("v_course_info")
-public class CourseView {
+@TableName("v_course_info_with_teacher")
+public class CourseWithTeacherView {
     private Integer courseId;
     private String courseName;
     private Double credit;
