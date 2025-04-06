@@ -32,7 +32,7 @@ export interface UserBaseInfo {
 }
 
 export interface UserDetailInfo extends UserBaseInfo {
-  gender?: boolean;
+  gender?: string;
   birthday?: Date;
   phoneNumber?: string;
   email?: string;
@@ -66,6 +66,13 @@ export interface CourseInfo {
   createrName: string;
   departmentId: string;
   departmentName: string;
+}
+
+export interface CoursePublishInfo {
+  courseName: string;
+  credit?: number;
+  description?: string;
+  departmentId?: string;
 }
 
 // 登录请求参数
