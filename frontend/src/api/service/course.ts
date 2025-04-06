@@ -2,7 +2,7 @@
  * 课程相关API
  */
 import request from '../../utils/http/request';
-import type { CourseInfo, PaginationParams, PaginationResult } from '../types';
+import type { CourseInfo, CoursePublishInfo, PaginationParams, PaginationResult } from '../types';
 
 /**
  * 课程API服务
@@ -27,22 +27,12 @@ const courseService = {
   },
 
   /**
-   * 创建课程
-   * @param courseInfo 课程信息
-   * @returns Promise
+   * 发布课程
+   * @param course 课程发布信息
+   * @returns Promise<number> 返回课程ID
    */
-  createCourse(courseInfo: Omit<CourseInfo, 'courseId' | 'enrolled'>) {
-    return request.post<{ courseId: string }>('/courses', courseInfo);
-  },
-
-  /**
-   * 更新课程
-   * @param courseId 课程ID
-   * @param courseInfo 课程信息
-   * @returns Promise
-   */
-  updateCourse(courseId: string, courseInfo: Partial<CourseInfo>) {
-    return request.put<void>(`/courses/${courseId}`, courseInfo);
+  publishCourse(course: CoursePublishInfo) {
+    return request.post<number>('/course/createOrUpdate', course);
   },
 
   /**

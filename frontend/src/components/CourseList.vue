@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
 import { courseService, departmentService } from '../api/index';
 import type { CourseInfo, CoursePublishInfo, PaginationParams } from '../api/types';
+import { ElMessage } from 'element-plus';
 
 // 存储课程列表数据，用于表格展示
 const courseList = ref<CourseInfo[]>([]);
@@ -75,11 +76,78 @@ const handleDepartmentChange = () => {
 const isAddingCourse = ref(false);
 
 const coursePublishForm = ref<CoursePublishInfo>({
-  courseName: '',
-  credit: undefined,
-  departmentId: '',
-  description: ''
+  course: {
+    courseName: '',
+    credit: undefined,
+    departmentId: '',
+    description: ''
+  },
+  teacherIds: []
 })
+
+// 表单验证规则
+const rules = {
+  'course.courseName': [
+    { required: true, message: '请输入课程名称', trigger: 'blur' },
+    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+  ],
+  'course.departmentId': [
+    { required: true, message: '请选择所属院系', trigger: 'change' }
+  ],
+  'course.credit': [
+    { required: true, message: '请选择课程学分', trigger: 'change' }
+  ]
+}
+
+// 表单引用，用于表单验证
+const formRef = ref()
+
+// 发布课程提交状态
+const publishLoading = ref(false)
+
+// 处理课程发布
+const handlePublishCourse = () => {
+  if (!formRef.value) return
+
+  formRef.value.validate(async (valid: boolean) => {
+    if (valid) {
+      publishLoading.value = true
+      try {
+        const response = await courseService.publishCourse(coursePublishForm.value)
+        const courseId = response.data
+        // 发布成功后关闭弹窗
+        isAddingCourse.value = false
+        // 重置表单
+        resetForm()
+        // 刷新课程列表
+        fetchCourseList(params.value, departmentIdsParams)
+        // 显示成功消息，包含课程ID
+        ElMessage.success(`课程发布成功，课程ID：${String(courseId).padStart(6, '0')}`)
+      } catch (error) {
+        console.error('发布课程失败:', error)
+        ElMessage.error('发布课程失败，请重试')
+      } finally {
+        publishLoading.value = false
+      }
+    }
+  })
+}
+
+// 重置表单
+const resetForm = () => {
+  if (formRef.value) {
+    formRef.value.resetFields()
+  }
+  coursePublishForm.value = {
+    course: {
+      courseName: '',
+      credit: undefined,
+      departmentId: '',
+      description: ''
+    },
+    teacherIds: []
+  }
+}
 
 const creditOptions = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8]
 </script>
@@ -89,31 +157,34 @@ const creditOptions = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7
     <!-- 发布课程弹窗 -->
     <el-dialog title="发布课程" width="600px" v-model="isAddingCourse">
 
-      <el-form ref="form" :model="coursePublishForm">
+      <el-form ref="formRef" :model="coursePublishForm" :rules="rules">
         <el-form-item label="课程名称" prop="courseName">
-          <el-input placeholder="请输入课程名称" :maxLength="20" v-model="coursePublishForm.courseName" />
+          <el-input placeholder="请输入课程名称" :maxLength="20" v-model="coursePublishForm.course.courseName" />
         </el-form-item>
 
         <el-form-item label="所属院系" prop="departmentId">
-          <el-select v-model="coursePublishForm.departmentId" placeholder="请选择所属院系">
+          <el-select v-model="coursePublishForm.course.departmentId" placeholder="请选择所属院系">
             <el-option v-for="item in departmentList?.data" :key="item.departmentId" :label="item.departmentName"
               :value="item.departmentId" />
           </el-select>
         </el-form-item>
 
         <el-form-item label="课程学分" prop="credit">
-          <el-select v-model="coursePublishForm.credit" placeholder="学分">
+          <el-select v-model="coursePublishForm.course.credit" placeholder="学分">
             <el-option v-for="item in creditOptions" :key="item" :value="item" />
           </el-select>
         </el-form-item>
 
         <el-form-item label="课程简介" prop="description">
-          <el-input type="textarea" placeholder="请输入课程简介" :maxLength="200" v-model="coursePublishForm.description" />
+          <el-input type="textarea" placeholder="请输入课程简介" :maxLength="200"
+            v-model="coursePublishForm.course.description" />
         </el-form-item>
       </el-form>
 
       <template #footer>
         <span class="dialog-footer">
+          <el-button @click="isAddingCourse = false">取消</el-button>
+          <el-button type="primary" @click="handlePublishCourse" :loading="publishLoading">发布</el-button>
         </span>
       </template>
     </el-dialog>
