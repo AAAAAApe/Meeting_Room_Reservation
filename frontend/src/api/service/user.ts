@@ -2,7 +2,7 @@
  * 用户相关API
  */
 import request from '../../utils/http/request';
-import type { LoginParams, LoginResult, StudentInfo, TeacherInfo, UserBaseInfo } from '../types';
+import type { LoginParams, LoginResult, PaginationParams, PaginationResult, StudentInfo, TeacherInfo, UserBaseInfo } from '../types';
 import { useUserStore } from '../../stores/userStore';
 
 /**
@@ -87,7 +87,30 @@ const userService = {
    */
   updateUserInfo(userInfo: Partial<UserBaseInfo>) {
     return request.put<void>('/user', userInfo);
+  },
+
+  /**
+   * 获取教师列表，支持分页和筛选
+   * @param params 分页和筛选参数，包括：current, size, name, userId, departmentNames, titles
+   * @returns Promise<PaginationResult<TeacherInfo>> 包含分页教师信息的Promise对象
+   */
+  getTeacherList(params: PaginationParams & {
+    name?: string;
+    userId?: string;
+    departmentNames?: string[];
+    titles?: string[];
+  }) {
+    return request.get<PaginationResult<TeacherInfo>>('/user/teacher/getPage', { ...params })
+  },
+
+  getStudentList(params: PaginationParams & {
+    name?: string;
+    userId?: string;
+    departmentNames?: string[];
+  }) {
+    return request.get<PaginationResult<StudentInfo>>('/user/student/getPage', { ...params })
   }
+
 };
 
 export default userService;
