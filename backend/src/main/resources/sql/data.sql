@@ -544,7 +544,7 @@ ALTER TABLE course
 
 -- 添加课程数据
 -- 哲学系课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('西方哲学史', '202500001', '01', 3.0, '系统介绍西方哲学从古希腊到现代的发展历程'),
 ('中国哲学史', '202500001', '01', 3.0, '探讨中国哲学思想从先秦到近代的演变'),
 ('伦理学基础', '202500001', '01', 2.5, '研究道德哲学的基本理论和应用'),
@@ -577,7 +577,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('生命伦理学', '202500001', '01', 2.5, '探讨生命科学相关的伦理问题');
 
 -- 经济与金融学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('微观经济学', '202500001', '02', 4.0, '研究个体经济单位的经济行为'),
 ('宏观经济学', '202500001', '02', 4.0, '分析整体经济运行和宏观经济政策'),
 ('计量经济学', '202500001', '02', 3.5, '应用统计方法分析经济数据'),
@@ -621,7 +621,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('结构化产品设计', '202500001', '02', 3.0, '学习金融产品创新和设计');
 
 -- 法学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('宪法学', '202500001', '03', 3.5, '研究国家根本大法的理论和实践'),
 ('民法总论', '202500001', '03', 4.0, '学习民事法律关系的基本原理'),
 ('刑法学', '202500001', '03', 4.0, '探讨犯罪与刑罚的基本理论'),
@@ -648,7 +648,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('刑事执行法', '202500001', '03', 3.0, '学习刑罚执行的法律制度');
 
 -- 社会学与人类学学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('社会学理论', '202500001', '04', 3.5, '介绍经典和现代社会学理论'),
 ('社会研究方法', '202500001', '04', 3.0, '学习社会科学研究的定量和定性方法'),
 ('文化人类学', '202500001', '04', 3.0, '研究不同文化背景下的人类行为'),
@@ -679,7 +679,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('政策评估方法', '202500001', '04', 3.0, '学习政策效果评估技术');
 
 -- 马克思主义学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('马克思主义基本原理', '202500001', '05', 3.5, '系统介绍马克思主义哲学、政治经济学和科学社会主义'),
 ('中国特色社会主义理论体系', '202500001', '05', 3.0, '研究中国特色社会主义的形成和发展'),
 ('马克思主义发展史', '202500001', '05', 3.0, '探讨马克思主义理论的历史演变'),
@@ -701,7 +701,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('社会主义核心价值观研究', '202500001', '05', 2.5, '研究社会主义核心价值观的理论与实践');
 
 -- 中国语言文学系课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('中国古代文学史', '202500001', '06', 4.0, '系统介绍中国古代文学发展历程'),
 ('中国现代文学', '202500001', '06', 3.0, '研究五四运动以来的中国文学'),
 ('文学理论', '202500001', '06', 3.0, '学习文学批评和分析的基本理论'),
@@ -723,7 +723,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('中国文化典籍导读', '202500001', '06', 3.0, '研读中国重要文化典籍');
 
 -- 外国语学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 -- 英语专业课程
 ('高级英语', '202500001', '07', 4.0, '提高英语听说读写综合能力'),
 ('英语语言学', '202500001', '07', 3.0, '研究英语语言的结构和功能'),
@@ -770,7 +770,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('跨文化交际', '202500001', '07', 2.5, '探讨不同文化背景下的交际策略');
 
 -- 新闻与传播学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('新闻学概论', '202500001', '08', 3.0, '介绍新闻学基本理论和实践'),
 ('传播学理论', '202500001', '08', 3.5, '研究信息传播的基本规律'),
 ('新闻采访与写作', '202500001', '08', 3.0, '训练新闻采写的基本技能'),
@@ -799,7 +799,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 
 
 -- 历史系课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('中国古代史', '202500001', '09', 4.0, '系统介绍中国古代历史发展'),
 ('中国近代史', '202500001', '09', 3.5, '研究1840年以来的中国历史'),
 ('世界文明史', '202500001', '09', 4.0, '探讨世界主要文明的发展历程'),
@@ -824,7 +824,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('文化遗产保护', '202500001', '09', 3.5, '研究文化遗产的保护理论与实践');
 
 -- 数学与信息学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('高等数学(上)', '202500001', '10', 5.0, '学习函数、极限、导数、积分等微积分基础知识'),
 ('高等数学(下)', '202500001', '10', 5.0, '学习多元函数微积分、无穷级数等高等数学进阶内容'),
 ('线性代数', '202500001', '10', 4.0, '学习矩阵、向量空间、线性变换等基础知识'),
@@ -841,7 +841,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('密码学基础', '202500001', '14', 4.0, '学习现代密码学理论和应用');
 
 -- 物理系课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('力学', '202500001', '11', 4.0, '研究物体机械运动的基本规律'),
 ('热学', '202500001', '11', 3.5, '探讨热现象和热力学定律'),
 ('电磁学', '202500001', '11', 4.0, '学习电磁场的基本理论和应用'),
@@ -853,28 +853,28 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('固体物理学', '202500001', '11', 3.5, '研究固体材料的物理性质'),
 ('计算物理', '202500001', '11', 3.0, '学习物理问题的数值计算方法');
 -- 物理学专业特色课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('统计物理学', '202500001', '11', 4.0, '研究多粒子系统的宏观性质'),
 ('相对论', '202500001', '11', 4.0, '探讨时空和引力的基本理论'),
 ('数学物理方法', '202500001', '11', 3.5, '学习物理问题的数学处理方法');
 -- 应用物理学专业特色课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('材料物理', '202500001', '11', 3.5, '研究材料的物理性质和应用'),
 ('半导体物理', '202500001', '11', 4.0, '学习半导体的基本特性和器件原理'),
 ('光电子学', '202500001', '11', 3.5, '研究光电转换原理和应用');
 -- 核物理专业特色课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('核反应理论', '202500001', '11', 4.0, '研究原子核反应的基本规律'),
 ('粒子物理', '202500001', '11', 4.0, '探讨基本粒子的性质和相互作用'),
 ('辐射防护', '202500001', '11', 3.0, '学习核辐射防护的原理和方法');
 -- 量子信息科学专业特色课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('量子计算', '202500001', '11', 4.0, '研究量子计算的原理和算法'),
 ('量子通信', '202500001', '11', 3.5, '学习量子通信的基本原理和技术'),
 ('量子密码学', '202500001', '11', 3.5, '探讨基于量子原理的密码系统');
 
 -- 化学系课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('无机化学', '202500001', '12', 4.0, '研究无机化合物的结构和性质'),
 ('有机化学', '202500001', '12', 4.0, '学习有机化合物的结构和反应'),
 ('分析化学', '202500001', '12', 3.5, '探讨物质成分的分析方法'),
@@ -906,7 +906,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 
 
 -- 工程学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('工程制图', '202500001', '13', 3.0, '学习工程图样的绘制和阅读'),
 ('材料力学', '202500001', '13', 4.0, '研究材料在外力作用下的力学性能'),
 ('机械设计基础', '202500001', '13', 3.5, '学习机械零件和机构的设计原理'),
@@ -944,7 +944,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('设计表现技法', '202500001', '13', 3.0, '掌握设计效果图的表现方法');
 
 -- 计算机学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('程序设计基础', '202500001', '14', 4.0, '学习计算机编程的基本概念和方法'),
 ('数据结构', '202500001', '14', 4.0, '研究数据的组织和存储方式'),
 ('算法设计与分析', '202500001', '14', 4.0, '学习算法设计的基本策略和复杂度分析'),
@@ -972,7 +972,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('区块链应用开发', '202500001', '14', 3.5, '探索区块链在各领域的应用开发');
 
 -- 管理学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 ('管理学原理', '202500001', '15', 3.5, '介绍管理的基本理论和职能'),
 ('组织行为学', '202500001', '15', 3.0, '研究组织中个体和群体的行为规律'),
 ('战略管理', '202500001', '15', 3.5, '学习企业战略制定和实施'),
@@ -1009,7 +1009,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('城市管理', '202500001', '15', 3.0, '研究城市发展和管理问题');
 
 -- 医学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 -- 临床医学专业课程
 ('人体解剖学', '202500001', '16', 5.0, '研究人体各器官系统的形态结构'),
 ('生理学', '202500001', '16', 4.5, '探讨人体生命活动的规律'),
@@ -1053,7 +1053,7 @@ INSERT INTO course (course_name, creator_id, course_department, credit, descript
 ('预防医学', '202500001', '16', 3.0, '探讨疾病预防和健康促进');
 
 -- 艺术学院课程
-INSERT INTO course (course_name, creator_id, course_department, credit, description) VALUES 
+INSERT INTO course (course_name, creator_id, department_id, credit, description) VALUES
 -- 美术学课程
 ('艺术概论', '202500001', '17', 2.5, '介绍艺术的基本理论和历史'),
 ('素描基础', '202500001', '17', 3.0, '训练造型艺术的基本技能'),

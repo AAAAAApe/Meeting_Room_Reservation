@@ -83,12 +83,12 @@ CREATE TABLE IF NOT EXISTS course
     course_id         INTEGER       NOT NULL AUTO_INCREMENT,      -- 课程 ID，自增
     course_name       VARCHAR(20)   NOT NULL,                     -- 课程名称
     creator_id        CHAR(9)       NOT NULL,                     -- 创建者 ID（教师/管理员）
-    course_department CHAR(2)       NOT NULL,                     -- 所属院系 ID
+    department_id CHAR(2)       NOT NULL,                     -- 所属院系 ID
     credit            DECIMAL(2, 1) NOT NULL CHECK (credit >= 0), -- 课程学分
     description       TEXT,                                       -- 课程描述
     PRIMARY KEY (course_id),
     FOREIGN KEY (creator_id) REFERENCES user (user_id) ON DELETE CASCADE,
-    FOREIGN KEY (course_department) REFERENCES department (department_id) ON DELETE CASCADE
+    FOREIGN KEY (department_id) REFERENCES department (department_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS course_teacher

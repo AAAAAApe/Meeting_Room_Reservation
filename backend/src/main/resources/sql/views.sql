@@ -64,7 +64,7 @@ SELECT
     COUNT(ct.user_id) AS teacher_count
 FROM 
     course c
-    LEFT JOIN department d ON c.course_department = d.department_id
+    LEFT JOIN department d ON c.department_id = d.department_id
     LEFT JOIN user_info ui_creator ON c.creator_id = ui_creator.user_id
     LEFT JOIN course_teacher ct ON c.course_id = ct.course_id
 GROUP BY
@@ -92,7 +92,7 @@ SELECT
     ct.student_count AS student_count
 FROM
     course c
-        LEFT JOIN department d ON c.course_department = d.department_id
+        LEFT JOIN department d ON c.department_id = d.department_id
         LEFT JOIN user_info ui_creator ON c.creator_id = ui_creator.user_id
         LEFT JOIN course_teacher ct ON c.course_id = ct.course_id
         LEFT JOIN user_info ui_teacher ON ct.user_id = ui_teacher.user_id;
@@ -114,4 +114,4 @@ FROM
     INNER JOIN course c ON cs.course_id = c.course_id
     LEFT JOIN user_info ui_student ON cs.student_id = ui_student.user_id
     LEFT JOIN user_info ui_teacher ON cs.teacher_id = ui_teacher.user_id
-    LEFT JOIN department d ON c.course_department = d.department_id;
+    LEFT JOIN department d ON c.department_id = d.department_id;

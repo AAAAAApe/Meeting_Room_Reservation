@@ -69,10 +69,13 @@ export interface CourseInfo {
 }
 
 export interface CoursePublishInfo {
-  courseName: string;
-  credit?: number;
-  description?: string;
-  departmentId?: string;
+  course: {
+    courseName: string;
+    credit?: number;
+    description?: string;
+    departmentId?: string;
+  },
+  teacherIds: string[];
 }
 
 // 登录请求参数
