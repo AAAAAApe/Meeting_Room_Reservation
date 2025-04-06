@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
 import { courseService, departmentService } from '../api/index';
-import type { CourseInfo, PaginationParams } from '../api/types';
+import type { CourseInfo, CoursePublishInfo, PaginationParams } from '../api/types';
 
 // 存储课程列表数据，用于表格展示
 const courseList = ref<CourseInfo[]>([]);
@@ -71,22 +71,68 @@ const handleDepartmentChange = () => {
   },
     departmentsSelected.value);
 };
+
+const isAddingCourse = ref(false);
+
+const coursePublishForm = ref<CoursePublishInfo>({
+  courseName: '',
+  credit: undefined,
+  departmentId: '',
+  description: ''
+})
+
+const creditOptions = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8]
 </script>
 
 <template>
   <el-container class="main-container">
+    <!-- 发布课程弹窗 -->
+    <el-dialog title="发布课程" width="600px" v-model="isAddingCourse">
+
+      <el-form ref="form" :model="coursePublishForm">
+        <el-form-item label="课程名称" prop="courseName">
+          <el-input placeholder="请输入课程名称" :maxLength="20" v-model="coursePublishForm.courseName" />
+        </el-form-item>
+
+        <el-form-item label="所属院系" prop="departmentId">
+          <el-select v-model="coursePublishForm.departmentId" placeholder="请选择所属院系">
+            <el-option v-for="item in departmentList?.data" :key="item.departmentId" :label="item.departmentName"
+              :value="item.departmentId" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="课程学分" prop="credit">
+          <el-select v-model="coursePublishForm.credit" placeholder="学分">
+            <el-option v-for="item in creditOptions" :key="item" :value="item" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="课程简介" prop="description">
+          <el-input type="textarea" placeholder="请输入课程简介" :maxLength="200" v-model="coursePublishForm.description" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+        </span>
+      </template>
+    </el-dialog>
+
     <el-header class="main-header">
       <div class="title-container">
         <h2>课程列表</h2>
       </div>
       <div class="tool-bar">
         <!-- 院系筛选 多选下拉框 -->
-        <el-select class="toolbar-item dp-selector" v-model="departmentsSelected" placeholder="院系筛选" multiple collapse-tags collapse-tags-tooltip>
+        <el-select class="dp-selector" v-model="departmentsSelected" placeholder="院系筛选" multiple collapse-tags
+          collapse-tags-tooltip>
           <el-option v-for="item in departmentList?.data" :key="item.departmentId" :label="item.departmentName"
             :value="item.departmentId" />
         </el-select>
         <!-- 确认按钮 -->
-        <el-button class="toolbar-item" type="success" plain @click="handleDepartmentChange">确认</el-button>
+        <el-button type="success" plain @click="handleDepartmentChange">确认</el-button>
+        <el-divider direction="vertical" />
+        <el-button type="primary" plain @click="isAddingCourse = true">发布课程</el-button>
       </div>
     </el-header>
     <el-main class="table-container">
@@ -144,12 +190,9 @@ const handleDepartmentChange = () => {
       display: flex;
       align-items: center;
 
-      .toolbar-item {
-        margin-left: 10px;
-      }
-
       .dp-selector {
         width: 240px;
+        margin-right: 10px;
       }
     }
   }
