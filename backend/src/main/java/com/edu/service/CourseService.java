@@ -66,17 +66,17 @@ public interface CourseService {
      * 创建新课程
      *
      * @param course 课程信息
-     * @return 是否创建成功
+     * @return 课程ID
      */
-    boolean createOrUpdateCourse(Course course, List<String> teacherIds);
+    Integer createOrUpdateCourse(Course course, List<String> teacherIds, String creatorId);
 
     /**
      * 创建或更新课程信息
      *
      * @param course 课程信息
-     * @return 是否创建或更新成功
+     * @return 课程ID
      */
-    boolean createOrUpdateCourse(Course course);
+    Integer createOrUpdateCourse(Course course, String creatorId);
 
     /**
      * 删除课程

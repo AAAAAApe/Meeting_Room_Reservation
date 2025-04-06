@@ -32,13 +32,15 @@ public class CourseServiceImpl implements CourseService {
     /**
      * 构造函数，通过依赖注入初始化所有数据访问对象
      *
-     * @param courseMapper 课程数据访问对象
-     * @param courseTeacherMapper 课程教师关系数据访问对象
-     * @param courseSelectionMapper 选课数据访问对象
-     * @param courseViewMapper 课程视图数据访问对象
+     * @param courseMapper           课程数据访问对象
+     * @param courseTeacherMapper    课程教师关系数据访问对象
+     * @param courseSelectionMapper  选课数据访问对象
+     * @param courseViewMapper       课程视图数据访问对象
      * @param courseSelectViewMapper 选课视图数据访问对象
      */
-    public CourseServiceImpl(CourseMapper courseMapper, CourseTeacherMapper courseTeacherMapper, CourseSelectionMapper courseSelectionMapper, CourseViewMapper courseViewMapper, CourseSelectViewMapper courseSelectViewMapper, CourseWithTeacherViewMapper courseWithTeacherViewMapper) {
+    public CourseServiceImpl(CourseMapper courseMapper, CourseTeacherMapper courseTeacherMapper,
+            CourseSelectionMapper courseSelectionMapper, CourseViewMapper courseViewMapper,
+            CourseSelectViewMapper courseSelectViewMapper, CourseWithTeacherViewMapper courseWithTeacherViewMapper) {
         this.courseMapper = courseMapper;
         this.courseTeacherMapper = courseTeacherMapper;
         this.courseSelectionMapper = courseSelectionMapper;
@@ -62,49 +64,52 @@ public class CourseServiceImpl implements CourseService {
      * 根据部门ID获取课程列表（分页）
      *
      * @param departmentId 部门ID
-     * @param current 当前页码
-     * @param size 每页大小
+     * @param current      当前页码
+     * @param size         每页大小
      * @return 包含分页课程信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
     public Page<CourseView> getCoursesByDepartmentPage(String departmentId, long current, long size) {
         Page<CourseView> page = new Page<>(current, size);
-        return courseViewMapper.selectPage(page, new LambdaQueryWrapper<CourseView>().eq(CourseView::getDepartmentId, departmentId));
+        return courseViewMapper.selectPage(page,
+                new LambdaQueryWrapper<CourseView>().eq(CourseView::getDepartmentId, departmentId));
     }
 
     /**
      * 根据教师ID获取课程列表（分页）
      *
      * @param teacherId 教师ID
-     * @param current 当前页码
-     * @param size 每页大小
+     * @param current   当前页码
+     * @param size      每页大小
      * @return 包含分页课程信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
     public Page<CourseWithTeacherView> getCoursesByTeacherPage(String teacherId, long current, long size) {
         Page<CourseWithTeacherView> page = new Page<>(current, size);
-        return courseWithTeacherViewMapper.selectPage(page, new LambdaQueryWrapper<CourseWithTeacherView>().eq(CourseWithTeacherView::getTeacherId, teacherId));
+        return courseWithTeacherViewMapper.selectPage(page,
+                new LambdaQueryWrapper<CourseWithTeacherView>().eq(CourseWithTeacherView::getTeacherId, teacherId));
     }
 
     /**
      * 根据学生ID获取课程列表（分页）
      *
      * @param studentId 学生ID
-     * @param current 当前页码
-     * @param size 每页大小
+     * @param current   当前页码
+     * @param size      每页大小
      * @return 包含分页选课信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
     public Page<CourseSelectView> getCoursesByStudentPage(String studentId, long current, long size) {
         Page<CourseSelectView> page = new Page<>(current, size);
-        return courseSelectViewMapper.selectPage(page, new LambdaQueryWrapper<CourseSelectView>().eq(CourseSelectView::getStudentId, studentId));
+        return courseSelectViewMapper.selectPage(page,
+                new LambdaQueryWrapper<CourseSelectView>().eq(CourseSelectView::getStudentId, studentId));
     }
 
     /**
      * 获取所有课程（分页）
      *
      * @param current 当前页码
-     * @param size 每页大小
+     * @param size    每页大小
      * @return 包含分页课程信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
@@ -120,20 +125,23 @@ public class CourseServiceImpl implements CourseService {
     /**
      * 创建或更新课程信息，同时更新课程与教师的关联关系
      *
-     * @param course 课程信息
+     * @param course     课程信息
      * @param teacherIds 教师ID列表
-     * @return 是否创建或更新成功
+     * @return 课程ID
      */
     @Override
-    public boolean createOrUpdateCourse(Course course, List<String> teacherIds) {
+    public Integer createOrUpdateCourse(Course course, List<String> teacherIds, String creatorId) {
+        if (teacherIds == null || teacherIds.isEmpty()) {
+            return createOrUpdateCourse(course, creatorId);
+        }
+        course.setCreatorId(creatorId);
         if (courseMapper.insertOrUpdate(course)) {
             // 将teacherIds转换为Set以提高查找效率
             Set<String> teacherIdSet = new HashSet<>(teacherIds);
 
             // 查询该课程现有的教师关系
             List<CourseTeacher> existingTeachers = courseTeacherMapper.selectList(
-                    new LambdaQueryWrapper<CourseTeacher>().eq(CourseTeacher::getCourseId, course.getCourseId())
-            );
+                    new LambdaQueryWrapper<CourseTeacher>().eq(CourseTeacher::getCourseId, course.getCourseId()));
 
             // 删除不再需要的教师关系
             for (CourseTeacher existingTeacher : existingTeachers) {
@@ -155,20 +163,24 @@ public class CourseServiceImpl implements CourseService {
                 courseTeacherMapper.insert(courseTeacher);
             }
 
-            return true;
+            return course.getCourseId();
         }
-        return false;
+        return null;
     }
 
     /**
      * 创建或更新课程信息
      *
      * @param course 课程信息
-     * @return 是否创建或更新成功
+     * @return 课程ID
      */
     @Override
-    public boolean createOrUpdateCourse(Course course) {
-        return courseMapper.insertOrUpdate(course);
+    public Integer createOrUpdateCourse(Course course, String creatorId) {
+        course.setCreatorId(creatorId);
+        if (courseMapper.insertOrUpdate(course)) {
+            return course.getCourseId();
+        }
+        return null;
     }
 
     /**
