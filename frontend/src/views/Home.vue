@@ -9,7 +9,7 @@
         <h1>你好，{{ userName }}</h1>
         <!-- 工具栏 -->
         <div class="toolbar">
-          <el-button type="danger" @click="handleSignOut">Sign Out</el-button>
+          <el-button type="danger" @click="handleSignOut">退出登录</el-button>
         </div>
       </div>
     </el-header>
