@@ -6,6 +6,8 @@ import com.edu.entity.view.StudentView;
 import com.edu.entity.view.TeacherView;
 import com.edu.entity.view.UserView;
 
+import java.util.List;
+
 public interface UserService {
     /**
      * 根据用户ID查找用户信息（包含密码）
@@ -71,15 +73,19 @@ public interface UserService {
      * @param size 每页记录数
      * @return 包含分页教师信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
-    Page<TeacherView> getAllTeachersByPage(long current, long size);
+    Page<TeacherView> getAllTeachersByPage(long current, long size, String name, String userId, List<String> departmentNames, List<String> titles);
 
     /**
      * 分页获取所有学生信息
-     * @param current 当前页码
-     * @param size 每页记录数
+     *
+     * @param current         当前页码
+     * @param size            每页记录数
+     * @param name
+     * @param userId
+     * @param departmentNames
      * @return 包含分页学生信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
-    Page<StudentView> getAllStudentsByPage(long current, long size);
+    Page<StudentView> getAllStudentsByPage(long current, long size, String name, String userId, List<String> departmentNames);
 
     void createOrUpdateUser(User user);
     void removeUserById(String userId);

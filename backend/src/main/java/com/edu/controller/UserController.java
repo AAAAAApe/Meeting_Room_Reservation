@@ -19,6 +19,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -173,11 +175,15 @@ public class UserController {
      * @param size    每页记录数，默认为10
      * @return 包含分页教师信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
-    @GetMapping("user/teacher/getAll")
-    public Page<TeacherView> getTeachersByPage(
+    @GetMapping("user/teacher/getPage")
+    public Page<TeacherView> getAllTeachersByPage(
             @RequestParam(value = "current", defaultValue = "1") long current,
-            @RequestParam(value = "size", defaultValue = "10") long size) {
-        return userService.getAllTeachersByPage(current, size);
+            @RequestParam(value = "size", defaultValue = "16") long size,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "userId", required = false) String userId,
+            @RequestParam(value = "departmentNames", required = false) List<String> departmentNames,
+            @RequestParam(value = "titles", required = false) List<String> titles) {
+        return userService.getAllTeachersByPage(current, size, name, userId, departmentNames, titles);
     }
 
     /**
@@ -190,11 +196,14 @@ public class UserController {
      * @param size    每页记录数，默认为10
      * @return 包含分页学生信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
-    @GetMapping("user/student/getAll")
-    public Page<StudentView> getStudentsByPage(
+    @GetMapping("user/student/getPage")
+    public Page<StudentView> getAllStudentsByPage(
             @RequestParam(value = "current", defaultValue = "1") long current,
-            @RequestParam(value = "size", defaultValue = "10") long size) {
-        return userService.getAllStudentsByPage(current, size);
+            @RequestParam(value = "size", defaultValue = "16") long size,
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "userId", required = false) String userId,
+            @RequestParam(value = "departmentNames", required = false) List<String> departmentNames) {
+        return userService.getAllStudentsByPage(current, size, name, userId, departmentNames);
     }
 
     /**

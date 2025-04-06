@@ -1,5 +1,6 @@
 package com.edu.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.edu.entity.account.User;
 import com.edu.entity.view.StudentView;
@@ -11,6 +12,8 @@ import com.edu.mapper.TeacherViewMapper;
 import com.edu.mapper.StudentViewMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -136,21 +139,63 @@ public class UserServiceImpl implements UserService{
      * @return 包含分页教师信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
-    public Page<TeacherView> getAllTeachersByPage(long current, long size) {
+    public Page<TeacherView> getAllTeachersByPage(long current, long size, String name, String userId, List<String> departmentNames, List<String> titles) {
         Page<TeacherView> page = new Page<>(current, size);
-        return teacherViewMapper.selectPage(page, null);
+        LambdaQueryWrapper<TeacherView> queryWrapper = new LambdaQueryWrapper<>();
+        
+        // 添加姓名模糊查询条件
+        if (name != null && !name.isEmpty()) {
+            queryWrapper.like(TeacherView::getName, name);
+        }
+        
+        // 添加用户ID模糊查询条件
+        if (userId != null && !userId.isEmpty()) {
+            queryWrapper.like(TeacherView::getUserId, userId);
+        }
+        
+        // 添加部门名称条件查询
+        if (departmentNames != null && !departmentNames.isEmpty()) {
+            queryWrapper.in(TeacherView::getDepartmentName, departmentNames);
+        }
+
+        // 按职称筛选
+        if (titles != null && !titles.isEmpty()) {
+            queryWrapper.in(TeacherView::getTitle, titles);
+        }
+        
+        return teacherViewMapper.selectPage(page, queryWrapper);
     }
 
     /**
-     * 分页获取所有用户信息
-     * @param current 当前页码
-     * @param size 每页记录数
+     * 分页获取所有学生信息
+     *
+     * @param current         当前页码
+     * @param size            每页记录数
+     * @param name
+     * @param userId
+     * @param departmentNames
      * @return 包含分页学生信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
-    public Page<StudentView> getAllStudentsByPage(long current, long size) {
+    public Page<StudentView> getAllStudentsByPage(long current, long size, String name, String userId, List<String> departmentNames) {
         Page<StudentView> page = new Page<>(current, size);
-        return studentViewMapper.selectPage(page, null);
+        LambdaQueryWrapper<StudentView> queryWrapper = new LambdaQueryWrapper<>();
+
+        // 添加姓名模糊查询条件
+        if (name != null && !name.isEmpty()) {
+            queryWrapper.like(StudentView::getName, name);
+        }
+
+        // 添加用户ID模糊查询条件
+        if (userId != null && !userId.isEmpty()) {
+            queryWrapper.like(StudentView::getUserId, userId);
+        }
+
+        // 添加部门名称条件查询
+        if (departmentNames != null && !departmentNames.isEmpty()) {
+            queryWrapper.in(StudentView::getDepartmentName, departmentNames);
+        }
+        return studentViewMapper.selectPage(page, queryWrapper);
     }
 
     /**
