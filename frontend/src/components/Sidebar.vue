@@ -1,34 +1,31 @@
 <template>
   <el-menu :default-openeds="['1']" router>
     <!-- 管理员菜单 -->
-    <template v-if="userRole === 'admin'">
+    <div v-if="userRole === 'admin'">
       <el-menu-item index="/admin">
-        <template #title>
-          <el-icon>
-            <House />
-          </el-icon>仪表盘
-        </template>
+        <el-icon>
+          <House />
+        </el-icon>
+        <span>仪表盘</span>
       </el-menu-item>
 
-      <el-sub-menu index="1">
-        <template #title>
-          <el-icon>
-            <Reading />
-          </el-icon>课程管理
-        </template>
-        <el-menu-item index="/courses">课程列表</el-menu-item>
-        <el-menu-item index="/admin/courses/audit">课程审核</el-menu-item>
-        <el-menu-item index="/admin/courses/categories">课程分类</el-menu-item>
-      </el-sub-menu>
+
+      <el-menu-item index="/courses">
+        <el-icon>
+          <Reading />
+        </el-icon>
+        <span>课程管理</span>
+      </el-menu-item>
 
       <el-sub-menu index="2">
         <template #title>
           <el-icon>
             <User />
-          </el-icon>用户管理
+          </el-icon>
+          <span>用户管理</span>
         </template>
-        <el-menu-item index="/admin/teachers">教师管理</el-menu-item>
-        <el-menu-item index="/admin/students">学生管理</el-menu-item>
+        <el-menu-item index="/teachers">教师管理</el-menu-item>
+        <el-menu-item index="/students">学生管理</el-menu-item>
       </el-sub-menu>
 
       <el-sub-menu index="3">
@@ -41,7 +38,7 @@
         <el-menu-item index="/admin/statistics/students">学生统计</el-menu-item>
         <el-menu-item index="/admin/statistics/teachers">教师统计</el-menu-item>
       </el-sub-menu>
-    </template>
+    </div>
 
     <!-- 教师菜单 -->
     <template v-if="userRole === 'teacher'">
