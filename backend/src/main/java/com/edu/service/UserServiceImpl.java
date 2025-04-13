@@ -3,13 +3,11 @@ package com.edu.service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.edu.entity.account.User;
+import com.edu.entity.course.CourseTeacher;
 import com.edu.entity.view.StudentView;
 import com.edu.entity.view.TeacherView;
 import com.edu.entity.view.UserView;
-import com.edu.mapper.UserMapper;
-import com.edu.mapper.UserViewMapper;
-import com.edu.mapper.TeacherViewMapper;
-import com.edu.mapper.StudentViewMapper;
+import com.edu.mapper.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +19,14 @@ public class UserServiceImpl implements UserService{
     private final UserViewMapper userViewMapper;
     private final TeacherViewMapper teacherViewMapper;
     private final StudentViewMapper studentViewMapper;
+    private final CourseTeacherMapper courseTeacherMapper;
 
-    public UserServiceImpl(UserMapper userMapper, UserViewMapper userViewMapper, TeacherViewMapper teacherViewMapper, StudentViewMapper studentViewMapper){
+    public UserServiceImpl(UserMapper userMapper, UserViewMapper userViewMapper, TeacherViewMapper teacherViewMapper, StudentViewMapper studentViewMapper, CourseTeacherMapper courseTeacherMapper){
         this.userMapper = userMapper;
         this.userViewMapper = userViewMapper;
         this.teacherViewMapper = teacherViewMapper;
         this.studentViewMapper = studentViewMapper;
+        this.courseTeacherMapper = courseTeacherMapper;
     }
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
