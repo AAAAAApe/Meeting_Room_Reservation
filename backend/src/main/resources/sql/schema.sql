@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS course
     course_id         INTEGER       NOT NULL AUTO_INCREMENT,      -- 课程 ID，自增
     course_name       VARCHAR(20)   NOT NULL,                     -- 课程名称
     creator_id        CHAR(9)       NOT NULL,                     -- 创建者 ID（教师/管理员）
-    department_id CHAR(2)       NOT NULL,                     -- 所属院系 ID
+    department_id     CHAR(2)       NOT NULL,                     -- 所属院系 ID
     credit            DECIMAL(2, 1) NOT NULL CHECK (credit >= 0), -- 课程学分
     description       TEXT,                                       -- 课程描述
     PRIMARY KEY (course_id),
@@ -95,7 +95,6 @@ CREATE TABLE IF NOT EXISTS course_teacher
 (
     course_id     INTEGER NOT NULL,                    -- 课程 ID
     user_id       CHAR(9) NOT NULL,                    -- 教师 ID
-    student_count INTEGER NOT NULL DEFAULT 0,          -- 选课人数
     PRIMARY KEY (course_id, user_id),
     FOREIGN KEY (course_id) REFERENCES course (course_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE
@@ -141,27 +140,3 @@ CREATE TABLE IF NOT EXISTS assignment
     FOREIGN KEY (course_id) REFERENCES course (course_id) ON DELETE CASCADE,
     FOREIGN KEY (teacher_id) REFERENCES user (user_id) ON DELETE CASCADE
 );
-
--- 创建触发器：当学生选课时，自动增加对应教师课程的选课人数
-DELIMITER //
-CREATE TRIGGER IF NOT EXISTS after_course_selection_insert
-AFTER INSERT ON course_selection
-FOR EACH ROW
-BEGIN
-    UPDATE course_teacher
-    SET student_count = student_count + 1
-    WHERE course_id = NEW.course_id AND user_id = NEW.teacher_id;
-END //
-DELIMITER ;
-
--- 创建触发器：当学生退课时，自动减少对应教师课程的选课人数
-DELIMITER //
-CREATE TRIGGER IF NOT EXISTS after_course_selection_delete
-AFTER DELETE ON course_selection
-FOR EACH ROW
-BEGIN
-    UPDATE course_teacher
-    SET student_count = student_count - 1
-    WHERE course_id = OLD.course_id AND user_id = OLD.teacher_id;
-END //
-DELIMITER ;
