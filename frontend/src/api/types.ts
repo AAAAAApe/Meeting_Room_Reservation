@@ -62,14 +62,24 @@ export interface CourseInfo {
   courseName: string;
   credit: number;
   description?: string;
-  createrId: string;
-  createrName: string;
+  creatorId: string;
+  creatorName?: string;
   departmentId: string;
   departmentName: string;
+  teacherCount?: number;
+}
+
+export interface CourseWithTeacherInfo extends CourseInfo {
+  teacherId: string;
+  teacherName: string;
+  teacherTitleName?: string;
+  teacherDepartmentName?: string;
+  studentCount?: number;
 }
 
 export interface CoursePublishInfo {
   course: {
+    courseId?: number;
     courseName: string;
     credit?: number;
     description?: string;
