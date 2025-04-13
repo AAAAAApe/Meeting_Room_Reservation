@@ -62,6 +62,8 @@ public interface CourseService {
      */
     Page<CourseView> getAllCoursesByPage(long current, long size, List<String> departmentIds);
 
+    Page<CourseWithTeacherView> getCourseWithTeachersByCourseId(Integer courseId, long current, long size);
+
     /**
      * 创建新课程
      *
@@ -70,13 +72,13 @@ public interface CourseService {
      */
     Integer createOrUpdateCourse(Course course, List<String> teacherIds, String creatorId);
 
-    /**
-     * 创建或更新课程信息
-     *
-     * @param course 课程信息
-     * @return 课程ID
-     */
-    Integer createOrUpdateCourse(Course course, String creatorId);
+//    /**
+//     * 创建或更新课程信息
+//     *
+//     * @param course 课程信息
+//     * @return 课程ID
+//     */
+//    Integer createOrUpdateCourse(Course course, String creatorId);
 
     /**
      * 删除课程
@@ -127,4 +129,7 @@ public interface CourseService {
      * @return 是否更新成功
      */
     boolean updateScore(CourseSelection courseSelection);
+
+    List<String> getCourseTeachersByCourseId(Integer courseId);
+
 }

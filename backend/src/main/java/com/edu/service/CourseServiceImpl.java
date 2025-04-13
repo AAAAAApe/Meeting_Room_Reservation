@@ -122,6 +122,13 @@ public class CourseServiceImpl implements CourseService {
         return courseViewMapper.selectPage(page, queryWrapper);
     }
 
+    @Override
+    public Page<CourseWithTeacherView> getCourseWithTeachersByCourseId(Integer courseId, long current, long size) {
+        Page<CourseWithTeacherView> page = new Page<>(current, size);
+        return courseWithTeacherViewMapper.selectPage(page,
+                new LambdaQueryWrapper<CourseWithTeacherView>().eq(CourseWithTeacherView::getCourseId, courseId));
+    }
+
     /**
      * 创建或更新课程信息，同时更新课程与教师的关联关系
      *
@@ -131,26 +138,30 @@ public class CourseServiceImpl implements CourseService {
      */
     @Override
     public Integer createOrUpdateCourse(Course course, List<String> teacherIds, String creatorId) {
-        if (teacherIds == null || teacherIds.isEmpty()) {
-            return createOrUpdateCourse(course, creatorId);
-        }
         course.setCreatorId(creatorId);
         if (courseMapper.insertOrUpdate(course)) {
             // 将teacherIds转换为Set以提高查找效率
             Set<String> teacherIdSet = new HashSet<>(teacherIds);
 
-            // 查询该课程现有的教师关系
-            List<CourseTeacher> existingTeachers = courseTeacherMapper.selectList(
-                    new LambdaQueryWrapper<CourseTeacher>().eq(CourseTeacher::getCourseId, course.getCourseId()));
+            // 只有在编辑已存在课程时才执行删除操作
+            if (course.getCourseId() != null) {
+                // 查询该课程现有的教师关系
+                List<CourseTeacher> existingTeachers = courseTeacherMapper.selectList(
+                        new LambdaQueryWrapper<CourseTeacher>().eq(CourseTeacher::getCourseId, course.getCourseId()));
 
-            // 删除不再需要的教师关系
-            for (CourseTeacher existingTeacher : existingTeachers) {
-                String teacherId = existingTeacher.getUserId();
-                if (!teacherIdSet.contains(teacherId)) {
-                    courseTeacherMapper.deleteById(existingTeacher);
-                } else {
-                    // 从集合中移除已存在的教师ID
-                    teacherIdSet.remove(teacherId);
+                // 删除不再需要的教师关系
+                for (CourseTeacher existingTeacher : existingTeachers) {
+                    String teacherId = existingTeacher.getUserId();
+                    if (!teacherIdSet.contains(teacherId)) {
+                        // 使用LambdaQueryWrapper构建删除条件，同时指定courseId和userId
+                        courseTeacherMapper.delete(
+                                new LambdaQueryWrapper<CourseTeacher>()
+                                        .eq(CourseTeacher::getCourseId, course.getCourseId())
+                                        .eq(CourseTeacher::getUserId, teacherId));
+                    } else {
+                        // 从集合中移除已存在的教师ID
+                        teacherIdSet.remove(teacherId);
+                    }
                 }
             }
 
@@ -159,7 +170,6 @@ public class CourseServiceImpl implements CourseService {
                 CourseTeacher courseTeacher = new CourseTeacher();
                 courseTeacher.setCourseId(course.getCourseId());
                 courseTeacher.setUserId(teacherId);
-                courseTeacher.setStudentCount(0);
                 courseTeacherMapper.insert(courseTeacher);
             }
 
@@ -168,20 +178,20 @@ public class CourseServiceImpl implements CourseService {
         return null;
     }
 
-    /**
-     * 创建或更新课程信息
-     *
-     * @param course 课程信息
-     * @return 课程ID
-     */
-    @Override
-    public Integer createOrUpdateCourse(Course course, String creatorId) {
-        course.setCreatorId(creatorId);
-        if (courseMapper.insertOrUpdate(course)) {
-            return course.getCourseId();
-        }
-        return null;
-    }
+    // /**
+    //  * 创建或更新课程信息
+    //  *
+    //  * @param course 课程信息
+    //  * @return 课程ID
+    //  */
+    // @Override
+    // public Integer createOrUpdateCourse(Course course, String creatorId) {
+    //     course.setCreatorId(creatorId);
+    //     if (courseMapper.insertOrUpdate(course)) {
+    //         return course.getCourseId();
+    //     }
+    //     return null;
+    // }
 
     /**
      * 删除课程
@@ -259,5 +269,15 @@ public class CourseServiceImpl implements CourseService {
                         .eq(CourseSelection::getCourseId, courseSelection.getCourseId())
                         .eq(CourseSelection::getStudentId, courseSelection.getStudentId())
                         .eq(CourseSelection::getTeacherId, courseSelection.getTeacherId())) > 0;
+    }
+
+
+    @Override
+    public List<String> getCourseTeachersByCourseId(Integer courseId) {
+        return courseTeacherMapper.selectList(
+                new LambdaQueryWrapper<CourseTeacher>()
+                        .select(CourseTeacher::getUserId)
+                        .eq(CourseTeacher::getCourseId, courseId)
+        ).stream().map(CourseTeacher::getUserId).toList();
     }
 }
