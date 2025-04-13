@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
 import { departmentService, userService } from '../api/index';
 import type { PaginationParams, TeacherInfo } from '../api/types';
+import type { TableInstance } from 'element-plus';
+
+defineProps<{
+  isSelector?: boolean;
+}>();
+
+const multipleTableRef = ref<TableInstance>();
+const selectedTeachers = defineModel<string[]>();
 
 // 存储教师列表数据，用于表格展示
 const teacherList = ref<TeacherInfo[]>([]);
@@ -45,23 +53,23 @@ const params = ref<PaginationParams>({
   size: pagination.value.size,
 });
 
-// 获取教师列表数据
-// run: 手动执行请求的方法
-// loading: 请求加载状态
-const { run: fetchTeacherList, loading } = useRequest(
-  userService.getTeacherList,
-  {
-    // 请求成功回调
-    onSuccess: data => {
-      // 更新教师列表数据
-      teacherList.value = data.data.records;
-      // 更新分页信息
-      pagination.value.current = data.data.current;
-      pagination.value.total = data.data.total;
-      pagination.value.size = data.data.size;
-    },
-  }
-);
+// // 获取教师列表数据
+// // run: 手动执行请求的方法
+// // loading: 请求加载状态
+// const { run: fetchTeacherList, loading } = useRequest(
+//   userService.getTeacherList,
+//   {
+//     // 请求成功回调
+//     onSuccess: data => {
+//       // 更新教师列表数据
+//       teacherList.value = data.data.records;
+//       // 更新分页信息
+//       pagination.value.current = data.data.current;
+//       pagination.value.total = data.data.total;
+//       pagination.value.size = data.data.size;
+//     },
+//   }
+// );
 
 // 处理分页变化事件
 // current: 新的页码
@@ -103,11 +111,78 @@ const handleFilterChange = () => {
   });
 };
 
+// 存储所有已选择的教师ID
+const selectedTeachersSet = ref(new Set<string>(selectedTeachers?.value || []));
+
+// 监听selectedTeachers的变化
+watch(() => selectedTeachers?.value, (newValue) => {
+  if (newValue) {
+    selectedTeachersSet.value = new Set<string>(newValue);
+    // 同步表格选中状态
+    if (multipleTableRef.value) {
+      teacherList.value.forEach(teacher => {
+        multipleTableRef.value?.toggleRowSelection(teacher, selectedTeachersSet.value.has(teacher.userId));
+      });
+    }
+  }
+}, { immediate: true });
+
+const isSynchronizing = ref(false);
+// 处理表格选择变化事件
+const handleSelectionChange = (selection: TeacherInfo[]) => {
+  if (isSynchronizing.value) {
+    return;
+  }
+
+  // 获取当前页面上所有教师的ID
+  const currentPageTeacherIds = teacherList.value.map(teacher => teacher.userId);
+  
+  // 从selectedTeachersSet中移除当前页面上未被选中的教师
+  currentPageTeacherIds.forEach(id => {
+    if (!selection.some(teacher => teacher.userId === id)) {
+      selectedTeachersSet.value.delete(id);
+    }
+  });
+
+  // 添加新选中的教师到selectedTeachersSet
+  selection.forEach(teacher => {
+    selectedTeachersSet.value.add(teacher.userId);
+  });
+
+  // 更新selectedTeachers的值
+  selectedTeachers.value = Array.from(selectedTeachersSet.value);
+};
+
+// 在获取教师列表数据后同步选中状态
+const { run: fetchTeacherList, loading } = useRequest(
+  userService.getTeacherList,
+  {
+    onSuccess: data => {
+      teacherList.value = data.data.records;
+      pagination.value.current = data.data.current;
+      pagination.value.total = data.data.total;
+      pagination.value.size = data.data.size;
+      
+      // 同步表格选中状态
+      // 等待表格渲染完成后再进行选中状态的同步
+      nextTick(() => {
+        isSynchronizing.value = true;
+        if (multipleTableRef.value) {
+          teacherList.value.forEach(teacher => {
+            if (selectedTeachersSet.value.has(teacher.userId)) {
+              multipleTableRef.value?.toggleRowSelection(teacher, true);
+            }
+          });
+        }
+        isSynchronizing.value = false;
+      });
+    },
+  }
+);
 </script>
 
 <template>
   <el-container class="main-container">
-
     <el-header class="main-header">
       <div class="title-container">
         <h2>教师列表</h2>
@@ -133,14 +208,17 @@ const handleFilterChange = () => {
         </el-select>
 
         <!-- 确认按钮 -->
-        <el-button type="success" plain @click="handleFilterChange">确认</el-button>
+        <el-button type="success" plain @click="handleFilterChange">搜索</el-button>
       </div>
     </el-header>
     <el-main class="table-container">
-      <el-table class="table-content" :data="teacherList" border stripe v-loading="loading">
-        <el-table-column label="教师ID" prop="userId" width="100">
+      <el-table class="table-content" ref="multipleTableRef" :data="teacherList" border stripe v-loading="loading" row-key="userId"
+        @selection-change="handleSelectionChange">
+        <el-table-column v-if="isSelector" type="selection">
         </el-table-column>
-        <el-table-column label="姓名" prop="name">
+        <el-table-column label="教师ID" prop="userId" width="120">
+        </el-table-column>
+        <el-table-column label="姓名" prop="name" width="100">
         </el-table-column>
         <el-table-column label="性别" width="80">
           <template #default="scope">
@@ -154,12 +232,12 @@ const handleFilterChange = () => {
             {{ scope.row.title || '未设置' }}
           </template>
         </el-table-column>
-        <el-table-column label="入职年份" prop="startYear">
+        <el-table-column label="入职年份" prop="startYear" width="100">
           <template #default="scope">
             {{ scope.row.startYear || '未设置' }}
           </template>
         </el-table-column>
-        <el-table-column label="联系电话" prop="phoneNumber">
+        <el-table-column label="联系电话" prop="phoneNumber" width="150">
           <template #default="scope">
             {{ scope.row.phoneNumber || '未设置' }}
           </template>
@@ -180,7 +258,7 @@ const handleFilterChange = () => {
 
 <style lang="scss" scoped>
 .main-container {
-  height: 1px;
+  height: 100%;
 
   .main-header {
     height: $main-content-header-footer-height;
