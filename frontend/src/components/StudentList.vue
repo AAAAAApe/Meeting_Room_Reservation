@@ -122,9 +122,9 @@ const handleFilterChange = () => {
     </el-header>
     <el-main class="table-container">
       <el-table class="table-content" :data="studentList" border stripe v-loading="loading">
-        <el-table-column label="学生ID" prop="userId" width="100">
+        <el-table-column label="学生ID" prop="userId" width="120">
         </el-table-column>
-        <el-table-column label="姓名" prop="name">
+        <el-table-column label="姓名" prop="name" width="100">
         </el-table-column>
         <el-table-column label="性别" width="80">
           <template #default="scope">
@@ -138,17 +138,17 @@ const handleFilterChange = () => {
             {{ scope.row.major || '未设置' }}
           </template>
         </el-table-column>
-        <el-table-column label="学分" prop="credit">
+        <el-table-column label="学分" prop="credit" width="80">
           <template #default="scope">
             {{ scope.row.credit || '0' }}
           </template>
         </el-table-column>
-        <el-table-column label="入学年份" prop="startYear">
+        <el-table-column label="入学年份" prop="startYear" width="100">
           <template #default="scope">
             {{ scope.row.startYear || '未设置' }}
           </template>
         </el-table-column>
-        <el-table-column label="联系电话" prop="phoneNumber">
+        <el-table-column label="联系电话" prop="phoneNumber" width="150">
           <template #default="scope">
             {{ scope.row.phoneNumber || '未设置' }}
           </template>
