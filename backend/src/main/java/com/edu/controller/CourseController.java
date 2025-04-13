@@ -4,13 +4,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.edu.dto.CourseRequest;
 import com.edu.entity.course.Course;
 import com.edu.entity.view.CourseView;
+import com.edu.entity.view.CourseWithTeacherView;
 import com.edu.service.CourseService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -51,6 +48,26 @@ public class CourseController {
     }
 
     /**
+     * 根据课程ID获取课程信息及关联的教师信息
+     * <p>
+     * 该方法用于根据课程ID获取课程的基本信息和关联的教师信息。通过CourseService调用数据访问层，
+     * 检索并返回指定课程ID的课程记录及其关联的教师信息。支持分页查询。
+     *
+     * @param current 当前页码，默认为1
+     * @param current
+     * @param size
+     * @param courseId
+     * @return
+     */
+    @GetMapping("/course/{courseId}")
+    public Page<CourseWithTeacherView> getCourseWithTeachersByCourseId(
+            @RequestParam(value = "current", defaultValue = "1") long current,
+            @RequestParam(value = "size", defaultValue = "16") long size,
+            @PathVariable Integer courseId) {
+        return courseService.getCourseWithTeachersByCourseId(courseId, current, size);
+    }
+
+    /**
      * 创建或更新课程
      * <p>
      * 该方法用于创建新课程或更新现有课程的信息。通过CourseService调用数据访问层，
@@ -65,9 +82,15 @@ public class CourseController {
             HttpServletRequest request,
             @RequestBody CourseRequest courseRequest) {
         String creatorId = (String) request.getAttribute("userId");
+        System.out.println(courseRequest);
         return courseService.createOrUpdateCourse(
                 courseRequest.course(),
                 courseRequest.teacherIds(),
                 creatorId);
+    }
+
+    @GetMapping("/course/{courseId}/teacherIds")
+    public List<String> getCourseTeachersByCourseId(@PathVariable Integer courseId) {
+        return courseService.getCourseTeachersByCourseId(courseId);
     }
 }
