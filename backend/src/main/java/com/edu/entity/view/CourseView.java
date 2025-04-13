@@ -3,6 +3,8 @@ package com.edu.entity.view;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigInteger;
+
 @Data
 @TableName("v_course_info")
 public class CourseView {
@@ -14,5 +16,5 @@ public class CourseView {
     private String creatorName;
     private String departmentId;
     private String departmentName;
-    private String teacherCount;
+    private BigInteger teacherCount;
 }
