@@ -102,6 +102,7 @@ SELECT
     cs.course_id,
     c.course_name,
     c.credit,
+    c.description,
     cs.student_id,
     ui_student.name AS student_name,
     cs.teacher_id,
