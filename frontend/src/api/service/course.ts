@@ -2,7 +2,7 @@
  * 课程相关API
  */
 import request from '../../utils/http/request';
-import type { CourseInfo, CoursePublishInfo, PaginationParams, PaginationResult } from '../types';
+import type { CourseInfo, CoursePublishInfo, CourseWithTeacherInfo, PaginationParams, PaginationResult } from '../types';
 
 /**
  * 课程API服务
@@ -17,13 +17,8 @@ const courseService = {
     return request.get<PaginationResult<CourseInfo>>('/course/getPage', { ...params, departmentIds });
   },
 
-  /**
-   * 获取课程详情
-   * @param courseId 课程ID
-   * @returns Promise
-   */
-  getCourseDetail(courseId: string) {
-    return request.get<CourseInfo>(`/courses/${courseId}`);
+  getCourseWithTeachers(params: PaginationParams, courseId: number) {
+    return request.get<PaginationResult<CourseWithTeacherInfo>>(`/course/${courseId}`, { ...params });
   },
 
   /**
@@ -76,6 +71,11 @@ const courseService = {
    */
   getTeacherCourses() {
     return request.get<CourseInfo[]>('/teacher/courses');
+  },
+
+
+  getTeacherIdsByCourseId(courseId: number) {
+    return request.get<string[]>(`/course/${courseId}/teacherIds`);
   }
 };
 
