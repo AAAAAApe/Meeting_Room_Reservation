@@ -69,8 +69,8 @@ const courseService = {
    * 获取教师教授的课程
    * @returns Promise
    */
-  getTeacherCourses() {
-    return request.get<CourseInfo[]>('/teacher/courses');
+  getTeacherCourses(params: PaginationParams) {
+    return request.get<PaginationResult<CourseWithTeacherInfo>>('/teacher/course/getPage', { ...params });
   },
 
 
