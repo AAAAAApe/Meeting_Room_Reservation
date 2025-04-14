@@ -76,6 +76,10 @@ const courseService = {
 
   getTeacherIdsByCourseId(courseId: number) {
     return request.get<string[]>(`/course/${courseId}/teacherIds`);
+  },
+
+  selectCourse(courseId: number, teacherId: string) {
+    return request.post<boolean>('/course/select', { courseId, teacherId });
   }
 };
 
