@@ -82,7 +82,6 @@ public class CourseController {
             HttpServletRequest request,
             @RequestBody CourseRequest courseRequest) {
         String creatorId = (String) request.getAttribute("userId");
-        System.out.println(courseRequest);
         return courseService.createOrUpdateCourse(
                 courseRequest.course(),
                 courseRequest.teacherIds(),
@@ -94,11 +93,12 @@ public class CourseController {
         return courseService.getCourseTeachersByCourseId(courseId);
     }
 
-    @GetMapping("/course/teacher/{teacherId}")
+    @GetMapping("/teacher/course/getPage")
     public Page<CourseWithTeacherView> getCourseWithTeachersByTeacherId(
             @RequestParam(value = "current", defaultValue = "1") long current,
             @RequestParam(value = "size", defaultValue = "16") long size,
-            @PathVariable String teacherId) {
+            HttpServletRequest request) {
+        String teacherId = (String) request.getAttribute("userId");
         return courseService.getCourseWithTeachersByTeacherId(teacherId, current, size);
     }
 }
