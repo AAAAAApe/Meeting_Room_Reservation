@@ -93,4 +93,12 @@ public class CourseController {
     public List<String> getCourseTeachersByCourseId(@PathVariable Integer courseId) {
         return courseService.getCourseTeachersByCourseId(courseId);
     }
+
+    @GetMapping("/course/teacher/{teacherId}")
+    public Page<CourseWithTeacherView> getCourseWithTeachersByTeacherId(
+            @RequestParam(value = "current", defaultValue = "1") long current,
+            @RequestParam(value = "size", defaultValue = "16") long size,
+            @PathVariable String teacherId) {
+        return courseService.getCourseWithTeachersByTeacherId(teacherId, current, size);
+    }
 }

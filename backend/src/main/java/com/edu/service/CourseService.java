@@ -132,4 +132,6 @@ public interface CourseService {
 
     List<String> getCourseTeachersByCourseId(Integer courseId);
 
+    Page<CourseWithTeacherView> getCourseWithTeachersByTeacherId(String teacherId, long current, long size);
+
 }

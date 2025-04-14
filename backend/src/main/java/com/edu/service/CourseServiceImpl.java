@@ -280,4 +280,11 @@ public class CourseServiceImpl implements CourseService {
                         .eq(CourseTeacher::getCourseId, courseId)
         ).stream().map(CourseTeacher::getUserId).toList();
     }
+
+    @Override
+    public Page<CourseWithTeacherView> getCourseWithTeachersByTeacherId(String teacherId, long current, long size) {
+        Page<CourseWithTeacherView> page = new Page<>(current, size);
+        return courseWithTeacherViewMapper.selectPage(page,
+                new LambdaQueryWrapper<CourseWithTeacherView>().eq(CourseWithTeacherView::getTeacherId, teacherId));
+    }
 }
