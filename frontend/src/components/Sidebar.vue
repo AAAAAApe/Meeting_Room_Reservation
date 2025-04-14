@@ -108,7 +108,7 @@
             <Reading />
           </el-icon>课程学习
         </template>
-        <el-menu-item index="/student/courses">课程列表</el-menu-item>
+        <el-menu-item index="/courses">课程列表</el-menu-item>
         <el-menu-item index="/student/courses/selected">我的课程</el-menu-item>
         <el-menu-item index="/student/courses/schedule">学习计划</el-menu-item>
       </el-sub-menu>
