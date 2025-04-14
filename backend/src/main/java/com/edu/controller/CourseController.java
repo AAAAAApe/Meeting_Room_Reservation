@@ -2,6 +2,7 @@ package com.edu.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.edu.dto.CourseRequest;
+import com.edu.dto.CourseSelectRequest;
 import com.edu.entity.course.Course;
 import com.edu.entity.view.CourseView;
 import com.edu.entity.view.CourseWithTeacherView;
@@ -100,5 +101,18 @@ public class CourseController {
             HttpServletRequest request) {
         String teacherId = (String) request.getAttribute("userId");
         return courseService.getCourseWithTeachersByTeacherId(teacherId, current, size);
+    }
+
+    @PostMapping("/course/select")
+    public boolean selectCourse(
+            HttpServletRequest request,
+            @RequestBody CourseSelectRequest courseSelectRequest
+    ) {
+        String studentId = (String) request.getAttribute("userId");
+        return courseService.selectCourse(
+            courseSelectRequest.courseId(),
+            studentId,
+            courseSelectRequest.teacherId()
+        );
     }
 }

@@ -91,10 +91,12 @@ public interface CourseService {
     /**
      * 学生选课
      *
-     * @param courseSelection 选课信息（包含课程ID、学生ID和教师ID）
-     * @return 是否选课成功
+     * @param courseId
+     * @param studentId
+     * @param teacherId
+     * @return
      */
-    boolean selectCourse(CourseSelection courseSelection);
+    boolean selectCourse(Integer courseId, String studentId, String teacherId);
 
     /**
      * 学生退选课程

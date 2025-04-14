@@ -204,14 +204,13 @@ public class CourseServiceImpl implements CourseService {
         return courseMapper.deleteById(courseId) > 0;
     }
 
-    /**
-     * 学生选课
-     *
-     * @param courseSelection 选课信息（包含课程ID、学生ID和教师ID）
-     * @return 是否选课成功
-     */
     @Override
-    public boolean selectCourse(CourseSelection courseSelection) {
+    public boolean selectCourse(Integer courseId, String studentId, String teacherId) {
+        CourseSelection courseSelection = new CourseSelection();
+        courseSelection.setCourseId(courseId);
+        courseSelection.setStudentId(studentId);
+        courseSelection.setTeacherId(teacherId);
+        courseSelection.setScore(0.0);
         return courseSelectionMapper.insert(courseSelection) > 0;
     }
 
