@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
 import { courseService, departmentService } from '../api/index';
 import type { CourseInfo, PaginationParams } from '../api/types';
 import CourseWithTeachersList from './CourseWithTeachersList.vue';
 import CourseEditor from './CourseEditor.vue';
+import { useUserStore } from '../stores/userStore';
+
+const userStore = useUserStore();
+const userRole = computed(() => userStore.user?.roleName || '');
 
 // 存储课程列表数据，用于表格展示
 const courseList = ref<CourseInfo[]>([]);
@@ -124,7 +128,7 @@ const handleEditorSuccess = () => {
         <!-- 确认按钮 -->
         <el-button type="success" plain @click="handleDepartmentChange">搜索</el-button>
         <el-divider direction="vertical" />
-        <el-button type="primary" plain @click="handleEditCourse()">发布课程</el-button>
+        <el-button v-if="userRole === 'admin'" type="primary" plain @click="handleEditCourse()">发布课程</el-button>
       </div>
     </el-header>
     <el-main class="table-container">
@@ -134,28 +138,24 @@ const handleEditorSuccess = () => {
             {{ String(scope.row.courseId).padStart(6, '0') }}
           </template>
         </el-table-column>
-        <el-table-column label="所属院系" prop="departmentName">
-        </el-table-column>
-        <el-table-column label="课程名称" prop="courseName">
-        </el-table-column>
+        <el-table-column label="所属院系" prop="departmentName" />
+        <el-table-column label="课程名称" prop="courseName" />
         <el-table-column label="课程学分" prop="credit" width="100px">
           <template #default="scope">
             {{ scope.row.credit.toFixed(1) }}
           </template>
         </el-table-column>
-        <el-table-column label="课程简介" prop="description" show-overflow-tooltip>
-        </el-table-column>
+        <el-table-column label="课程简介" prop="description" show-overflow-tooltip />
         <el-table-column label="创建者" prop="creatorName" width="150px">
           <template #default="scope">
             {{ scope.row.creatorName || scope.row.creatorId }}
           </template>
         </el-table-column>
-        <el-table-column label="教师人数" prop="teacherCount" width="100px">
-        </el-table-column>
+        <el-table-column label="教师人数" prop="teacherCount" width="100px" />
         <el-table-column fixed="right" label="操作">
           <template #default="scope">
             <el-button type="primary" plain size="small" @click="handleCourseTeacherList(scope.row)">查看教师</el-button>
-            <el-button type="warning" plain size="small" @click="handleEditCourse(scope.row)">编辑</el-button>
+            <el-button v-if="userRole === 'admin'" type="warning" plain size="small" @click="handleEditCourse(scope.row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
