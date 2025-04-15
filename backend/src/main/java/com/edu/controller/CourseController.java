@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.edu.dto.CourseRequest;
 import com.edu.dto.CourseSelectRequest;
 import com.edu.entity.teaching.Assignment;
+import com.edu.entity.view.CourseSelectView;
 import com.edu.entity.view.CourseView;
 import com.edu.entity.view.CourseWithTeacherView;
 import com.edu.service.AssignmentService;
@@ -59,10 +60,9 @@ public class CourseController {
      * 检索并返回指定课程ID的课程记录及其关联的教师信息。支持分页查询。
      *
      * @param current 当前页码，默认为1
-     * @param current
-     * @param size
-     * @param courseId
-     * @return
+     * @param size   每页记录数，默认为16
+     * @param courseId 课程ID，用于指定需要查询的课程
+     * @return 包含分页课程信息及教师信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @GetMapping("/course/{courseId}")
     public Page<CourseWithTeacherView> getCourseWithTeachersByCourseId(
@@ -144,5 +144,14 @@ public class CourseController {
             studentId,
             courseSelectRequest.teacherId()
         );
+    }
+
+    @GetMapping("/student/course/getPage")
+    public Page<CourseSelectView> getStudentCourseSelections(
+            HttpServletRequest request,
+            @RequestParam(value = "current", defaultValue = "1") long current,
+            @RequestParam(value = "size", defaultValue = "16") long size) {
+        String studentId = (String) request.getAttribute("userId");
+        return courseService.getStudentCourseSelections(studentId, current, size);
     }
 }

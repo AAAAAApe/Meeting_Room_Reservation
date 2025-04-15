@@ -138,4 +138,6 @@ public interface CourseService {
 
     Page<CourseWithTeacherView> getCourseWithTeachersByTeacherId(String teacherId, long current, long size);
 
+    Page<CourseSelectView> getStudentCourseSelections(String studentId, long current, long size);
+
 }

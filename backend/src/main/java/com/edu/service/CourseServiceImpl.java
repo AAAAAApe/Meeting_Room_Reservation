@@ -294,4 +294,11 @@ public class CourseServiceImpl implements CourseService {
         return courseWithTeacherViewMapper.selectPage(page,
                 new LambdaQueryWrapper<CourseWithTeacherView>().eq(CourseWithTeacherView::getTeacherId, teacherId));
     }
+
+    @Override
+    public Page<CourseSelectView> getStudentCourseSelections(String studentId, long current, long size) {
+        Page<CourseSelectView> page = new Page<>(current, size);
+        return courseSelectViewMapper.selectPage(page,
+                new LambdaQueryWrapper<CourseSelectView>().eq(CourseSelectView::getStudentId, studentId));
+    }
 }
