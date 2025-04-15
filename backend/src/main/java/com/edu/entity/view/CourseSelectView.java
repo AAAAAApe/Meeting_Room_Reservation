@@ -7,7 +7,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("v_course_select_info")
+@TableName("v_course_selection_info")
 public class CourseSelectView {
     private Integer courseId;
     private String courseName;
