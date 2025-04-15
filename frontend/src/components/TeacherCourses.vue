@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
 import { courseService } from '../api/index';
 import type { CourseWithTeacherInfo, PaginationParams } from '../api/types';
+import CourseDetail from './CourseDetail.vue';
 
 // 存储课程列表数据，用于表格展示
 const courseList = ref<CourseWithTeacherInfo[]>([]);
@@ -41,10 +42,21 @@ const handleCurrentChange = (current: number) => {
   params.value.current = current;
   fetchTeacherCourses(params.value);
 };
+
+const showDetailDialog = ref(false);
+const selectedCourse = ref<CourseWithTeacherInfo>();
+
+const handleShowDetail = (course: CourseWithTeacherInfo) => {
+  selectedCourse.value = course;
+  showDetailDialog.value = true;
+};
 </script>
 
 <template>
   <el-container class="main-container">
+    <el-dialog v-model="showDetailDialog">
+      <CourseDetail v-if="selectedCourse" :courseId="selectedCourse.courseId" :teacherId="selectedCourse.teacherId" />
+    </el-dialog>
     <el-header class="main-header">
       <div class="title-container">
         <h2>我的课程</h2>
@@ -73,6 +85,13 @@ const handleCurrentChange = (current: number) => {
         <el-table-column label="创建者" prop="creatorName" width="150px">
           <template #default="scope">
             {{ scope.row.creatorName || scope.row.creatorId }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="120px">
+          <template #default="scope">
+            <el-button type="primary" size="small" @click="handleShowDetail(scope.row)">
+              查看详情
+            </el-button>
           </template>
         </el-table-column>
       </el-table>

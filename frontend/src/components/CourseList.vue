@@ -42,8 +42,6 @@ const params = ref<PaginationParams>({
 });
 
 // 获取课程列表数据
-// run: 手动执行请求的方法
-// loading: 请求加载状态
 const { run: fetchCourseList, loading } = useRequest(
   courseService.getCourseList,
   {
