@@ -80,12 +80,12 @@ CREATE TABLE IF NOT EXISTS teacher_info
 
 CREATE TABLE IF NOT EXISTS course
 (
-    course_id         INTEGER       NOT NULL AUTO_INCREMENT,      -- 课程 ID，自增
-    course_name       VARCHAR(20)   NOT NULL,                     -- 课程名称
-    creator_id        CHAR(9)       NOT NULL,                     -- 创建者 ID（教师/管理员）
-    department_id     CHAR(2)       NOT NULL,                     -- 所属院系 ID
-    credit            DECIMAL(2, 1) NOT NULL CHECK (credit >= 0), -- 课程学分
-    description       TEXT,                                       -- 课程描述
+    course_id     INTEGER       NOT NULL AUTO_INCREMENT,      -- 课程 ID，自增
+    course_name   VARCHAR(20)   NOT NULL,                     -- 课程名称
+    creator_id    CHAR(9)       NOT NULL,                     -- 创建者 ID（教师/管理员）
+    department_id CHAR(2)       NOT NULL,                     -- 所属院系 ID
+    credit        DECIMAL(2, 1) NOT NULL CHECK (credit >= 0), -- 课程学分
+    description   TEXT,                                       -- 课程描述
     PRIMARY KEY (course_id),
     FOREIGN KEY (creator_id) REFERENCES user (user_id) ON DELETE CASCADE,
     FOREIGN KEY (department_id) REFERENCES department (department_id) ON DELETE CASCADE
@@ -93,8 +93,8 @@ CREATE TABLE IF NOT EXISTS course
 
 CREATE TABLE IF NOT EXISTS course_teacher
 (
-    course_id     INTEGER NOT NULL,                    -- 课程 ID
-    user_id       CHAR(9) NOT NULL,                    -- 教师 ID
+    course_id INTEGER NOT NULL, -- 课程 ID
+    user_id   CHAR(9) NOT NULL, -- 教师 ID
     PRIMARY KEY (course_id, user_id),
     FOREIGN KEY (course_id) REFERENCES course (course_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE
@@ -135,8 +135,19 @@ CREATE TABLE IF NOT EXISTS assignment
     submission_deadline DATETIME     NOT NULL,                            -- 学生提交截止时间
     content             TEXT,                                             -- 作业内容
     submission_url      VARCHAR(255),                                     -- 提交链接
-    grade               ENUM ('A', 'B', 'C', 'D', 'E', 'F') DEFAULT NULL, -- 评分
     PRIMARY KEY (assignment_title, course_id, teacher_id),
     FOREIGN KEY (course_id) REFERENCES course (course_id) ON DELETE CASCADE,
     FOREIGN KEY (teacher_id) REFERENCES user (user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS student_assignment
+(
+    assignment_title VARCHAR(100) NOT NULL,                            -- 作业标题
+    course_id        INTEGER      NOT NULL,                            -- 课程 ID
+    teacher_id       CHAR(9)      NOT NULL,                            -- 教师 ID
+    student_id       CHAR(9)      NOT NULL,                            -- 学生 ID
+    grade            ENUM ('A', 'B', 'C', 'D', 'E', 'F') DEFAULT NULL, -- 评分
+    PRIMARY KEY (assignment_title, course_id, teacher_id, student_id),
+    FOREIGN KEY (assignment_title, course_id, teacher_id) REFERENCES assignment (assignment_title, course_id, teacher_id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES user (user_id) ON DELETE CASCADE
 );

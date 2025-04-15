@@ -132,3 +132,26 @@ FROM
     LEFT JOIN user_info ui_student ON cs.student_id = ui_student.user_id
     LEFT JOIN user_info ui_teacher ON cs.teacher_id = ui_teacher.user_id
     LEFT JOIN department d ON c.department_id = d.department_id;
+
+-- 学生作业信息视图
+CREATE OR REPLACE VIEW v_student_assignment_info AS
+SELECT 
+    a.assignment_title,
+    a.course_id,
+    c.course_name,
+    a.teacher_id,
+    ui_teacher.name AS teacher_name,
+    sa.student_id,
+    ui_student.name AS student_name,
+    a.submission_deadline,
+    a.content AS assignment_content,
+    a.submission_url,
+    sa.grade
+FROM 
+    assignment a
+    INNER JOIN course c ON a.course_id = c.course_id
+    LEFT JOIN user_info ui_teacher ON a.teacher_id = ui_teacher.user_id
+    LEFT JOIN student_assignment sa ON a.assignment_title = sa.assignment_title 
+        AND a.course_id = sa.course_id 
+        AND a.teacher_id = sa.teacher_id
+    LEFT JOIN user_info ui_student ON sa.student_id = ui_student.user_id;
