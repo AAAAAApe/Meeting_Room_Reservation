@@ -77,6 +77,20 @@ export interface CourseWithTeacherInfo extends CourseInfo {
   studentCount?: number;
 }
 
+export interface CourseAssignment {
+  assignmentTitle: string;
+  courseId: number;
+  teacherId: string;
+  submissionDeadline: Date;
+  content: string;
+  submissionUrl?: string;
+}
+
+export interface StudentCourseAssignment extends CourseAssignment {
+  studentId: string;
+  score?: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
+}
+
 export interface CoursePublishInfo {
   course: {
     courseId?: number;
