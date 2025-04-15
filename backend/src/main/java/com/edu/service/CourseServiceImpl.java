@@ -39,8 +39,8 @@ public class CourseServiceImpl implements CourseService {
      * @param courseSelectViewMapper 选课视图数据访问对象
      */
     public CourseServiceImpl(CourseMapper courseMapper, CourseTeacherMapper courseTeacherMapper,
-            CourseSelectionMapper courseSelectionMapper, CourseViewMapper courseViewMapper,
-            CourseSelectViewMapper courseSelectViewMapper, CourseWithTeacherViewMapper courseWithTeacherViewMapper) {
+                             CourseSelectionMapper courseSelectionMapper, CourseViewMapper courseViewMapper,
+                             CourseSelectViewMapper courseSelectViewMapper, CourseWithTeacherViewMapper courseWithTeacherViewMapper) {
         this.courseMapper = courseMapper;
         this.courseTeacherMapper = courseTeacherMapper;
         this.courseSelectionMapper = courseSelectionMapper;
@@ -278,6 +278,14 @@ public class CourseServiceImpl implements CourseService {
                         .select(CourseTeacher::getUserId)
                         .eq(CourseTeacher::getCourseId, courseId)
         ).stream().map(CourseTeacher::getUserId).toList();
+    }
+
+    @Override
+    public CourseWithTeacherView getTeacherCourseDetail(String teacherId, Integer courseId) {
+        return courseWithTeacherViewMapper.selectOne(
+                new LambdaQueryWrapper<CourseWithTeacherView>()
+                        .eq(CourseWithTeacherView::getTeacherId, teacherId)
+                        .eq(CourseWithTeacherView::getCourseId, courseId));
     }
 
     @Override

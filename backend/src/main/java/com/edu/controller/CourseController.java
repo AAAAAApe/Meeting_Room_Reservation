@@ -3,9 +3,10 @@ package com.edu.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.edu.dto.CourseRequest;
 import com.edu.dto.CourseSelectRequest;
-import com.edu.entity.course.Course;
+import com.edu.entity.teaching.Assignment;
 import com.edu.entity.view.CourseView;
 import com.edu.entity.view.CourseWithTeacherView;
+import com.edu.service.AssignmentService;
 import com.edu.service.CourseService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
@@ -19,14 +20,17 @@ import java.util.List;
 @RestController
 public class CourseController {
     private final CourseService courseService;
+    private final AssignmentService assignmentService;
     
     /**
      * 构造函数，通过依赖注入初始化服务
      *
      * @param courseService 课程服务，处理课程相关的业务逻辑
+     * @param assignmentService 作业服务，处理作业相关的业务逻辑
      */
-    public CourseController(CourseService courseService) {
+    public CourseController(CourseService courseService, AssignmentService assignmentService) {
         this.courseService = courseService;
+        this.assignmentService = assignmentService;
     }
 
     /**
@@ -101,6 +105,32 @@ public class CourseController {
             HttpServletRequest request) {
         String teacherId = (String) request.getAttribute("userId");
         return courseService.getCourseWithTeachersByTeacherId(teacherId, current, size);
+    }
+
+    @GetMapping("/teacher/course/{courseId}")
+    public CourseWithTeacherView getCourseWithTeacherByCourseId(
+            @RequestParam(value = "teacherId") String teacherId,
+            @PathVariable Integer courseId) {
+        return courseService.getTeacherCourseDetail(teacherId, courseId);
+    }
+
+
+    @GetMapping("/course/{courseId}/assignment/getPage")
+    public Page<Assignment> getCourseAssignments(
+            @RequestParam(value = "current", defaultValue = "1") long current,
+            @RequestParam(value = "size", defaultValue = "16") long size,
+            @RequestParam(value = "teacherId") String teacherId,
+            @PathVariable Integer courseId) {
+        return assignmentService.getCourseAssignments(courseId, teacherId, current, size);
+    }
+
+    @GetMapping("/course/{courseId}/assignment/publish")
+    public Boolean publishAssignment(
+            HttpServletRequest request,
+            @RequestBody Assignment assignment) {
+        String teacherId = (String) request.getAttribute("userId");
+        assignment.setTeacherId(teacherId);
+        return assignmentService.saveOrUpdateByMultiId(assignment);
     }
 
     @PostMapping("/course/select")
