@@ -2,7 +2,7 @@
  * 课程相关API
  */
 import request from '../../utils/http/request';
-import type { CourseAssignment, CourseInfo, CoursePublishInfo, CourseWithTeacherInfo, PaginationParams, PaginationResult } from '../types';
+import type { CourseAssignment, CourseInfo, CoursePublishInfo, CourseWithTeacherInfo, PaginationParams, PaginationResult, StudentCourseSelection } from '../types';
 
 /**
  * 课程API服务
@@ -92,6 +92,10 @@ const courseService = {
 
   publishCourseAssignment(courseId: number, assignment: CourseAssignment) {
     return request.post<number>(`/course/${courseId}/assignment/publish`, assignment);
+  },
+
+  getStudentCourseSelections(params: PaginationParams) {
+    return request.get<PaginationResult<StudentCourseSelection>>('/student/course/getPage', {...params });
   },
 };
 

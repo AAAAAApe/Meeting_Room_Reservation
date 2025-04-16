@@ -77,6 +77,13 @@ export interface CourseWithTeacherInfo extends CourseInfo {
   studentCount?: number;
 }
 
+export interface StudentCourseSelection extends CourseWithTeacherInfo {
+  studentId: string;
+  studentName: string;
+  selectionTime: Date;
+  score: number;
+}
+
 export interface CourseAssignment {
   assignmentTitle: string;
   courseId: number;
