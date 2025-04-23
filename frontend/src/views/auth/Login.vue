@@ -18,13 +18,13 @@ const userStore = useUserStore()
 if (tokenStore.token && userStore.user?.roleName) {
   switch (userStore.user.roleName) {
     case 'admin':
-      router.push('/admin')
+      router.push('/courses')
       break
     case 'teacher':
-      router.push('/teacher')
+      router.push('/teacher/courses')
       break
     case 'student':
-      router.push('/student')
+      router.push('/courses')
       break
     default:
       router.push('/')
@@ -72,13 +72,13 @@ const handleLogin = async () => {
         // 跳转到首页
         switch (data.value.data.roleName) {
           case 'admin':
-            router.push('/admin')
+            router.push('/courses')
             break
           case 'teacher':
-            router.push('/teacher')
+            router.push('/teacher/courses')
             break
           case 'student':
-            router.push('/student')
+            router.push('/courses')
             break
           default:
             router.push('/')
