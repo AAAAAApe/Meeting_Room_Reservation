@@ -126,7 +126,7 @@ const handleEditorSuccess = () => {
         </el-select>
         <!-- 确认按钮 -->
         <el-button type="success" plain @click="handleDepartmentChange">搜索</el-button>
-        <el-divider direction="vertical" />
+        <el-divider v-if="userRole === 'admin'" direction="vertical" />
         <el-button v-if="userRole === 'admin'" type="primary" plain @click="handleEditCourse()">发布课程</el-button>
       </div>
     </el-header>
