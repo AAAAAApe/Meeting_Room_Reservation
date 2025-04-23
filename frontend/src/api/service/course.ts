@@ -97,6 +97,14 @@ const courseService = {
   getStudentCourseSelections(params: PaginationParams) {
     return request.get<PaginationResult<StudentCourseSelection>>('/student/course/getPage', {...params });
   },
+
+  getCourseStudents(courseId: number, teacherId: string, params: PaginationParams) {
+    return request.get<PaginationResult<StudentCourseSelection>>(`/course/${courseId}/students/getPage`, {...params, teacherId });
+  },
+
+  setCourseScore(courseId: number, teacherId: string, studentId: string, score: number) {
+    return request.put<void>(`/course/${courseId}/${studentId}/score?teacherId=${teacherId}&score=${score}`, {});
+  },
 };
 
 export default courseService;

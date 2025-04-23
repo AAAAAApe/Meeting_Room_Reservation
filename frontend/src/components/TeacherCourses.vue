@@ -54,7 +54,7 @@ const handleShowDetail = (course: CourseWithTeacherInfo) => {
 
 <template>
   <el-container class="main-container">
-    <el-dialog v-model="showDetailDialog">
+    <el-dialog v-model="showDetailDialog" width="90%" destroy-on-close>
       <CourseDetail v-if="selectedCourse" :courseId="selectedCourse.courseId" :teacherId="selectedCourse.teacherId" />
     </el-dialog>
     <el-header class="main-header">
