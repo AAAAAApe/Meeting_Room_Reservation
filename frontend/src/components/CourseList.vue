@@ -115,6 +115,7 @@ const handleEditorSuccess = () => {
     <el-header class="main-header">
       <div class="title-container">
         <h2>课程列表</h2>
+        &nbsp;记录数：{{ pagination.total }}
       </div>
       <div class="tool-bar">
         <!-- 院系筛选 多选下拉框 -->

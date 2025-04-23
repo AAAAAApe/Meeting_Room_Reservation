@@ -101,6 +101,7 @@ const handleFilterChange = () => {
     <el-header class="main-header">
       <div class="title-container">
         <h2>学生列表</h2>
+        &nbsp;记录数：{{ pagination.total }}
       </div>
       <div class="tool-bar">
         <!-- 姓名筛选 -->
