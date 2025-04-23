@@ -140,4 +140,7 @@ public interface CourseService {
 
     Page<CourseSelectView> getStudentCourseSelections(String studentId, long current, long size);
 
+    Page<CourseSelectView> getCourseStudents(Integer courseId, String teacherId, long current, long size);
+
+    boolean setCourseScore(Integer courseId, String teacherId, String studentId, Double score);
 }

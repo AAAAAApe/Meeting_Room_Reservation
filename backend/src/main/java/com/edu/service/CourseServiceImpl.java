@@ -301,4 +301,27 @@ public class CourseServiceImpl implements CourseService {
         return courseSelectViewMapper.selectPage(page,
                 new LambdaQueryWrapper<CourseSelectView>().eq(CourseSelectView::getStudentId, studentId));
     }
+
+    @Override
+    public Page<CourseSelectView> getCourseStudents(Integer courseId, String teacherId, long current, long size) {
+        Page<CourseSelectView> page = new Page<>(current, size);
+        return courseSelectViewMapper.selectPage(page,
+                new LambdaQueryWrapper<CourseSelectView>().eq(CourseSelectView::getCourseId, courseId)
+                        .eq(CourseSelectView::getTeacherId, teacherId));
+    }
+
+    @Override
+    public boolean setCourseScore(Integer courseId, String teacherId, String studentId, Double score) {
+        CourseSelection courseSelection = new CourseSelection();
+        courseSelection.setCourseId(courseId);
+        courseSelection.setTeacherId(teacherId);
+        courseSelection.setStudentId(studentId);
+        courseSelection.setScore(score);
+
+        return courseSelectionMapper.update(courseSelection,
+                new LambdaQueryWrapper<CourseSelection>()
+                        .eq(CourseSelection::getCourseId, courseId)
+                        .eq(CourseSelection::getTeacherId, teacherId)
+                        .eq(CourseSelection::getStudentId, studentId)) > 0;
+    }
 }

@@ -154,4 +154,24 @@ public class CourseController {
         String studentId = (String) request.getAttribute("userId");
         return courseService.getStudentCourseSelections(studentId, current, size);
     }
+
+    @GetMapping("/course/{courseId}/students/getPage")
+    public Page<CourseSelectView> getCourseStudents(
+            @RequestParam(value = "current", defaultValue = "1") long current,
+            @RequestParam(value = "size", defaultValue = "16") long size,
+            @PathVariable Integer courseId,
+            @RequestParam(value = "teacherId") String teacherId
+    ) {
+        return courseService.getCourseStudents(courseId, teacherId, current, size);
+    }
+
+    @PutMapping("/course/{courseId}/{studentId}/score")
+    public boolean setCourseScore(
+            @PathVariable Integer courseId,
+            @PathVariable String studentId,
+            @RequestParam(value = "teacherId") String teacherId,
+            @RequestParam(value = "score") Double score
+    ) {
+        return courseService.setCourseScore(courseId, teacherId, studentId, score);
+    }
 }
