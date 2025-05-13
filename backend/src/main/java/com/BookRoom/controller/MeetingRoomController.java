@@ -3,11 +3,9 @@ package com.BookRoom.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.dto.MeetingRoomRequest;
 import com.BookRoom.dto.MeetingRoomSelectRequest;
-import com.BookRoom.entity.teaching.Assignment;
 import com.BookRoom.entity.view.MeetingRoomSelectView;
 import com.BookRoom.entity.view.MeetingRoomView;
 import com.BookRoom.entity.view.MeetingRoomWithEmployeeView;
-import com.BookRoom.service.AssignmentService;
 import com.BookRoom.service.MeetingRoomService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +19,14 @@ import java.util.List;
 @RestController
 public class MeetingRoomController {
     private final MeetingRoomService meetingRoomService;
-    private final AssignmentService assignmentService;
-    
+
     /**
      * 构造函数，通过依赖注入初始化服务
      *
      * @param meetingRoomService 会议室服务，处理会议室相关的业务逻辑
-     * @param assignmentService 作业服务，处理作业相关的业务逻辑
      */
-    public MeetingRoomController(MeetingRoomService meetingRoomService, AssignmentService assignmentService) {
+    public MeetingRoomController(MeetingRoomService meetingRoomService) {
         this.meetingRoomService = meetingRoomService;
-        this.assignmentService = assignmentService;
     }
 
     /**
@@ -112,25 +107,6 @@ public class MeetingRoomController {
             @RequestParam(value = "employeeId") String employeeId,
             @PathVariable Integer meetingRoomId) {
         return meetingRoomService.getEmployeeMeetingRoomDetail(employeeId, meetingRoomId);
-    }
-
-
-    @GetMapping("/meetingRoom/{meetingRoomId}/assignment/getPage")
-    public Page<Assignment> getMeetingRoomAssignments(
-            @RequestParam(value = "current", defaultValue = "1") long current,
-            @RequestParam(value = "size", defaultValue = "16") long size,
-            @RequestParam(value = "employeeId") String employeeId,
-            @PathVariable Integer meetingRoomId) {
-        return assignmentService.getMeetingRoomAssignments(meetingRoomId, employeeId, current, size);
-    }
-
-    @GetMapping("/meetingRoom/{meetingRoomId}/assignment/publish")
-    public Boolean publishAssignment(
-            HttpServletRequest request,
-            @RequestBody Assignment assignment) {
-        String employeeId = (String) request.getAttribute("userId");
-        assignment.setEmployeeId(employeeId);
-        return assignmentService.saveOrUpdateByMultiId(assignment);
     }
 
     @PostMapping("/meetingRoom/select")
