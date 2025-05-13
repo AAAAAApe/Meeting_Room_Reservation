@@ -28,7 +28,7 @@ export interface PaginationResult<T> {
 export interface UserBaseInfo {
   userId: string;
   name: string;
-  roleName: 'admin' | 'teacher' | 'student';
+  roleName: 'admin' | 'employee' | 'customer';
 }
 
 export interface UserDetailInfo extends UserBaseInfo {
@@ -40,13 +40,13 @@ export interface UserDetailInfo extends UserBaseInfo {
   departmentName?: string;
 }
 
-// 教师信息接口
-export interface TeacherInfo extends UserDetailInfo {
+// 员工信息接口
+export interface EmployeeInfo extends UserDetailInfo {
   title?: string;
 }
 
-// 学生信息接口
-export interface StudentInfo extends UserDetailInfo {
+// 顾客信息接口
+export interface CustomerInfo extends UserDetailInfo {
   major?: string;
   credit?: number;
 }
@@ -56,57 +56,57 @@ export interface department {
   departmentName: string;
 }
 
-// 课程信息接口
-export interface CourseInfo {
-  courseId: number;
-  courseName: string;
+// 会议室信息接口
+export interface MeetingRoomInfo {
+  meetingRoomId: number;
+  meetingRoomName: string;
   credit: number;
   description?: string;
   creatorId: string;
   creatorName?: string;
   departmentId: string;
   departmentName: string;
-  teacherCount?: number;
+  employeeCount?: number;
 }
 
-export interface CourseWithTeacherInfo extends CourseInfo {
-  teacherId: string;
-  teacherName: string;
-  teacherTitleName?: string;
-  teacherDepartmentName?: string;
-  studentCount?: number;
+export interface MeetingRoomWithEmployeeInfo extends MeetingRoomInfo {
+  employeeId: string;
+  employeeName: string;
+  employeeTitleName?: string;
+  employeeDepartmentName?: string;
+  customerCount?: number;
 }
 
-export interface StudentCourseSelection extends CourseWithTeacherInfo {
-  studentId: string;
-  studentName: string;
+export interface CustomerMeetingRoomSelection extends MeetingRoomWithEmployeeInfo {
+  customerId: string;
+  customerName: string;
   selectionTime: Date;
   score: number;
 }
 
-export interface CourseAssignment {
+export interface MeetingRoomAssignment {
   assignmentTitle: string;
-  courseId: number;
-  teacherId: string;
+  meetingRoomId: number;
+  employeeId: string;
   submissionDeadline: Date;
   content: string;
   submissionUrl?: string;
 }
 
-export interface StudentCourseAssignment extends CourseAssignment {
-  studentId: string;
+export interface CustomerMeetingRoomAssignment extends MeetingRoomAssignment {
+  customerId: string;
   score?: 'A' | 'B' | 'C' | 'D' | 'E' | 'F';
 }
 
-export interface CoursePublishInfo {
-  course: {
-    courseId?: number;
-    courseName: string;
+export interface MeetingRoomPublishInfo {
+  meetingRoom: {
+    meetingRoomId?: number;
+    meetingRoomName: string;
     credit?: number;
     description?: string;
     departmentId?: string;
   },
-  teacherIds: string[];
+  employeeIds: string[];
 }
 
 // 登录请求参数

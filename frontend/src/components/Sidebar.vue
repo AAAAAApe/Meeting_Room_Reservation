@@ -2,11 +2,11 @@
   <el-menu :default-openeds="['1']" router>
     <!-- 管理员菜单 -->
     <div v-if="userRole === 'admin'">
-      <el-menu-item index="/courses">
+      <el-menu-item index="/meetingRooms">
         <el-icon>
           <Reading />
         </el-icon>
-        <span>课程管理</span>
+        <span>会议室管理</span>
       </el-menu-item>
 
       <el-sub-menu index="2">
@@ -16,33 +16,33 @@
           </el-icon>
           <span>用户管理</span>
         </template>
-        <el-menu-item index="/teachers">教师管理</el-menu-item>
-        <el-menu-item index="/students">学生管理</el-menu-item>
+        <el-menu-item index="/employees">员工管理</el-menu-item>
+        <el-menu-item index="/customers">顾客管理</el-menu-item>
       </el-sub-menu>
     </div>
 
-    <!-- 教师菜单 -->
-    <template v-if="userRole === 'teacher'">
+    <!-- 员工菜单 -->
+    <template v-if="userRole === 'employee'">
       <el-sub-menu index="1">
         <template #title>
           <el-icon>
             <Reading />
-          </el-icon>课程管理
+          </el-icon>会议室管理
         </template>
-        <el-menu-item index="/teacher/courses">我的课程</el-menu-item>
+        <el-menu-item index="/employee/meetingRooms">我的会议室</el-menu-item>
       </el-sub-menu>
     </template>
 
-    <!-- 学生菜单 -->
-    <template v-if="userRole === 'student'">
+    <!-- 顾客菜单 -->
+    <template v-if="userRole === 'customer'">
       <el-sub-menu index="1">
         <template #title>
           <el-icon>
             <Reading />
-          </el-icon>课程学习
+          </el-icon>会议室学习
         </template>
-        <el-menu-item index="/courses">课程列表</el-menu-item>
-        <el-menu-item index="/student/courses">我的课程</el-menu-item>
+        <el-menu-item index="/meetingRooms">会议室列表</el-menu-item>
+        <el-menu-item index="/customer/meetingRooms">我的会议室</el-menu-item>
       </el-sub-menu>
     </template>
 

@@ -10,7 +10,7 @@ import lombok.Data;
 public class UserView {
     @TableId("user_id")
     private String userId;      // 用户ID
-    private String roleName;        // 角色 (admin, student, teacher)
+    private String roleName;        // 角色 (admin, customer, employee)
 
     @TableField(exist = false)
     private String name;

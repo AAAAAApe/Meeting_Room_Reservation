@@ -2,7 +2,7 @@
  * 用户相关API
  */
 import request from '../../utils/http/request';
-import type { LoginParams, LoginResult, PaginationParams, PaginationResult, StudentInfo, TeacherInfo, UserBaseInfo } from '../types';
+import type { LoginParams, LoginResult, PaginationParams, PaginationResult, CustomerInfo, EmployeeInfo, UserBaseInfo } from '../types';
 import { useUserStore } from '../../stores/userStore';
 
 /**
@@ -44,19 +44,19 @@ const userService = {
   },
 
   /**
-   * 获取教师详细信息
-   * @returns Promise<TeacherInfo> 包含教师详细信息的Promise对象
+   * 获取员工详细信息
+   * @returns Promise<EmployeeInfo> 包含员工详细信息的Promise对象
    */
-  getTeacherProfile() {
-    return request.get<TeacherInfo>('/user/teacher/profile');
+  getEmployeeProfile() {
+    return request.get<EmployeeInfo>('/user/employee/profile');
   },
 
   /**
-   * 获取学生详细信息
-   * @returns Promise<StudentInfo> 包含学生详细信息的Promise对象
+   * 获取顾客详细信息
+   * @returns Promise<CustomerInfo> 包含顾客详细信息的Promise对象
    */
-  getStudentProfile() {
-    return request.get<StudentInfo>('/user/student/profile');
+  getCustomerProfile() {
+    return request.get<CustomerInfo>('/user/customer/profile');
   },
 
   /**
@@ -90,25 +90,25 @@ const userService = {
   },
 
   /**
-   * 获取教师列表，支持分页和筛选
+   * 获取员工列表，支持分页和筛选
    * @param params 分页和筛选参数，包括：current, size, name, userId, departmentNames, titles
-   * @returns Promise<PaginationResult<TeacherInfo>> 包含分页教师信息的Promise对象
+   * @returns Promise<PaginationResult<EmployeeInfo>> 包含分页员工信息的Promise对象
    */
-  getTeacherList(params: PaginationParams & {
+  getEmployeeList(params: PaginationParams & {
     name?: string;
     userId?: string;
     departmentNames?: string[];
     titles?: string[];
   }) {
-    return request.get<PaginationResult<TeacherInfo>>('/user/teacher/getPage', { ...params })
+    return request.get<PaginationResult<EmployeeInfo>>('/user/employee/getPage', { ...params })
   },
 
-  getStudentList(params: PaginationParams & {
+  getCustomerList(params: PaginationParams & {
     name?: string;
     userId?: string;
     departmentNames?: string[];
   }) {
-    return request.get<PaginationResult<StudentInfo>>('/user/student/getPage', { ...params })
+    return request.get<PaginationResult<CustomerInfo>>('/user/customer/getPage', { ...params })
   }
 
 };

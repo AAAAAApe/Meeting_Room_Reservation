@@ -4,7 +4,7 @@ import { ref } from "vue";
 // 定义用户类型
 interface User {
     userId: string;
-    roleName: 'admin' | 'teacher' | 'student';
+    roleName: 'admin' | 'employee' | 'customer';
     name?: string;
 }
 

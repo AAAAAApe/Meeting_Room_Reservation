@@ -31,7 +31,7 @@ public class SequenceServiceImpl extends MppServiceImpl<SequenceMapper, Sequence
      *
      * @param year 年份，用于生成ID的前缀
      * @param roleName 角色名称，用于获取对应的角色ID
-     * @return 生成的用户ID字符串，例如：2023010001表示2023年第一个教师账号
+     * @return 生成的用户ID字符串，例如：2023010001表示2023年第一个员工账号
      * @throws RoleNotFoundException 当指定的角色名不存在时抛出此异常
      */
     @Override

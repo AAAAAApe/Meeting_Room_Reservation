@@ -17,38 +17,38 @@ const routes = [
                 meta: { requiresAuth: true, role: 'admin' }
             },
             {
-                path: "teacher",
-                component: () => import("../views/teacher/TeacherDashboard.vue"),
-                meta: { requiresAuth: true, role: 'teacher' }
+                path: "employee",
+                component: () => import("../views/employee/EmployeeDashboard.vue"),
+                meta: { requiresAuth: true, role: 'employee' }
             },
             {
-                path: "student",
-                component: () => import("../views/student/StudentDashboard.vue"),
-                meta: { requiresAuth: true, role: 'student' }
+                path: "customer",
+                component: () => import("../views/customer/CustomerDashboard.vue"),
+                meta: { requiresAuth: true, role: 'customer' }
             },
             {
-                path: "courses",
-                component: () => import("../components/CourseList.vue"),
+                path: "meetingRooms",
+                component: () => import("../components/MeetingRoomList.vue"),
                 meta: { requiresAuth: false }
             },
             {
-                path: "teachers",
-                component: () => import("../components/TeacherList.vue"),
+                path: "employees",
+                component: () => import("../components/EmployeeList.vue"),
                 meta: { requiresAuth: false }
             },
             {
-                path: "teacher/courses",
-                component: () => import("../components/TeacherCourses.vue"),
+                path: "employee/meetingRooms",
+                component: () => import("../components/EmployeeMeetingRooms.vue"),
                 meta: { requiresAuth: false }
             },
             {
-                path: "students",
-                component: () => import("../components/StudentList.vue"),
+                path: "customers",
+                component: () => import("../components/CustomerList.vue"),
                 meta: { requiresAuth: false }
             },
             {
-                path: "student/courses",
-                component: () => import("../components/StudentCourses.vue"),
+                path: "customer/meetingRooms",
+                component: () => import("../components/CustomerMeetingRooms.vue"),
                 meta: { requiresAuth: false }
             },
             {
@@ -89,11 +89,11 @@ router.beforeEach((to, from, next) => {
             case 'admin':
                 next('/admin');
                 break;
-            case 'teacher':
-                next('/teacher');
+            case 'employee':
+                next('/employee');
                 break;
-            case 'student':
-                next('/student');
+            case 'customer':
+                next('/customer');
                 break;
             default:
                 next();

@@ -11,7 +11,7 @@ public interface SequenceService extends IMppService<Sequence> {
     /**
      * 生成用户ID
      * 根据年份和角色名生成唯一的用户ID，格式为：年份+角色ID+4位序号
-     * 例如：2023010001 表示2023年第一个教师账号
+     * 例如：2023010001 表示2023年第一个员工账号
      *
      * @param year 年份
      * @param role 角色名称

@@ -13,10 +13,10 @@ public class Assignment {
     private String assignmentTitle;
     
     @MppMultiId
-    private String courseId;
+    private String meetingRoomId;
     
     @MppMultiId
-    private String teacherId;
+    private String employeeId;
     
     private LocalDateTime submissionDeadline;
     private String content;

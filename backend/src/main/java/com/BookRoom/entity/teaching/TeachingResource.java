@@ -12,7 +12,7 @@ public class TeachingResource {
     @TableId
     private String resourceId;
     private String resourceName;
-    private String courseId;
+    private String meetingRoomId;
     private String uploaderId;
     private String resourceUrl;
     private LocalDateTime uploadTime;

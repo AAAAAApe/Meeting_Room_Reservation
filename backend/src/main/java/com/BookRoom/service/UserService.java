@@ -2,8 +2,8 @@ package com.BookRoom.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.entity.account.User;
-import com.BookRoom.entity.view.StudentView;
-import com.BookRoom.entity.view.TeacherView;
+import com.BookRoom.entity.view.CustomerView;
+import com.BookRoom.entity.view.EmployeeView;
 import com.BookRoom.entity.view.UserView;
 
 import java.util.List;
@@ -38,18 +38,18 @@ public interface UserService {
     String getUserRoleNameByUserId(String userId);
     
     /**
-     * 获取教师信息
+     * 获取员工信息
      * @param userId 用户ID
-     * @return 教师视图对象
+     * @return 员工视图对象
      */
-    TeacherView getTeacherInfoByUserId(String userId);
+    EmployeeView getEmployeeInfoByUserId(String userId);
     
     /**
-     * 获取学生信息
+     * 获取顾客信息
      * @param userId 用户ID
-     * @return 学生视图对象
+     * @return 顾客视图对象
      */
-    StudentView getStudentInfoByUserId(String userId);
+    CustomerView getCustomerInfoByUserId(String userId);
     
     /**
      * 验证用户凭证
@@ -68,24 +68,24 @@ public interface UserService {
     Page<User> getAllUsersByPage(long current, long size);
 
     /**
-     * 分页获取所有教师信息
+     * 分页获取所有员工信息
      * @param current 当前页码
      * @param size 每页记录数
-     * @return 包含分页教师信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     * @return 包含分页员工信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
-    Page<TeacherView> getAllTeachersByPage(long current, long size, String name, String userId, List<String> departmentNames, List<String> titles);
+    Page<EmployeeView> getAllEmployeesByPage(long current, long size, String name, String userId, List<String> departmentNames, List<String> titles);
 
     /**
-     * 分页获取所有学生信息
+     * 分页获取所有顾客信息
      *
      * @param current         当前页码
      * @param size            每页记录数
      * @param name
      * @param userId
      * @param departmentNames
-     * @return 包含分页学生信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     * @return 包含分页顾客信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
-    Page<StudentView> getAllStudentsByPage(long current, long size, String name, String userId, List<String> departmentNames);
+    Page<CustomerView> getAllCustomersByPage(long current, long size, String name, String userId, List<String> departmentNames);
 
     void createOrUpdateUser(User user);
     void removeUserById(String userId);

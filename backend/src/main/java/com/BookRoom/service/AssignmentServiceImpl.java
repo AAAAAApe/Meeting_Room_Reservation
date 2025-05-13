@@ -16,12 +16,12 @@ public class AssignmentServiceImpl extends MppServiceImpl<AssignmentMapper, Assi
     }
 
     @Override
-    public Page<Assignment> getCourseAssignments(Integer courseId, String teacherId, long current, long size) {
+    public Page<Assignment> getMeetingRoomAssignments(Integer meetingRoomId, String employeeId, long current, long size) {
         Page<Assignment> page = new Page<>(current, size);
         return AssignmentMapper.selectPage(page,
                 new LambdaQueryWrapper<Assignment>()
-                        .eq(Assignment::getCourseId, courseId)
-                        .eq(Assignment::getTeacherId, teacherId)
+                        .eq(Assignment::getMeetingRoomId, meetingRoomId)
+                        .eq(Assignment::getEmployeeId, employeeId)
                 );
     }
 

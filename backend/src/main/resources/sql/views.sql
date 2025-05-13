@@ -5,8 +5,8 @@ SELECT
 FROM
     user NATURAL JOIN role;
 
--- 学生详细信息视图
-CREATE OR REPLACE VIEW v_student_info AS
+-- 顾客详细信息视图
+CREATE OR REPLACE VIEW v_customer_info AS
 SELECT 
     u.user_id,
     ui.name,
@@ -22,14 +22,14 @@ FROM
     user u
     INNER JOIN role r ON u.role_id = r.role_id
     LEFT JOIN user_info ui ON u.user_id = ui.user_id
-    LEFT JOIN student_info s ON u.user_id = s.user_id
+    LEFT JOIN customer_info s ON u.user_id = s.user_id
     LEFT JOIN major m ON s.major_id = m.major_id
     LEFT JOIN department d ON m.department_id = d.department_id
 WHERE 
-    r.role_name = 'student';
+    r.role_name = 'customer';
 
--- 教师详细信息视图
-CREATE OR REPLACE VIEW v_teacher_info AS
+-- 员工详细信息视图
+CREATE OR REPLACE VIEW v_employee_info AS
 SELECT 
     u.user_id,
     ui.name,
@@ -44,32 +44,32 @@ FROM
     user u
     INNER JOIN role r ON u.role_id = r.role_id
     LEFT JOIN user_info ui ON u.user_id = ui.user_id
-    LEFT JOIN teacher_info ti ON u.user_id = ti.user_id
+    LEFT JOIN employee_info ti ON u.user_id = ti.user_id
     LEFT JOIN title t ON ti.title_id = t.title_id
     LEFT JOIN department d ON ti.department_id = d.department_id
 WHERE 
-    r.role_name = 'teacher'; 
+    r.role_name = 'employee';
 
--- 课程详细信息视图
-CREATE OR REPLACE VIEW v_course_info AS
+-- 会议室详细信息视图
+CREATE OR REPLACE VIEW v_meetingRoom_info AS
 SELECT 
-    c.course_id,
-    c.course_name,
+    c.meetingRoom_id,
+    c.meetingRoom_name,
     c.credit,
     c.description,
     c.creator_id,
     ui_creator.name AS creator_name,
     d.department_id,
     d.department_name,
-    COUNT(ct.user_id) AS teacher_count
+    COUNT(ct.user_id) AS employee_count
 FROM 
-    course c
+    meetingRoom c
     LEFT JOIN department d ON c.department_id = d.department_id
     LEFT JOIN user_info ui_creator ON c.creator_id = ui_creator.user_id
-    LEFT JOIN course_teacher ct ON c.course_id = ct.course_id
+    LEFT JOIN meetingRoom_employee ct ON c.meetingRoom_id = ct.meetingRoom_id
 GROUP BY
-    c.course_id,
-    c.course_name,
+    c.meetingRoom_id,
+    c.meetingRoom_name,
     c.credit,
     c.description,
     c.creator_id,
@@ -77,81 +77,81 @@ GROUP BY
     d.department_id,
     d.department_name;
 
-CREATE OR REPLACE VIEW v_course_info_with_teacher AS
+CREATE OR REPLACE VIEW v_meetingRoom_info_with_employee AS
 SELECT
-    c.course_id,
-    c.course_name,
+    c.meetingRoom_id,
+    c.meetingRoom_name,
     c.credit,
     c.description,
     c.creator_id,
     ui_creator.name AS creator_name,
     d.department_id,
     d.department_name,
-    v_teacher_info.user_id AS teacher_id,
-    v_teacher_info.name AS teacher_name,
-    v_teacher_info.title AS teacher_title_name,
-    v_teacher_info.department_name AS teacher_department_name,
-    COUNT(cs.student_id) AS student_count
+    v_employee_info.user_id AS employee_id,
+    v_employee_info.name AS employee_name,
+    v_employee_info.title AS employee_title_name,
+    v_employee_info.department_name AS employee_department_name,
+    COUNT(cs.customer_id) AS customer_count
 FROM
-    course c
+    meetingRoom c
         LEFT JOIN department d ON c.department_id = d.department_id
         LEFT JOIN user_info ui_creator ON c.creator_id = ui_creator.user_id
-        LEFT JOIN course_teacher ct ON c.course_id = ct.course_id
-        LEFT JOIN v_teacher_info ON ct.user_id = v_teacher_info.user_id
-        LEFT JOIN course_selection cs ON c.course_id = cs.course_id AND v_teacher_info.user_id = cs.teacher_id
+        LEFT JOIN meetingRoom_employee ct ON c.meetingRoom_id = ct.meetingRoom_id
+        LEFT JOIN v_employee_info ON ct.user_id = v_employee_info.user_id
+        LEFT JOIN meetingRoom_selection cs ON c.meetingRoom_id = cs.meetingRoom_id AND v_employee_info.user_id = cs.employee_id
 GROUP BY
-    c.course_id,
-    c.course_name,
+    c.meetingRoom_id,
+    c.meetingRoom_name,
     c.credit,
     c.description,
     c.creator_id,
     ui_creator.name,
     d.department_id,
     d.department_name,
-    v_teacher_info.user_id,
-    v_teacher_info.name,
-    v_teacher_info.title,
-    v_teacher_info.department_name;
+    v_employee_info.user_id,
+    v_employee_info.name,
+    v_employee_info.title,
+    v_employee_info.department_name;
 
-CREATE OR REPLACE VIEW v_course_selection_info AS
+CREATE OR REPLACE VIEW v_meetingRoom_selection_info AS
 SELECT 
-    cs.course_id,
-    c.course_name,
+    cs.meetingRoom_id,
+    c.meetingRoom_name,
     c.credit,
     c.description,
-    cs.student_id,
-    ui_student.name AS student_name,
-    cs.teacher_id,
-    ui_teacher.name AS teacher_name,
+    cs.customer_id,
+    ui_customer.name AS customer_name,
+    cs.employee_id,
+    ui_employee.name AS employee_name,
     cs.selection_time,
     cs.score,
     d.department_name
 FROM 
-    course_selection cs
-    INNER JOIN course c ON cs.course_id = c.course_id
-    LEFT JOIN user_info ui_student ON cs.student_id = ui_student.user_id
-    LEFT JOIN user_info ui_teacher ON cs.teacher_id = ui_teacher.user_id
+    meetingRoom_selection cs
+    INNER JOIN meetingRoom c ON cs.meetingRoom_id = c.meetingRoom_id
+    LEFT JOIN user_info ui_customer ON cs.customer_id = ui_customer.user_id
+    LEFT JOIN user_info ui_employee ON cs.employee_id = ui_employee.user_id
     LEFT JOIN department d ON c.department_id = d.department_id;
 
--- 学生作业信息视图
-CREATE OR REPLACE VIEW v_student_assignment_info AS
+-- 顾客作业信息视图
+CREATE OR REPLACE VIEW v_customer_assignment_info AS
 SELECT 
     a.assignment_title,
-    a.course_id,
-    c.course_name,
-    a.teacher_id,
-    ui_teacher.name AS teacher_name,
-    sa.student_id,
-    ui_student.name AS student_name,
+    a.meetingRoom_id,
+    c.meetingRoom_name,
+    a.employee_id,
+    ui_employee.name AS employee_name,
+    sa.customer_id,
+    ui_customer.name AS customer_name,
     a.submission_deadline,
     a.content AS assignment_content,
     a.submission_url,
     sa.grade
 FROM 
     assignment a
-    INNER JOIN course c ON a.course_id = c.course_id
-    LEFT JOIN user_info ui_teacher ON a.teacher_id = ui_teacher.user_id
-    LEFT JOIN student_assignment sa ON a.assignment_title = sa.assignment_title 
-        AND a.course_id = sa.course_id 
-        AND a.teacher_id = sa.teacher_id
-    LEFT JOIN user_info ui_student ON sa.student_id = ui_student.user_id;
+    INNER JOIN meetingRoom c ON a.meetingRoom_id = c.meetingRoom_id
+    LEFT JOIN user_info ui_employee ON a.employee_id = ui_employee.user_id
+    LEFT JOIN customer_assignment sa ON a.assignment_title = sa.assignment_title
+        AND a.meetingRoom_id = sa.meetingRoom_id
+        AND a.employee_id = sa.employee_id
+    LEFT JOIN user_info ui_customer ON sa.customer_id = ui_customer.user_id;

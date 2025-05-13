@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.constants.TokenConstants;
 import com.BookRoom.dto.LoginRequest;
 import com.BookRoom.entity.account.User;
-import com.BookRoom.entity.view.StudentView;
-import com.BookRoom.entity.view.TeacherView;
+import com.BookRoom.entity.view.CustomerView;
+import com.BookRoom.entity.view.EmployeeView;
 import com.BookRoom.entity.view.UserView;
 import com.BookRoom.exception.UnauthorizedException;
 import com.BookRoom.service.SequenceService;
@@ -61,31 +61,31 @@ public class UserController {
     }
 
     /**
-     * 根据用户ID获取教师信息
+     * 根据用户ID获取员工信息
      * <p>
-     * 该方法通过路径参数中的用户ID查询并返回教师的详细信息，包括姓名、职称等相关数据。
-     * 如果指定ID的教师不存在，将根据服务层的实现返回相应的错误信息或空对象。
+     * 该方法通过路径参数中的用户ID查询并返回员工的详细信息，包括姓名、职称等相关数据。
+     * 如果指定ID的员工不存在，将根据服务层的实现返回相应的错误信息或空对象。
      *
-     * @param userId 要查询的教师用户ID，作为路径变量传入
-     * @return 返回包含教师详细信息的TeacherView对象
+     * @param userId 要查询的员工用户ID，作为路径变量传入
+     * @return 返回包含员工详细信息的EmployeeView对象
      */
-    @GetMapping("/user/teacher/{userId}")
-    public TeacherView getTeacherByUserId(@PathVariable String userId) {
-        return userService.getTeacherInfoByUserId(userId);
+    @GetMapping("/user/employee/{userId}")
+    public EmployeeView getEmployeeByUserId(@PathVariable String userId) {
+        return userService.getEmployeeInfoByUserId(userId);
     }
 
     /**
-     * 根据用户ID获取学生信息
+     * 根据用户ID获取顾客信息
      * <p>
-     * 该方法通过路径参数中的用户ID查询并返回学生的详细信息，包括姓名、班级等相关数据。
-     * 如果指定ID的学生不存在，将根据服务层的实现返回相应的错误信息或空对象。
+     * 该方法通过路径参数中的用户ID查询并返回顾客的详细信息，包括姓名、班级等相关数据。
+     * 如果指定ID的顾客不存在，将根据服务层的实现返回相应的错误信息或空对象。
      *
-     * @param userId 要查询的学生用户ID，作为路径变量传入
-     * @return 返回包含学生详细信息的StudentView对象
+     * @param userId 要查询的顾客用户ID，作为路径变量传入
+     * @return 返回包含顾客详细信息的CustomerView对象
      */
-    @GetMapping("/user/student/{userId}")
-    public StudentView getStudentByUserId(@PathVariable String userId) {
-        return userService.getStudentInfoByUserId(userId);
+    @GetMapping("/user/customer/{userId}")
+    public CustomerView getCustomerByUserId(@PathVariable String userId) {
+        return userService.getCustomerInfoByUserId(userId);
     }
 
     /**
@@ -119,33 +119,33 @@ public class UserController {
     }
 
     /**
-     * 获取当前登录教师的个人资料信息
+     * 获取当前登录员工的个人资料信息
      * <p>
-     * 该方法从HTTP请求中提取当前登录教师的用户ID，然后查询并返回该教师的详细个人资料信息。
+     * 该方法从HTTP请求中提取当前登录员工的用户ID，然后查询并返回该员工的详细个人资料信息。
      * 用户ID通常由认证过滤器在请求处理过程中设置到请求属性中。
      *
-     * @param request HTTP请求对象，包含当前登录教师用户的ID信息
-     * @return 返回包含当前登录教师详细个人资料信息的TeacherView对象
+     * @param request HTTP请求对象，包含当前登录员工用户的ID信息
+     * @return 返回包含当前登录员工详细个人资料信息的EmployeeView对象
      */
-    @GetMapping("/user/teacher/profile")
-    public TeacherView getTeacherProfile(HttpServletRequest request) {
+    @GetMapping("/user/employee/profile")
+    public EmployeeView getEmployeeProfile(HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
-        return userService.getTeacherInfoByUserId(userId);
+        return userService.getEmployeeInfoByUserId(userId);
     }
 
     /**
-     * 获取当前登录学生的个人资料信息
+     * 获取当前登录顾客的个人资料信息
      * <p>
-     * 该方法从HTTP请求中提取当前登录学生的用户ID，然后查询并返回该学生的详细个人资料信息。
+     * 该方法从HTTP请求中提取当前登录顾客的用户ID，然后查询并返回该顾客的详细个人资料信息。
      * 用户ID通常由认证过滤器在请求处理过程中设置到请求属性中。
      *
-     * @param request HTTP请求对象，包含当前登录学生的ID信息
-     * @return 返回包含当前登录学生详细个人资料信息的StudentView对象
+     * @param request HTTP请求对象，包含当前登录顾客的ID信息
+     * @return 返回包含当前登录顾客详细个人资料信息的CustomerView对象
      */
-    @GetMapping("/user/student/profile")
-    public StudentView getStudentProfile(HttpServletRequest request) {
+    @GetMapping("/user/customer/profile")
+    public CustomerView getCustomerProfile(HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
-        return userService.getStudentInfoByUserId(userId);
+        return userService.getCustomerInfoByUserId(userId);
     }
 
     /**
@@ -168,42 +168,42 @@ public class UserController {
     /**
      * 分页获取所有用户信息
      * <p>
-     * 该方法用于分页获取系统中所有注册教师的基本信息。通过UserService调用数据访问层，
-     * 检索并返回指定页码和每页记录数的教师记录。
+     * 该方法用于分页获取系统中所有注册员工的基本信息。通过UserService调用数据访问层，
+     * 检索并返回指定页码和每页记录数的员工记录。
      *
      * @param current 当前页码，默认为1
      * @param size    每页记录数，默认为10
-     * @return 包含分页教师信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     * @return 包含分页员工信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
-    @GetMapping("user/teacher/getPage")
-    public Page<TeacherView> getAllTeachersByPage(
+    @GetMapping("user/employee/getPage")
+    public Page<EmployeeView> getAllEmployeesByPage(
             @RequestParam(value = "current", defaultValue = "1") long current,
             @RequestParam(value = "size", defaultValue = "16") long size,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "userId", required = false) String userId,
             @RequestParam(value = "departmentNames", required = false) List<String> departmentNames,
             @RequestParam(value = "titles", required = false) List<String> titles) {
-        return userService.getAllTeachersByPage(current, size, name, userId, departmentNames, titles);
+        return userService.getAllEmployeesByPage(current, size, name, userId, departmentNames, titles);
     }
 
     /**
      * 分页获取所有用户信息
      * <p>
-     * 该方法用于分页获取系统中所有注册学生的基本信息。通过UserService调用数据访问层，
-     * 检索并返回指定页码和每页记录数的学生记录。
+     * 该方法用于分页获取系统中所有注册顾客的基本信息。通过UserService调用数据访问层，
+     * 检索并返回指定页码和每页记录数的顾客记录。
      *
      * @param current 当前页码，默认为1
      * @param size    每页记录数，默认为10
-     * @return 包含分页学生信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     * @return 包含分页顾客信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
-    @GetMapping("user/student/getPage")
-    public Page<StudentView> getAllStudentsByPage(
+    @GetMapping("user/customer/getPage")
+    public Page<CustomerView> getAllCustomersByPage(
             @RequestParam(value = "current", defaultValue = "1") long current,
             @RequestParam(value = "size", defaultValue = "16") long size,
             @RequestParam(value = "name", required = false) String name,
             @RequestParam(value = "userId", required = false) String userId,
             @RequestParam(value = "departmentNames", required = false) List<String> departmentNames) {
-        return userService.getAllStudentsByPage(current, size, name, userId, departmentNames);
+        return userService.getAllCustomersByPage(current, size, name, userId, departmentNames);
     }
 
     /**

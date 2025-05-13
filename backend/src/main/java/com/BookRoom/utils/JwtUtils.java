@@ -43,7 +43,7 @@ public class JwtUtils {
      */
     public static String generateToken(String userId) {
         return Jwts.builder()
-                .issuer("edu-system")
+                .issuer("BookRoom-system")
                 .subject(userId)
                 .expiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(KEY)
@@ -60,7 +60,7 @@ public class JwtUtils {
     public static Claims parseToken(String token) {
         return Jwts.parser()
                 .verifyWith(KEY)
-                .requireIssuer("edu-system")
+                .requireIssuer("BookRoom-system")
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
