@@ -25,12 +25,27 @@ const { data: departmentList } = useRequest(
     departmentService.getDepartmentList,
 );
 
+const showFilterDialog = ref(false)
+
 // 分页参数配置
 const pagination = ref({
   current: 1,
   size: 16,
   total: 0
 });
+
+const filterForm = ref({
+  date: '',
+  startHour: 8,
+  endHour: 9,
+  attendees: 1,
+  hasProjector: false,
+  hasAudio: false,
+  hasNetwork: false,
+  minPrice: null,
+  maxPrice: null,
+  minCapacity: null
+})
 
 const params = ref<PaginationParams>({
   current: pagination.value.current,
@@ -77,6 +92,8 @@ const handleEditMeetingRoom = (meetingRoom?: MeetingRoomInfo) => {
   currentMeetingRoom.value = meetingRoom;
   showEditor.value = true;
 }
+
+
 
 const handleEditorSuccess = () => {
   fetchMeetingRoomList(params.value, departmentIdsParams);
@@ -173,6 +190,36 @@ const handleTimeConfirm = async () => {
   }
 }
 
+const handleFilterConfirm = async () => {
+  const start = filterForm.value.startHour
+  const end = filterForm.value.endHour
+  if (start >= end) {
+    ElMessage.error('开始时间不能晚于结束时间')
+    return
+  }
+
+  // const time = dayjs(filterForm.value.date).format('YYYY-MM-DD')
+  // const startTime = `${time} ${String(start).padStart(2, '0')}:00:00`
+  // const endTime = `${time} ${String(end).padStart(2, '0')}:00:00`
+
+  const query = {
+    current: 1,
+    size: pagination.value.size,
+    departmentIds: departmentIdsParams,
+    minPrice: filterForm.value.minPrice,
+    maxPrice: filterForm.value.maxPrice,
+    minCapacity: filterForm.value.minCapacity
+    // 如果你后续扩展了 hasProjector/hasAudio/hasNetwork 筛选也可以加
+  }
+
+  try {
+    const result = await meetingRoomService.getMeetingRoomList(query, departmentIdsParams)
+    meetingRoomList.value = result.data.records
+    showFilterDialog.value = false
+  } catch (e) {
+    ElMessage.error('查询失败')
+  }
+}
 </script>
 
 <template>
@@ -233,6 +280,43 @@ const handleTimeConfirm = async () => {
       </el-form>
     </el-dialog>
 
+    <el-dialog v-model="showFilterDialog" title="预约条件筛选" width="40%">
+      <el-form label-width="100px">
+        <el-form-item label="日期">
+          <el-date-picker v-model="filterForm.date" type="date" />
+        </el-form-item>
+        <el-form-item label="开始时间">
+          <el-select v-model="filterForm.startHour">
+            <el-option v-for="h in 13" :key="h" :label="`${h + 7}:00`" :value="h + 7" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="结束时间">
+          <el-select v-model="filterForm.endHour">
+            <el-option v-for="h in 13" :key="h" :label="`${h + 8}:00`" :value="h + 8" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="参会人数">
+          <el-input-number v-model="filterForm.attendees" :min="1" />
+        </el-form-item>
+        <el-form-item label="价格区间">
+          <el-input-number v-model="filterForm.minPrice" placeholder="最小价格" :min="0" />
+          <el-input-number v-model="filterForm.maxPrice" placeholder="最大价格" :min="0" style="margin-left: 10px;" />
+        </el-form-item>
+        <el-form-item label="最低容量">
+          <el-input-number v-model="filterForm.minCapacity" :min="1" />
+        </el-form-item>
+        <el-form-item label="设备要求">
+          <el-checkbox v-model="filterForm.hasProjector">投影仪</el-checkbox>
+          <el-checkbox v-model="filterForm.hasAudio">音响</el-checkbox>
+          <el-checkbox v-model="filterForm.hasNetwork">网络</el-checkbox>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleFilterConfirm">提交</el-button>
+          <el-button @click="showFilterDialog = false">取消</el-button>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
     <el-header class="main-header">
       <div class="title-container">
         <h2>会议室列表</h2>
@@ -245,6 +329,7 @@ const handleTimeConfirm = async () => {
                      :value="item.departmentId" />
         </el-select>
         <el-button type="success" plain @click="handleDepartmentChange">搜索</el-button>
+        <el-button type="primary" plain @click="showFilterDialog = true">提交预约要求</el-button>
         <el-divider v-if="userRole === 'admin'" direction="vertical" />
         <el-button v-if="userRole === 'admin'" type="primary" plain @click="handleEditMeetingRoom()">发布会议室</el-button>
       </div>

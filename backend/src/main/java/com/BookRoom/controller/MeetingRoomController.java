@@ -9,6 +9,7 @@ import com.BookRoom.service.MeetingRoomService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -45,8 +46,11 @@ public class MeetingRoomController {
     public Page<MeetingRoomView> getAllMeetingRoom(
             @RequestParam(value = "current", defaultValue = "1") long current,
             @RequestParam(value = "size", defaultValue = "16") long size,
-            @RequestParam(value = "departmentIds", required = false) List<String> departmentIds) {
-        return meetingRoomService.getAllMeetingRoomsByPage(current, size, departmentIds);
+            @RequestParam(value = "departmentIds", required = false) List<String> departmentIds,
+            @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
+            @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
+            @RequestParam(value = "minCapacity", required = false) Integer minCapacity) {
+        return meetingRoomService.getAllMeetingRoomsByPage(current, size, departmentIds, minPrice, maxPrice, minCapacity);
     }
 
     /**

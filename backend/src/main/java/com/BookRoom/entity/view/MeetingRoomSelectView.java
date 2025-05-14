@@ -33,6 +33,5 @@ public class MeetingRoomSelectView {
     private LocalDateTime paymentTime;
     private LocalDateTime cancellationTime;
     private BigDecimal refundAmount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+
 }

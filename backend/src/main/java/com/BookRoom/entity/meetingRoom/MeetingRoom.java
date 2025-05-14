@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @TableName("meetingRoom")
 public class MeetingRoom {
@@ -13,7 +15,7 @@ public class MeetingRoom {
     private String meetingRoomName;
     private String creatorId;
     private String departmentId;
-    private Double pricePerHour; // 原 credit 字段已删除，替换为 pricePerHour
+    private BigDecimal pricePerHour; // 原 credit 字段已删除，替换为 pricePerHour
     private String description;
     private String type;
     private Integer capacity;

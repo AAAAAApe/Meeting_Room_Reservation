@@ -92,14 +92,33 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
      * @return 包含分页会议室信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
-    public Page<MeetingRoomView> getAllMeetingRoomsByPage(long current, long size, List<String> departmentIds) {
+    public Page<MeetingRoomView> getAllMeetingRoomsByPage(
+            long current,
+            long size,
+            List<String> departmentIds,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Integer minCapacity
+    ) {
         Page<MeetingRoomView> page = new Page<>(current, size);
         LambdaQueryWrapper<MeetingRoomView> queryWrapper = new LambdaQueryWrapper<>();
+
         if (departmentIds != null && !departmentIds.isEmpty()) {
             queryWrapper.in(MeetingRoomView::getDepartmentId, departmentIds);
         }
+        if (minPrice != null) {
+            queryWrapper.ge(MeetingRoomView::getPricePerHour, minPrice);
+        }
+        if (maxPrice != null) {
+            queryWrapper.le(MeetingRoomView::getPricePerHour, maxPrice);
+        }
+        if (minCapacity != null) {
+            queryWrapper.ge(MeetingRoomView::getCapacity, minCapacity);
+        }
+
         return meetingRoomViewMapper.selectPage(page, queryWrapper);
     }
+
 
     /**
      * 创建或更新会议室信息，同时更新会议室与员工的关联关系
@@ -131,24 +150,41 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
 
     @Override
     public boolean selectMeetingRoom(Integer meetingRoomId, String customerId, LocalDateTime startTime, LocalDateTime endTime) {
-        // 构建插入对象
+        // 1. 校验是否存在冲突的订单
+        List<MeetingRoomSelection> conflictList = meetingRoomSelectionMapper.selectList(
+                new LambdaQueryWrapper<MeetingRoomSelection>()
+                        .eq(MeetingRoomSelection::getMeetingRoomId, meetingRoomId)
+                        .in(MeetingRoomSelection::getStatus, List.of("pending_payment", "confirmed"))
+                        .and(wrapper -> wrapper
+                                .lt(MeetingRoomSelection::getEndTime, endTime)
+                                .gt(MeetingRoomSelection::getStartTime, startTime))
+        );
+        if (!conflictList.isEmpty()) {
+            return false; // 冲突，不能预订
+        }
+
+        // 2. 查询会议室价格
+        MeetingRoom room = meetingRoomMapper.selectById(meetingRoomId);
+        if (room == null) return false;
+
+        BigDecimal hourlyRate = room.getPricePerHour();
+        long hours = ChronoUnit.HOURS.between(startTime, endTime);
+        if (hours <= 0) return false;
+
+        BigDecimal totalPrice = hourlyRate.multiply(BigDecimal.valueOf(hours));
+
+        // 3. 构建插入对象
         MeetingRoomSelection selection = new MeetingRoomSelection();
         selection.setMeetingRoomId(meetingRoomId);
         selection.setCustomerId(customerId);
         selection.setStartTime(startTime);
         selection.setEndTime(endTime);
-
-        // 示例逻辑：计算时间差 × 固定价格
-        long hours = ChronoUnit.HOURS.between(startTime, endTime);
-        BigDecimal hourlyRate = BigDecimal.valueOf(100); // 假设每小时100元
-        BigDecimal totalPrice = hourlyRate.multiply(BigDecimal.valueOf(hours));
-
-        selection.setScore((double) 0); // 初始评分为0
+        selection.setScore(0.0);
         selection.setStatus("pending_payment");
-        selection.setTotalPrice(totalPrice);
         selection.setPaymentStatus("unpaid");
+        selection.setTotalPrice(totalPrice);
 
-        // 调用 mapper 插入
+        // 插入
         return meetingRoomSelectionMapper.insert(selection) > 0;
     }
 

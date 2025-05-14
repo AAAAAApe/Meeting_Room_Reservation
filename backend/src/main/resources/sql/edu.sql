@@ -11,7 +11,7 @@
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 14/05/2025 18:14:30
+ Date: 15/05/2025 02:19:22
 */
 
 SET NAMES utf8mb4;
@@ -295,6 +295,7 @@ CREATE TABLE `meetingroom_selection`  (
 -- Records of meetingroom_selection
 -- ----------------------------
 INSERT INTO `meetingroom_selection` VALUES (1, '202020001', '2025-05-14 18:14:04', 0.0, '2025-05-15 08:00:00', '2025-05-15 09:00:00', 1, 'pending_payment', 100.00, 'unpaid', NULL, NULL, NULL, '2025-05-14 18:14:04', '2025-05-14 18:14:04');
+INSERT INTO `meetingroom_selection` VALUES (9, '202020001', '2025-05-15 02:11:47', 0.0, '2025-05-16 08:00:00', '2025-05-16 09:00:00', 1, 'pending_payment', 100.00, 'unpaid', NULL, NULL, NULL, '2025-05-15 02:11:47', '2025-05-15 02:11:47');
 
 -- ----------------------------
 -- Table structure for refresh_token
@@ -313,7 +314,7 @@ CREATE TABLE `refresh_token`  (
 -- ----------------------------
 -- Records of refresh_token
 -- ----------------------------
-INSERT INTO `refresh_token` VALUES ('202020001', '38b833dd-2a68-4622-8a2e-4b52e172e989', '2025-06-13 18:08:56', '2025-05-14 18:08:56');
+INSERT INTO `refresh_token` VALUES ('202020001', '39b90cfa-f1e0-4f25-8c7c-65589f987985', '2025-06-14 02:02:17', '2025-05-15 02:02:17');
 INSERT INTO `refresh_token` VALUES ('202500001', 'f1db9584-8a2f-42fc-b8ca-258ec7970a99', '2025-06-13 17:16:50', '2025-05-14 17:16:50');
 
 -- ----------------------------
@@ -1147,7 +1148,7 @@ CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_info` AS s
 -- View structure for v_meetingroom_selection_info
 -- ----------------------------
 DROP VIEW IF EXISTS `v_meetingroom_selection_info`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_selection_info` AS select `cs`.`meeting_room_id` AS `meeting_room_id`,`mr`.`meeting_room_name` AS `meeting_room_name`,`mr`.`price_per_hour` AS `price_per_hour`,`mr`.`description` AS `description`,`mr`.`capacity` AS `capacity`,`mr`.`type` AS `type`,`mr`.`status` AS `status`,`mr`.`has_projector` AS `has_projector`,`mr`.`has_audio` AS `has_audio`,`mr`.`has_network` AS `has_network`,`cs`.`customer_id` AS `customer_id`,`ui_customer`.`name` AS `customer_name`,`cs`.`selection_time` AS `selection_time`,`cs`.`score` AS `score`,`d`.`department_name` AS `department_name` from (((`meetingroom_selection` `cs` join `meetingroom` `mr` on((`cs`.`meeting_room_id` = `mr`.`meeting_room_id`))) left join `user_info` `ui_customer` on((`cs`.`customer_id` = `ui_customer`.`user_id`))) left join `department` `d` on((`mr`.`department_id` = `d`.`department_id`)));
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_selection_info` AS select `cs`.`meeting_room_id` AS `meeting_room_id`,`mr`.`meeting_room_name` AS `meeting_room_name`,`mr`.`price_per_hour` AS `price_per_hour`,`mr`.`description` AS `description`,`mr`.`capacity` AS `capacity`,`mr`.`type` AS `type`,`mr`.`status` AS `status`,`mr`.`has_projector` AS `has_projector`,`mr`.`has_audio` AS `has_audio`,`mr`.`has_network` AS `has_network`,`cs`.`customer_id` AS `customer_id`,`ui_customer`.`name` AS `customer_name`,`cs`.`selection_time` AS `selection_time`,`cs`.`score` AS `score`,`cs`.`start_time` AS `start_time`,`cs`.`end_time` AS `end_time`,`cs`.`attendees_count` AS `attendees_count`,`cs`.`status` AS `order_status`,`cs`.`total_price` AS `total_price`,`cs`.`payment_status` AS `payment_status`,`cs`.`payment_time` AS `payment_time`,`cs`.`cancellation_time` AS `cancellation_time`,`cs`.`refund_amount` AS `refund_amount`,`d`.`department_name` AS `department_name` from (((`meetingroom_selection` `cs` join `meetingroom` `mr` on((`cs`.`meeting_room_id` = `mr`.`meeting_room_id`))) left join `user_info` `ui_customer` on((`cs`.`customer_id` = `ui_customer`.`user_id`))) left join `department` `d` on((`mr`.`department_id` = `d`.`department_id`)));
 
 -- ----------------------------
 -- View structure for v_user_info

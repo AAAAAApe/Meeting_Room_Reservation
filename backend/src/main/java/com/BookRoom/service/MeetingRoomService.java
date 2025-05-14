@@ -6,6 +6,7 @@ import com.BookRoom.entity.meetingRoom.MeetingRoomSelection;
 import com.BookRoom.entity.view.MeetingRoomSelectView;
 import com.BookRoom.entity.view.MeetingRoomView;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -50,8 +51,14 @@ public interface MeetingRoomService {
      * @param departmentIds 院系ID列表，为null时获取所有会议室
      * @return 分页会议室列表
      */
-    Page<MeetingRoomView> getAllMeetingRoomsByPage(long current, long size, List<String> departmentIds);
-
+    Page<MeetingRoomView> getAllMeetingRoomsByPage(
+            long current,
+            long size,
+            List<String> departmentIds,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Integer minCapacity
+    );
     /**
      * 创建新会议室
      *
