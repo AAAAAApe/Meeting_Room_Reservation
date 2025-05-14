@@ -61,7 +61,7 @@ const handleCancelReservation = async (room: MeetingRoomWithEmployeeInfo) => {
   if (!confirmed) return;
 
   try {
-    // await meetingRoomService.cancelReservation({ meetingRoomId: room.meetingRoomId })
+    await meetingRoomService.cancelReservation({ meetingRoomId: room.meetingRoomId })
     ElMessage.success('已提交取消申请，等待审核')
   } catch (e) {
     ElMessage.error('提交失败，请稍后重试')

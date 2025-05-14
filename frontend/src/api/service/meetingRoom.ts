@@ -29,7 +29,6 @@ const meetingRoomService = {
   publishMeetingRoom(meetingRoom: MeetingRoomPublishInfo) {
     return request.post<number>('/meetingRoom/createOrUpdate', meetingRoom);
   },
-
   /**
    * 删除会议室
    * @param meetingRoomId 会议室ID
@@ -99,6 +98,14 @@ const meetingRoomService = {
   cancelReservation: (data: { meetingRoomId: number }) => {
     return request.put('/cancelRequest/apply', data);
   },
+  /**
+   * 顾客支付会议室租赁费
+   * @param meetingRoomId 会议室ID
+   */
+  payMeetingRoom(meetingRoomId: number) {
+    return request.put<void>(`/meetingRoom/${meetingRoomId}/pay`);
+  },
+
 };
 
 export default meetingRoomService;

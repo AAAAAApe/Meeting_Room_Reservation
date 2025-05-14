@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
-import { meetingRoomService, departmentService } from '../api/index';
 import type { MeetingRoomInfo, PaginationParams } from '../api/types';
 import MeetingRoomEditor from './MeetingRoomEditor.vue';
 import { useUserStore } from '../stores/userStore';
 import dayjs from 'dayjs'
-import {ElMessage} from "element-plus"; // 确保安装了 dayjs
+import {ElMessage} from "element-plus";
+import {meetingRoomService} from "@/api";
 
 const userStore = useUserStore();
 const userRole = computed(() => userStore.user?.roleName || '');
@@ -19,11 +19,6 @@ const departmentsSelected = ref([]);
 
 // 翻页时携带参数，作用是提交筛选后，翻页时保留筛选条件
 let departmentIdsParams: string[] = [];
-
-// 获取院系列表数据，用于下拉筛选框
-const { data: departmentList } = useRequest(
-    departmentService.getDepartmentList,
-);
 
 const showFilterDialog = ref(false)
 

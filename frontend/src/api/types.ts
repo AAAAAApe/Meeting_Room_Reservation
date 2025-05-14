@@ -82,11 +82,16 @@ export interface MeetingRoomWithEmployeeInfo extends MeetingRoomInfo {
   customerCount?: number;
 }
 
-export interface CustomerMeetingRoomSelection extends MeetingRoomWithEmployeeInfo {
+export interface CustomerMeetingRoomSelection {
+  meetingRoomId: number;
   customerId: string;
   customerName: string;
   selectionTime: Date;
   score: number;
+  totalPrice: number; //
+  paymentStatus: 'unpaid' | 'paid' | 'refunded' | 'partial_refund';
+  refundAmount?: number; //
+  status: 'pending_payment' | 'confirmed' | 'cancelled' | 'completed'; //
 }
 
 export interface MeetingRoomAssignment {

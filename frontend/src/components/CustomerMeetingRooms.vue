@@ -23,7 +23,7 @@ const params = ref<PaginationParams>({
 });
 
 // 获取会议室列表数据
-const { run: fetchEmployeeMeetingRooms, loading } = useRequest(
+const { run: fetchOrders, loading } = useRequest(
     meetingRoomService.getCustomerMeetingRoomSelections,
     {
         // 请求成功回调
@@ -41,7 +41,7 @@ const { run: fetchEmployeeMeetingRooms, loading } = useRequest(
 // 处理分页变化事件
 const handleCurrentChange = (current: number) => {
     params.value.current = current;
-    fetchEmployeeMeetingRooms(params.value);
+    fetchOrders(params.value);
 };
 
 const showDetailDialog = ref(false);
@@ -67,6 +67,32 @@ const handleCancelReservation = async (room: MeetingRoomWithEmployeeInfo) => {
     ElMessage.error('提交失败，请稍后重试')
   }
 }
+
+const handlePay = async (order: CustomerMeetingRoomSelection) => {
+  const amount = order.totalPrice?.toFixed(2) || '0.00';
+
+  const confirmed = await ElMessageBox.confirm(
+      `您需要支付 ¥${amount}，是否继续？`,
+      '确认支付',
+      {
+        confirmButtonText: '确认支付',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+  ).catch(() => false);
+
+  if (!confirmed) return;
+
+  try {
+    await meetingRoomService.payMeetingRoom(order.meetingRoomId);
+    ElMessage.success('支付成功');
+    fetchOrders(params.value); // 刷新列表
+  } catch (e) {
+    ElMessage.error('支付失败，请稍后重试');
+  }
+};
+
+
 const handleShowDetail = (meetingRoom: MeetingRoomWithEmployeeInfo) => {
     selectedMeetingRoom.value = meetingRoom;
     showDetailDialog.value = true;
@@ -103,6 +129,34 @@ const handleShowDetail = (meetingRoom: MeetingRoomWithEmployeeInfo) => {
               <el-table-column label="操作" width="200px">
                 <template #default="scope">
                   <el-button type="primary" size="small" @click="handleShowDetail(scope.row)">查看详情</el-button>
+                  <!-- 支付按钮 -->
+<!--                  <el-button-->
+<!--                      v-if="scope.row.status === 'pending_payment' && scope.row.paymentStatus === 'unpaid'"-->
+<!--                      type="success"-->
+<!--                      size="small"-->
+<!--                      @click="handlePay(scope.row)"-->
+<!--                  >-->
+<!--                    支付-->
+<!--                  </el-button>-->
+
+<!--                  &lt;!&ndash; 取消预约按钮 &ndash;&gt;-->
+<!--                  <el-button-->
+<!--                      v-else-if="scope.row.status === 'confirmed'"-->
+<!--                      type="danger"-->
+<!--                      size="small"-->
+<!--                      @click="handleCancelReservation(scope.row)"-->
+<!--                  >-->
+<!--                    取消预约-->
+<!--                  </el-button>-->
+                  <el-button
+                      type="success"
+                      size="small"
+                      @click="handlePay(scope.row)"
+                  >
+                    支付
+                  </el-button>
+
+                  <!-- 取消预约按钮 -->
                   <el-button
                       type="danger"
                       size="small"
@@ -110,6 +164,13 @@ const handleShowDetail = (meetingRoom: MeetingRoomWithEmployeeInfo) => {
                   >
                     取消预约
                   </el-button>
+                  <!-- 展示退款金额 -->
+                  <span
+                      v-if="scope.row.paymentStatus === 'refunded' && scope.row.refundAmount"
+                      style="color: red; margin-left: 10px"
+                  >
+                    已退款 ¥{{ scope.row.refundAmount.toFixed(2) }}
+                  </span>
                 </template>
               </el-table-column>
             </el-table>

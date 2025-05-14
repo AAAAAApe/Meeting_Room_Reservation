@@ -1,5 +1,7 @@
 package com.BookRoom.entity.meetingRoom;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.github.jeffreyning.mybatisplus.anno.MppMultiId;
 import lombok.Data;
@@ -10,10 +12,12 @@ import java.time.LocalDateTime;
 @Data
 @TableName("meetingRoom_selection")
 public class MeetingRoomSelection {
-    @MppMultiId
+
+    @TableId(type = IdType.AUTO)
+    private Long id;  // 与表主键一致
+
     private Integer meetingRoomId;
-    
-    @MppMultiId
+
     private String customerId;
     
     private LocalDateTime selectionTime;

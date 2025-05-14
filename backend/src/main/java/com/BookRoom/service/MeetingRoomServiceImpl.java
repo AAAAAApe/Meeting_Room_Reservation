@@ -289,7 +289,7 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
 
         MeetingRoomSelection order = meetingRoomSelectionMapper.selectOne(query);
         if (order == null) return false;
-
+        System.out.println("订单信息：" + order);
         // 更新状态为已确认
         order.setStatus("confirmed");
         order.setPaymentStatus("paid");
@@ -297,6 +297,7 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
 
         return meetingRoomSelectionMapper.updateById(order) > 0;
     }
+
     @Override
     public BigDecimal calculateRefundAmount(LocalDateTime startTime, BigDecimal totalPrice) {
         long hours = ChronoUnit.HOURS.between(LocalDateTime.now(), startTime);

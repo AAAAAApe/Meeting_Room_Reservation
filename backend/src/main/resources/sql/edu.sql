@@ -11,11 +11,35 @@
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 15/05/2025 02:19:22
+ Date: 15/05/2025 05:18:55
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for cancellation_request
+-- ----------------------------
+DROP TABLE IF EXISTS `cancellation_request`;
+CREATE TABLE `cancellation_request`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `meeting_room_id` int NOT NULL,
+  `customer_id` char(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `request_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` enum('pending','approved','rejected') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'pending',
+  `review_time` datetime NULL DEFAULT NULL,
+  `refund_amount` decimal(10, 2) NULL DEFAULT NULL,
+  `reason` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `fk_cancellation`(`meeting_room_id` ASC, `customer_id` ASC) USING BTREE,
+  CONSTRAINT `fk_cancellation` FOREIGN KEY (`meeting_room_id`, `customer_id`) REFERENCES `meetingroom_selection` (`meeting_room_id`, `customer_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of cancellation_request
+-- ----------------------------
+INSERT INTO `cancellation_request` VALUES (1, 5, '202020001', '2025-05-15 04:28:05', 'pending', NULL, NULL, NULL);
+INSERT INTO `cancellation_request` VALUES (2, 1, '202020001', '2025-05-15 05:18:29', 'pending', NULL, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for customer_info
@@ -270,6 +294,7 @@ INSERT INTO `meetingroom` VALUES (21, '宗教社会学', '202500001', '01', 2.50
 -- ----------------------------
 DROP TABLE IF EXISTS `meetingroom_selection`;
 CREATE TABLE `meetingroom_selection`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
   `meeting_room_id` int NOT NULL,
   `customer_id` char(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `selection_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -285,17 +310,22 @@ CREATE TABLE `meetingroom_selection`  (
   `refund_amount` decimal(10, 2) NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`meeting_room_id`, `customer_id`) USING BTREE,
+  PRIMARY KEY (`id`) USING BTREE,
   INDEX `student_id`(`customer_id` ASC) USING BTREE,
-  CONSTRAINT `meetingroom_selection_ibfk_1` FOREIGN KEY (`meeting_room_id`) REFERENCES `meetingroom` (`meeting_room_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  UNIQUE INDEX `idx_room_customer_time`(`meeting_room_id` ASC, `customer_id` ASC, `start_time` ASC, `end_time` ASC) USING BTREE,
   CONSTRAINT `meetingroom_selection_chk_1` CHECK (`score` between 0 and 100)
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of meetingroom_selection
 -- ----------------------------
-INSERT INTO `meetingroom_selection` VALUES (1, '202020001', '2025-05-14 18:14:04', 0.0, '2025-05-15 08:00:00', '2025-05-15 09:00:00', 1, 'pending_payment', 100.00, 'unpaid', NULL, NULL, NULL, '2025-05-14 18:14:04', '2025-05-14 18:14:04');
-INSERT INTO `meetingroom_selection` VALUES (9, '202020001', '2025-05-15 02:11:47', 0.0, '2025-05-16 08:00:00', '2025-05-16 09:00:00', 1, 'pending_payment', 100.00, 'unpaid', NULL, NULL, NULL, '2025-05-15 02:11:47', '2025-05-15 02:11:47');
+INSERT INTO `meetingroom_selection` VALUES (1, 1, '202020001', '2025-05-14 18:14:04', 0.0, '2025-05-15 08:00:00', '2025-05-15 09:00:00', 1, 'cancelled', 100.00, 'unpaid', NULL, '2025-05-15 02:50:00', NULL, '2025-05-15 02:50:00', '2025-05-15 02:50:00');
+INSERT INTO `meetingroom_selection` VALUES (2, 2, '202020001', '2025-05-15 02:21:28', 0.0, '2025-05-16 08:00:00', '2025-05-16 09:00:00', 1, 'cancelled', 100.00, 'unpaid', NULL, '2025-05-15 02:55:00', NULL, '2025-05-15 02:55:00', '2025-05-15 02:55:00');
+INSERT INTO `meetingroom_selection` VALUES (3, 6, '202020001', '2025-05-15 03:35:58', 0.0, '2025-05-16 08:00:00', '2025-05-16 09:00:00', 1, 'cancelled', 3.00, 'unpaid', NULL, '2025-05-15 04:10:00', NULL, '2025-05-15 04:10:00', '2025-05-15 04:10:00');
+INSERT INTO `meetingroom_selection` VALUES (4, 9, '202020001', '2025-05-15 02:11:47', 0.0, '2025-05-16 08:00:00', '2025-05-16 09:00:00', 1, 'cancelled', 100.00, 'unpaid', NULL, '2025-05-15 02:50:00', NULL, '2025-05-15 02:50:00', '2025-05-15 02:50:00');
+INSERT INTO `meetingroom_selection` VALUES (5, 1, '202020001', '2025-05-15 04:00:33', 0.0, '2025-05-16 10:00:00', '2025-05-16 11:00:00', 1, 'cancelled', 3.00, 'unpaid', NULL, '2025-05-15 04:35:00', NULL, '2025-05-15 04:35:00', '2025-05-15 04:35:00');
+INSERT INTO `meetingroom_selection` VALUES (6, 5, '202020001', '2025-05-15 04:23:33', 0.0, '2025-05-30 08:00:00', '2025-05-30 09:00:00', 1, 'confirmed', 3.50, 'paid', NULL, NULL, NULL, '2025-05-15 04:51:48', '2025-05-15 04:51:48');
+INSERT INTO `meetingroom_selection` VALUES (7, 1, '202020001', '2025-05-15 05:00:39', 0.0, '2025-05-31 08:00:00', '2025-05-31 09:00:00', 1, 'confirmed', 3.00, 'paid', '2025-05-15 05:18:08', NULL, NULL, '2025-05-15 05:00:39', '2025-05-15 05:00:39');
 
 -- ----------------------------
 -- Table structure for refresh_token
@@ -314,8 +344,7 @@ CREATE TABLE `refresh_token`  (
 -- ----------------------------
 -- Records of refresh_token
 -- ----------------------------
-INSERT INTO `refresh_token` VALUES ('202020001', '39b90cfa-f1e0-4f25-8c7c-65589f987985', '2025-06-14 02:02:17', '2025-05-15 02:02:17');
-INSERT INTO `refresh_token` VALUES ('202500001', 'f1db9584-8a2f-42fc-b8ca-258ec7970a99', '2025-06-13 17:16:50', '2025-05-14 17:16:50');
+INSERT INTO `refresh_token` VALUES ('202020001', '8606621a-81aa-453b-8206-721802659364', '2025-06-14 05:00:30', '2025-05-15 05:00:30');
 
 -- ----------------------------
 -- Table structure for role
