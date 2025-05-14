@@ -22,5 +22,4 @@ public class MeetingRoomView {
     private String creatorName;
     private String departmentId;
     private String departmentName;
-    private BigInteger employeeCount;
 }

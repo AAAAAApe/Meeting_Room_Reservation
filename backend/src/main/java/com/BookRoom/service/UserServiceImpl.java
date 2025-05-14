@@ -18,14 +18,12 @@ public class UserServiceImpl implements UserService{
     private final UserViewMapper userViewMapper;
     private final EmployeeViewMapper employeeViewMapper;
     private final CustomerViewMapper customerViewMapper;
-    private final MeetingRoomEmployeeMapper meetingRoomEmployeeMapper;
 
-    public UserServiceImpl(UserMapper userMapper, UserViewMapper userViewMapper, EmployeeViewMapper employeeViewMapper, CustomerViewMapper customerViewMapper, MeetingRoomEmployeeMapper meetingRoomEmployeeMapper){
+    public UserServiceImpl(UserMapper userMapper, UserViewMapper userViewMapper, EmployeeViewMapper employeeViewMapper, CustomerViewMapper customerViewMapper){
         this.userMapper = userMapper;
         this.userViewMapper = userViewMapper;
         this.employeeViewMapper = employeeViewMapper;
         this.customerViewMapper = customerViewMapper;
-        this.meetingRoomEmployeeMapper = meetingRoomEmployeeMapper;
     }
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();

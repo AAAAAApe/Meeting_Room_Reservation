@@ -3,7 +3,6 @@ import { computed, ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
 import { meetingRoomService, departmentService } from '../api/index';
 import type { MeetingRoomInfo, PaginationParams } from '../api/types';
-import MeetingRoomWithEmployeesList from './MeetingRoomWithEmployeesList.vue';
 import MeetingRoomEditor from './MeetingRoomEditor.vue';
 import { useUserStore } from '../stores/userStore';
 
@@ -113,6 +112,40 @@ const formatEquipment = (room: MeetingRoomInfo) => {
     room.hasNetwork ? '网络' : null
   ].filter(Boolean).join(' / ') || '无'
 }
+
+// 添加状态
+const showTimePicker = ref(false)
+const selectedMeetingRoom = ref<MeetingRoomInfo>()
+
+const selectedDate = ref('')
+const startHour = ref(8)
+const endHour = ref(9)
+// 添加处理方法
+const handleSelectMeetingRoom = (room: MeetingRoomInfo) => {
+  selectedMeetingRoom.value = room
+  selectedDate.value = ''
+  startHour.value = 8
+  endHour.value = 9
+  showTimePicker.value = true
+}
+const handleTimeConfirm = () => {
+  if (startHour.value > endHour.value) {
+    // ElMessage.error('开始时间不能晚于结束时间')
+    return
+  }
+
+  console.log('提交预订：', {
+    roomId: selectedMeetingRoom.value?.meetingRoomId,
+    date: selectedDate.value,
+    startHour: startHour.value,
+    endHour: endHour.value
+  })
+
+  // TODO: 调用预订接口
+  // meetingRoomService.reserve({ roomId, date, startHour, endHour })
+
+  showTimePicker.value = false
+}
 </script>
 
 <template>
@@ -127,6 +160,50 @@ const formatEquipment = (room: MeetingRoomInfo) => {
 
     <el-dialog v-model="showEmployeeList" title="会议室员工列表" align-center width="1000px" destroy-on-close>
       <MeetingRoomWithEmployeesList v-if="currentMeetingRoomId" :meetingRoomId="currentMeetingRoomId" />
+    </el-dialog>
+    <el-dialog v-model="showTimePicker" title="选择时间" width="30%" align-center>
+      <el-form label-width="100px">
+        <el-form-item label="日期">
+          <el-date-picker
+              v-model="selectedDate"
+              type="date"
+              placeholder="选择日期"
+              :disabled-date="(date) => {
+          const today = new Date()
+          const max = new Date()
+          max.setDate(today.getDate() + 60)
+          return date < today || date > max
+        }"
+          />
+        </el-form-item>
+
+        <el-form-item label="开始时间">
+          <el-select v-model="startHour" placeholder="选择开始时间">
+            <el-option
+                v-for="h in 13"
+                :key="h"
+                :label="`${h + 7}:00`"
+                :value="h + 7"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="结束时间">
+          <el-select v-model="endHour" placeholder="选择结束时间">
+            <el-option
+                v-for="h in 13"
+                :key="h"
+                :label="`${h + 8}:00`"
+                :value="h + 8"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" @click="handleTimeConfirm">确认</el-button>
+          <el-button @click="showTimePicker = false">取消</el-button>
+        </el-form-item>
+      </el-form>
     </el-dialog>
 
     <el-header class="main-header">
@@ -184,10 +261,11 @@ const formatEquipment = (room: MeetingRoomInfo) => {
           </template>
         </el-table-column>
         <el-table-column label="员工数" prop="employeeCount" width="90px" />
-        <el-table-column fixed="right" label="操作" width="220px">
-          <template #default="scope">
-            <el-button type="primary" plain size="small" @click="handleMeetingRoomEmployeeList(scope.row)">查看员工</el-button>
-            <el-button v-if="userRole === 'admin'" type="warning" plain size="small" @click="handleEditMeetingRoom(scope.row)">编辑</el-button>
+        <el-table-column label="操作" width="200">
+          <template #default="{ row }">
+            <el-button size="small" @click="handleSelectMeetingRoom(row)">选择</el-button>
+            <el-button size="small" type="info" @click="handleMeetingRoomEmployeeList(row)">员工</el-button>
+            <el-button v-if="userRole === 'admin'" size="small" type="warning" @click="handleEditMeetingRoom(row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>

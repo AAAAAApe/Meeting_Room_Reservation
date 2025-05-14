@@ -5,7 +5,6 @@ import com.BookRoom.entity.meetingRoom.MeetingRoom;
 import com.BookRoom.entity.meetingRoom.MeetingRoomSelection;
 import com.BookRoom.entity.view.MeetingRoomSelectView;
 import com.BookRoom.entity.view.MeetingRoomView;
-import com.BookRoom.entity.view.MeetingRoomWithEmployeeView;
 
 import java.util.List;
 
@@ -33,16 +32,6 @@ public interface MeetingRoomService {
     Page<MeetingRoomView> getMeetingRoomsByDepartmentPage(String departmentId, long current, long size);
 
     /**
-     * 根据员工ID获取会议室列表（分页）
-     *
-     * @param employeeId 员工ID
-     * @param current   当前页码
-     * @param size      每页大小
-     * @return 分页会议室列表
-     */
-    Page<MeetingRoomWithEmployeeView> getMeetingRoomsByEmployeePage(String employeeId, long current, long size);
-
-    /**
      * 根据顾客ID获取会议室列表（分页）
      *
      * @param customerId 顾客ID
@@ -62,23 +51,13 @@ public interface MeetingRoomService {
      */
     Page<MeetingRoomView> getAllMeetingRoomsByPage(long current, long size, List<String> departmentIds);
 
-    Page<MeetingRoomWithEmployeeView> getMeetingRoomWithEmployeesByMeetingRoomId(Integer meetingRoomId, long current, long size);
-
     /**
      * 创建新会议室
      *
      * @param meetingRoom 会议室信息
      * @return 会议室ID
      */
-    Integer createOrUpdateMeetingRoom(MeetingRoom meetingRoom, List<String> employeeIds, String creatorId);
-
-//    /**
-//     * 创建或更新会议室信息
-//     *
-//     * @param meetingRoom 会议室信息
-//     * @return 会议室ID
-//     */
-//    Integer createOrUpdateMeetingRoom(MeetingRoom meetingRoom, String creatorId);
+    Integer createOrUpdateMeetingRoom(MeetingRoom meetingRoom, String creatorId);
 
     /**
      * 删除会议室
@@ -93,10 +72,9 @@ public interface MeetingRoomService {
      *
      * @param meetingRoomId
      * @param customerId
-     * @param employeeId
      * @return
      */
-    boolean selectMeetingRoom(Integer meetingRoomId, String customerId, String employeeId);
+    boolean selectMeetingRoom(Integer meetingRoomId, String customerId);
 
     /**
      * 顾客退选会议室
@@ -132,15 +110,11 @@ public interface MeetingRoomService {
      */
     boolean updateScore(MeetingRoomSelection meetingRoomSelection);
 
-    List<String> getMeetingRoomEmployeesByMeetingRoomId(Integer meetingRoomId);
-
-    MeetingRoomWithEmployeeView getEmployeeMeetingRoomDetail(String employeeId, Integer meetingRoomId);
-
-    Page<MeetingRoomWithEmployeeView> getMeetingRoomWithEmployeesByEmployeeId(String employeeId, long current, long size);
-
     Page<MeetingRoomSelectView> getCustomerMeetingRoomSelections(String customerId, long current, long size);
 
-    Page<MeetingRoomSelectView> getMeetingRoomCustomers(Integer meetingRoomId, String employeeId, long current, long size);
+    Page<MeetingRoomSelectView> getMeetingRoomCustomers(Integer meetingRoomId, long current, long size);
 
-    boolean setMeetingRoomScore(Integer meetingRoomId, String employeeId, String customerId, Double score);
+    boolean setMeetingRoomScore(Integer meetingRoomId, String customerId, Double score);
+
+    Page<MeetingRoomView> getMeetingRoomDetails(Integer meetingRoomId, long current, long size);
 }

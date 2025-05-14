@@ -72,7 +72,6 @@ export interface MeetingRoomInfo {
   creatorName?: string;
   departmentId: string;
   departmentName: string;
-  employeeCount?: number;
 }
 
 export interface MeetingRoomWithEmployeeInfo extends MeetingRoomInfo {

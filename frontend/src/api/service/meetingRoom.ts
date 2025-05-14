@@ -65,25 +65,12 @@ const meetingRoomService = {
     return request.get<MeetingRoomInfo[]>('/customer/meetingRooms');
   },
 
-  /**
-   * 获取员工教授的会议室
-   * @returns Promise
-   */
-  getEmployeeMeetingRooms(params: PaginationParams) {
-    return request.get<PaginationResult<MeetingRoomWithEmployeeInfo>>('/employee/meetingRoom/getPage', { ...params });
-  },
-
-
   getEmployeeIdsByMeetingRoomId(meetingRoomId: number) {
     return request.get<string[]>(`/meetingRoom/${meetingRoomId}/employeeIds`);
   },
 
   selectMeetingRoom(meetingRoomId: number, employeeId: string) {
     return request.post<boolean>('/meetingRoom/select', { meetingRoomId, employeeId });
-  },
-
-  getEmployeeMeetingRoomDetail(meetingRoomId: number, employeeId: string) {
-    return request.get<MeetingRoomWithEmployeeInfo>(`employee/meetingRoom/${meetingRoomId}`, { employeeId });
   },
 
   getMeetingRoomAssignments(meetingRoomId: number, employeeId: string , params: PaginationParams) {

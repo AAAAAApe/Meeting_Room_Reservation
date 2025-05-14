@@ -15,9 +15,6 @@ public class MeetingRoomSelection {
     @MppMultiId
     private String customerId;
     
-    @MppMultiId
-    private String employeeId;
-    
     private LocalDateTime selectionTime;
     private Double score;
 }

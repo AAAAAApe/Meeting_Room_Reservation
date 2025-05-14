@@ -17,11 +17,9 @@ public class MeetingRoomSelectView {
     private String status;          
     private Boolean hasProjector;   
     private Boolean hasAudio;      
-    private Boolean hasNetwork;     
+    private Boolean hasNetwork;
     private String customerId;
     private String customerName;
-    private String employeeId;
-    private String employeeName;
     private LocalDateTime selectionTime;
     private Double score;
     private String departmentName;
