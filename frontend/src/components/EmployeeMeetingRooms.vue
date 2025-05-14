@@ -73,9 +73,9 @@ const handleShowDetail = (meetingRoom: MeetingRoomWithEmployeeInfo) => {
         </el-table-column>
         <el-table-column label="会议室名称" prop="meetingRoomName">
         </el-table-column>
-        <el-table-column label="会议室学分" prop="credit" width="100px">
+        <el-table-column label="会议室学分" prop="pricePerHour" width="100px">
           <template #default="scope">
-            {{ scope.row.credit.toFixed(1) }}
+            {{ scope.row.pricePerHour.toFixed(1) }}
           </template>
         </el-table-column>
         <el-table-column label="会议室简介" prop="description" show-overflow-tooltip>

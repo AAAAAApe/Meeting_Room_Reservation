@@ -90,10 +90,6 @@ const meetingRoomService = {
     return request.get<PaginationResult<MeetingRoomAssignment>>(`/meetingRoom/${meetingRoomId}/assignment/getPage`, {...params, employeeId });
   },
 
-  publishMeetingRoomAssignment(meetingRoomId: number, assignment: MeetingRoomAssignment) {
-    return request.post<number>(`/meetingRoom/${meetingRoomId}/assignment/publish`, assignment);
-  },
-
   getCustomerMeetingRoomSelections(params: PaginationParams) {
     return request.get<PaginationResult<CustomerMeetingRoomSelection>>('/customer/meetingRoom/getPage', {...params });
   },

@@ -139,9 +139,9 @@ const handleFilterChange = () => {
             {{ scope.row.major || '未设置' }}
           </template>
         </el-table-column>
-        <el-table-column label="学分" prop="credit" width="80">
+        <el-table-column label="学分" prop="pricePerHour" width="80">
           <template #default="scope">
-            {{ scope.row.credit || '0' }}
+            {{ scope.row.pricePerHour || '0' }}
           </template>
         </el-table-column>
         <el-table-column label="入学年份" prop="startYear" width="100">

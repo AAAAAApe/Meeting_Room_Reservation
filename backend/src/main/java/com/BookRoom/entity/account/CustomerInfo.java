@@ -10,5 +10,5 @@ public class CustomerInfo {
     @TableId
     private String userId;
     private String majorId;
-    private Double credit;
+    private Double pricePerHour;
 }

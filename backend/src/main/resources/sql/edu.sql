@@ -24,12 +24,12 @@ DROP TABLE IF EXISTS `customer_info`;
 CREATE TABLE `customer_info`  (
   `user_id` char(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `major_id` char(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `credit` decimal(4, 1) NOT NULL DEFAULT 0.0,
+  `pricePerHour` decimal(4, 1) NOT NULL DEFAULT 0.0,
   PRIMARY KEY (`user_id`) USING BTREE,
   INDEX `major_id`(`major_id` ASC) USING BTREE,
   CONSTRAINT `customer_info_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `customer_info_ibfk_2` FOREIGN KEY (`major_id`) REFERENCES `major` (`major_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT `customer_info_chk_1` CHECK (`credit` >= 0)
+  CONSTRAINT `customer_info_chk_1` CHECK (`pricePerHour` >= 0)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -539,12 +539,12 @@ CREATE TABLE `meetingroom`  (
   `meeting_room_name` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `creator_id` char(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `department_id` char(2) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `credit` decimal(2, 1) NOT NULL,
+  `pricePerHour` decimal(2, 1) NOT NULL,
   `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
   PRIMARY KEY (`meeting_room_id`) USING BTREE,
   INDEX `creator_id`(`creator_id` ASC) USING BTREE,
   INDEX `department_id`(`department_id` ASC) USING BTREE,
-  CONSTRAINT `meetingroom_chk_1` CHECK (`credit` >= 0)
+  CONSTRAINT `meetingroom_chk_1` CHECK (`pricePerHour` >= 0)
 ) ENGINE = InnoDB AUTO_INCREMENT = 452 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -1885,7 +1885,7 @@ CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_customer_assignment_in
 -- View structure for v_customer_info
 -- ----------------------------
 DROP VIEW IF EXISTS `v_customer_info`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_customer_info` AS select `u`.`user_id` AS `user_id`,`ui`.`name` AS `name`,(case when (`ui`.`gender` is null) then NULL when (`ui`.`gender` = 1) then '男' else '女' end) AS `gender`,`ui`.`birthday` AS `birthday`,`ui`.`phone_number` AS `phone_number`,`ui`.`email` AS `email`,`ui`.`start_year` AS `start_year`,`m`.`major_name` AS `major`,`d`.`department_name` AS `department_name`,`c`.`credit` AS `credit` from (((((`user` `u` join `role` `r` on((`u`.`role_id` = `r`.`role_id`))) left join `user_info` `ui` on((`u`.`user_id` = `ui`.`user_id`))) left join `customer_info` `c` on((`u`.`user_id` = `c`.`user_id`))) left join `major` `m` on((`c`.`major_id` = `m`.`major_id`))) left join `department` `d` on((`m`.`department_id` = `d`.`department_id`))) where (`r`.`role_name` = 'customer');
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_customer_info` AS select `u`.`user_id` AS `user_id`,`ui`.`name` AS `name`,(case when (`ui`.`gender` is null) then NULL when (`ui`.`gender` = 1) then '男' else '女' end) AS `gender`,`ui`.`birthday` AS `birthday`,`ui`.`phone_number` AS `phone_number`,`ui`.`email` AS `email`,`ui`.`start_year` AS `start_year`,`m`.`major_name` AS `major`,`d`.`department_name` AS `department_name`,`c`.`pricePerHour` AS `pricePerHour` from (((((`user` `u` join `role` `r` on((`u`.`role_id` = `r`.`role_id`))) left join `user_info` `ui` on((`u`.`user_id` = `ui`.`user_id`))) left join `customer_info` `c` on((`u`.`user_id` = `c`.`user_id`))) left join `major` `m` on((`c`.`major_id` = `m`.`major_id`))) left join `department` `d` on((`m`.`department_id` = `d`.`department_id`))) where (`r`.`role_name` = 'customer');
 
 -- ----------------------------
 -- View structure for v_employee_info
@@ -1897,19 +1897,19 @@ CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_employee_info` AS sele
 -- View structure for v_meetingroom_info
 -- ----------------------------
 DROP VIEW IF EXISTS `v_meetingroom_info`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_info` AS select `mr`.`meeting_room_id` AS `meeting_room_id`,`mr`.`meeting_room_name` AS `meeting_room_name`,`mr`.`credit` AS `credit`,`mr`.`description` AS `description`,`mr`.`creator_id` AS `creator_id`,`ui_creator`.`name` AS `creator_name`,`d`.`department_id` AS `department_id`,`d`.`department_name` AS `department_name`,count(`ce`.`user_id`) AS `employee_count` from (((`meetingroom` `mr` left join `department` `d` on((`mr`.`department_id` = `d`.`department_id`))) left join `user_info` `ui_creator` on((`mr`.`creator_id` = `ui_creator`.`user_id`))) left join `meetingroom_employee` `ce` on((`mr`.`meeting_room_id` = `ce`.`meeting_room_id`))) group by `mr`.`meeting_room_id`,`mr`.`meeting_room_name`,`mr`.`credit`,`mr`.`description`,`mr`.`creator_id`,`ui_creator`.`name`,`d`.`department_id`,`d`.`department_name`;
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_info` AS select `mr`.`meeting_room_id` AS `meeting_room_id`,`mr`.`meeting_room_name` AS `meeting_room_name`,`mr`.`pricePerHour` AS `pricePerHour`,`mr`.`description` AS `description`,`mr`.`creator_id` AS `creator_id`,`ui_creator`.`name` AS `creator_name`,`d`.`department_id` AS `department_id`,`d`.`department_name` AS `department_name`,count(`ce`.`user_id`) AS `employee_count` from (((`meetingroom` `mr` left join `department` `d` on((`mr`.`department_id` = `d`.`department_id`))) left join `user_info` `ui_creator` on((`mr`.`creator_id` = `ui_creator`.`user_id`))) left join `meetingroom_employee` `ce` on((`mr`.`meeting_room_id` = `ce`.`meeting_room_id`))) group by `mr`.`meeting_room_id`,`mr`.`meeting_room_name`,`mr`.`pricePerHour`,`mr`.`description`,`mr`.`creator_id`,`ui_creator`.`name`,`d`.`department_id`,`d`.`department_name`;
 
 -- ----------------------------
 -- View structure for v_meetingroom_info_with_employee
 -- ----------------------------
 DROP VIEW IF EXISTS `v_meetingroom_info_with_employee`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_info_with_employee` AS select `mr`.`meeting_room_id` AS `meeting_room_id`,`mr`.`meeting_room_name` AS `meeting_room_name`,`mr`.`credit` AS `credit`,`mr`.`description` AS `description`,`mr`.`creator_id` AS `creator_id`,`ui_creator`.`name` AS `creator_name`,`d`.`department_id` AS `department_id`,`d`.`department_name` AS `department_name`,`v_employee_info`.`user_id` AS `employee_id`,`v_employee_info`.`name` AS `employee_name`,`v_employee_info`.`title` AS `employee_title_name`,`v_employee_info`.`department_name` AS `employee_department_name`,count(`mr_selection`.`customer_id`) AS `customer_count` from (((((`meetingroom` `mr` left join `department` `d` on((`mr`.`department_id` = `d`.`department_id`))) left join `user_info` `ui_creator` on((`mr`.`creator_id` = `ui_creator`.`user_id`))) left join `meetingroom_employee` `mre` on((`mr`.`meeting_room_id` = `mre`.`meeting_room_id`))) left join `v_employee_info` on((`mre`.`user_id` = `v_employee_info`.`user_id`))) left join `meetingroom_selection` `mr_selection` on(((`mr`.`meeting_room_id` = `mr_selection`.`meeting_room_id`) and (`v_employee_info`.`user_id` = `mr_selection`.`employee_id`)))) group by `mr`.`meeting_room_id`,`mr`.`meeting_room_name`,`mr`.`credit`,`mr`.`description`,`mr`.`creator_id`,`ui_creator`.`name`,`d`.`department_id`,`d`.`department_name`,`v_employee_info`.`user_id`,`v_employee_info`.`name`,`v_employee_info`.`title`,`v_employee_info`.`department_name`;
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_info_with_employee` AS select `mr`.`meeting_room_id` AS `meeting_room_id`,`mr`.`meeting_room_name` AS `meeting_room_name`,`mr`.`pricePerHour` AS `pricePerHour`,`mr`.`description` AS `description`,`mr`.`creator_id` AS `creator_id`,`ui_creator`.`name` AS `creator_name`,`d`.`department_id` AS `department_id`,`d`.`department_name` AS `department_name`,`v_employee_info`.`user_id` AS `employee_id`,`v_employee_info`.`name` AS `employee_name`,`v_employee_info`.`title` AS `employee_title_name`,`v_employee_info`.`department_name` AS `employee_department_name`,count(`mr_selection`.`customer_id`) AS `customer_count` from (((((`meetingroom` `mr` left join `department` `d` on((`mr`.`department_id` = `d`.`department_id`))) left join `user_info` `ui_creator` on((`mr`.`creator_id` = `ui_creator`.`user_id`))) left join `meetingroom_employee` `mre` on((`mr`.`meeting_room_id` = `mre`.`meeting_room_id`))) left join `v_employee_info` on((`mre`.`user_id` = `v_employee_info`.`user_id`))) left join `meetingroom_selection` `mr_selection` on(((`mr`.`meeting_room_id` = `mr_selection`.`meeting_room_id`) and (`v_employee_info`.`user_id` = `mr_selection`.`employee_id`)))) group by `mr`.`meeting_room_id`,`mr`.`meeting_room_name`,`mr`.`pricePerHour`,`mr`.`description`,`mr`.`creator_id`,`ui_creator`.`name`,`d`.`department_id`,`d`.`department_name`,`v_employee_info`.`user_id`,`v_employee_info`.`name`,`v_employee_info`.`title`,`v_employee_info`.`department_name`;
 
 -- ----------------------------
 -- View structure for v_meetingroom_selection_info
 -- ----------------------------
 DROP VIEW IF EXISTS `v_meetingroom_selection_info`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_selection_info` AS select `cs`.`meeting_room_id` AS `meeting_room_id`,`mr`.`meeting_room_name` AS `meeting_room_name`,`mr`.`credit` AS `credit`,`mr`.`description` AS `description`,`cs`.`customer_id` AS `customer_id`,`ui_customer`.`name` AS `customer_name`,`cs`.`employee_id` AS `employee_id`,`ui_employee`.`name` AS `employee_name`,`cs`.`selection_time` AS `selection_time`,`cs`.`score` AS `score`,`d`.`department_name` AS `department_name` from ((((`meetingroom_selection` `cs` join `meetingroom` `mr` on((`cs`.`meeting_room_id` = `mr`.`meeting_room_id`))) left join `user_info` `ui_customer` on((`cs`.`customer_id` = `ui_customer`.`user_id`))) left join `user_info` `ui_employee` on((`cs`.`employee_id` = `ui_employee`.`user_id`))) left join `department` `d` on((`mr`.`department_id` = `d`.`department_id`)));
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_selection_info` AS select `cs`.`meeting_room_id` AS `meeting_room_id`,`mr`.`meeting_room_name` AS `meeting_room_name`,`mr`.`pricePerHour` AS `pricePerHour`,`mr`.`description` AS `description`,`cs`.`customer_id` AS `customer_id`,`ui_customer`.`name` AS `customer_name`,`cs`.`employee_id` AS `employee_id`,`ui_employee`.`name` AS `employee_name`,`cs`.`selection_time` AS `selection_time`,`cs`.`score` AS `score`,`d`.`department_name` AS `department_name` from ((((`meetingroom_selection` `cs` join `meetingroom` `mr` on((`cs`.`meeting_room_id` = `mr`.`meeting_room_id`))) left join `user_info` `ui_customer` on((`cs`.`customer_id` = `ui_customer`.`user_id`))) left join `user_info` `ui_employee` on((`cs`.`employee_id` = `ui_employee`.`user_id`))) left join `department` `d` on((`mr`.`department_id` = `d`.`department_id`)));
 
 -- ----------------------------
 -- View structure for v_user_info

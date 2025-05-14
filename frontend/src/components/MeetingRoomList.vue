@@ -20,60 +20,46 @@ const departmentsSelected = ref([]);
 let departmentIdsParams: string[] = [];
 
 // 获取院系列表数据，用于下拉筛选框
-// 使用vue-hooks-plus的useRequest自动处理请求状态
 const { data: departmentList } = useRequest(
-  departmentService.getDepartmentList,
+    departmentService.getDepartmentList,
 );
 
 // 分页参数配置
-// current: 当前页码
-// size: 每页显示数量
-// total: 总记录数
 const pagination = ref({
   current: 1,
   size: 16,
   total: 0
 });
 
-// 请求参数，初始值与分页参数同步
 const params = ref<PaginationParams>({
   current: pagination.value.current,
   size: pagination.value.size,
 });
 
-// 获取会议室列表数据
 const { run: fetchMeetingRoomList, loading } = useRequest(
-  meetingRoomService.getMeetingRoomList,
-  {
-    // 请求成功回调
-    onSuccess: data => {
-      // 更新会议室列表数据
-      meetingRoomList.value = data.data.records;
-      // 更新分页信息
-      pagination.value.current = data.data.current;
-      pagination.value.total = data.data.total;
-      pagination.value.size = data.data.size;
-    },
-  }
+    meetingRoomService.getMeetingRoomList,
+    {
+      onSuccess: data => {
+        meetingRoomList.value = data.data.records;
+        pagination.value.current = data.data.current;
+        pagination.value.total = data.data.total;
+        pagination.value.size = data.data.size;
+      },
+    }
 );
 
-// 处理分页变化事件
-// current: 新的页码
 const handleCurrentChange = (current: number) => {
   params.value.current = current;
   fetchMeetingRoomList(params.value, departmentIdsParams);
 };
 
-// 处理院系筛选变化事件
-// 当用户点击确认按钮时触发
 const handleDepartmentChange = () => {
   departmentIdsParams = departmentsSelected.value;
-  // 重置页码为1并重新获取数据
   fetchMeetingRoomList({
-    current: 1,
-    size: pagination.value.size
-  },
-    departmentsSelected.value);
+        current: 1,
+        size: pagination.value.size
+      },
+      departmentsSelected.value);
 };
 
 const showEditor = ref(false);
@@ -94,20 +80,51 @@ const handleEditMeetingRoom = (meetingRoom?: MeetingRoomInfo) => {
 const handleEditorSuccess = () => {
   fetchMeetingRoomList(params.value, departmentIdsParams);
 }
+
+// 状态标签类型映射
+const statusTagType = (status: string) => {
+  switch (status) {
+    case 'available': return 'success'
+    case 'locked': return 'danger'
+    case 'reserved': return 'warning'
+    case 'in_use': return ''
+    case 'maintenance': return 'info'
+    default: return 'info'
+  }
+}
+
+// 状态中文显示
+const formatStatus = (status: string) => {
+  const statusMap: Record<string, string> = {
+    available: '可用',
+    locked: '锁定',
+    reserved: '已预订',
+    in_use: '使用中',
+    maintenance: '维护中'
+  }
+  return statusMap[status] || status
+}
+
+// 设备图标显示
+const formatEquipment = (room: MeetingRoomInfo) => {
+  return [
+    room.hasProjector ? '投影仪' : null,
+    room.hasAudio ? '音响' : null,
+    room.hasNetwork ? '网络' : null
+  ].filter(Boolean).join(' / ') || '无'
+}
 </script>
 
 <template>
   <el-container class="main-container">
-    <!-- 会议室编辑器弹窗 -->
     <el-dialog :title="currentMeetingRoom ? '编辑会议室' : '发布会议室'" width="95%" align-center v-model="showEditor" destroy-on-close>
       <MeetingRoomEditor
-        :meetingRoom="currentMeetingRoom"
-        @success="handleEditorSuccess"
-        @close="showEditor = false"
+          :meetingRoom="currentMeetingRoom"
+          @success="handleEditorSuccess"
+          @close="showEditor = false"
       />
     </el-dialog>
 
-    <!-- 查看员工列表弹窗 -->
     <el-dialog v-model="showEmployeeList" title="会议室员工列表" align-center width="1000px" destroy-on-close>
       <MeetingRoomWithEmployeesList v-if="currentMeetingRoomId" :meetingRoomId="currentMeetingRoomId" />
     </el-dialog>
@@ -118,13 +135,11 @@ const handleEditorSuccess = () => {
         &nbsp;记录数：{{ pagination.total }}
       </div>
       <div class="tool-bar">
-        <!-- 院系筛选 多选下拉框 -->
         <el-select class="dp-selector" v-model="departmentsSelected" placeholder="院系筛选" multiple collapse-tags
-          collapse-tags-tooltip>
+                   collapse-tags-tooltip>
           <el-option v-for="item in departmentList?.data" :key="item.departmentId" :label="item.departmentName"
-            :value="item.departmentId" />
+                     :value="item.departmentId" />
         </el-select>
-        <!-- 确认按钮 -->
         <el-button type="success" plain @click="handleDepartmentChange">搜索</el-button>
         <el-divider v-if="userRole === 'admin'" direction="vertical" />
         <el-button v-if="userRole === 'admin'" type="primary" plain @click="handleEditMeetingRoom()">发布会议室</el-button>
@@ -132,26 +147,44 @@ const handleEditorSuccess = () => {
     </el-header>
     <el-main class="table-container">
       <el-table class="table-content" :data="meetingRoomList" border stripe v-loading="loading">
-        <el-table-column label="会议室编号" prop="meetingRoomId" width="100px">
+        <el-table-column label="编号" prop="meetingRoomId" width="100px">
           <template #default="scope">
             {{ String(scope.row.meetingRoomId).padStart(6, '0') }}
           </template>
         </el-table-column>
-        <el-table-column label="所属院系" prop="departmentName" />
-        <el-table-column label="会议室名称" prop="meetingRoomName" />
-        <el-table-column label="会议室学分" prop="credit" width="100px">
+        <el-table-column label="院系" prop="departmentName" />
+        <el-table-column label="名称" prop="meetingRoomName" />
+        <el-table-column label="价格" prop="pricePerHour" width="100px">
           <template #default="scope">
-            {{ scope.row.credit.toFixed(1) }}
+            {{ scope.row.pricePerHour.toFixed(1) }}
           </template>
         </el-table-column>
-        <el-table-column label="会议室简介" prop="description" show-overflow-tooltip />
-        <el-table-column label="创建者" prop="creatorName" width="150px">
+        <el-table-column label="容量" prop="capacity" width="90px" />
+        <el-table-column label="类型" prop="type" width="120px">
+          <template #default="scope">
+            {{ scope.row.type === 'classroom' ? '教室' : '圆桌' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="100px">
+          <template #default="scope">
+            <el-tag :type="statusTagType(scope.row.status)" size="small">
+              {{ formatStatus(scope.row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="设备" show-overflow-tooltip>
+          <template #default="scope">
+            {{ formatEquipment(scope.row) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="简介" prop="description" show-overflow-tooltip />
+        <el-table-column label="创建者" width="150px">
           <template #default="scope">
             {{ scope.row.creatorName || scope.row.creatorId }}
           </template>
         </el-table-column>
-        <el-table-column label="员工人数" prop="employeeCount" width="100px" />
-        <el-table-column fixed="right" label="操作">
+        <el-table-column label="员工数" prop="employeeCount" width="90px" />
+        <el-table-column fixed="right" label="操作" width="220px">
           <template #default="scope">
             <el-button type="primary" plain size="small" @click="handleMeetingRoomEmployeeList(scope.row)">查看员工</el-button>
             <el-button v-if="userRole === 'admin'" type="warning" plain size="small" @click="handleEditMeetingRoom(scope.row)">编辑</el-button>
@@ -161,7 +194,7 @@ const handleEditorSuccess = () => {
     </el-main>
     <el-footer class="main-footer">
       <el-pagination class="pagination" background layout="prev, pager, next" :total="pagination.total"
-        :current-page="pagination.current" :page-size="pagination.size" @current-change="handleCurrentChange" />
+                     :current-page="pagination.current" :page-size="pagination.size" @current-change="handleCurrentChange" />
     </el-footer>
   </el-container>
 </template>

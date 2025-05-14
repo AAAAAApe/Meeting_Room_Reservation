@@ -92,6 +92,29 @@ const saveCustomerScore = async (customerId: string, score: number) => {
         savingScores.value = false;
     }
 };
+
+
+// 状态标签类型映射
+const statusTagType = (status: string) => {
+  switch (status) {
+    case 'available': return 'success'
+    case 'locked': return 'danger'
+    case 'reserved': return 'warning'
+    case 'in_use': return ''
+    case 'maintenance': return 'info'
+    default: return 'info'
+  }
+}
+const formatStatus = (status: string) => {
+  const statusMap: Record<string, string> = {
+    available: '可用',
+    locked: '锁定',
+    reserved: '已预订',
+    in_use: '使用中',
+    maintenance: '维护中'
+  }
+  return statusMap[status] || status
+}
 </script>
 
 <template>
@@ -103,17 +126,50 @@ const saveCustomerScore = async (customerId: string, score: number) => {
                 </div>
             </el-header>
             <el-main class="main-content">
-                <el-descriptions v-if="meetingRoomDetail" :column="2" border>
-                    <el-descriptions-item label="会议室编号">{{ String(meetingRoomDetail.meetingRoomId).padStart(6, '0')
-                        }}</el-descriptions-item>
-                    <el-descriptions-item label="所属院系">{{ meetingRoomDetail.departmentName }}</el-descriptions-item>
-                    <el-descriptions-item label="会议室名称">{{ meetingRoomDetail.meetingRoomName }}</el-descriptions-item>
-                    <el-descriptions-item label="会议室学分">{{ meetingRoomDetail.credit.toFixed(1) }}</el-descriptions-item>
-                    <el-descriptions-item label="会议室简介" :span="2">{{ meetingRoomDetail.description }}</el-descriptions-item>
-                    <el-descriptions-item label="顾客人数">{{ meetingRoomDetail.customerCount }}</el-descriptions-item>
-                    <el-descriptions-item label="创建者">{{ meetingRoomDetail.creatorName || meetingRoomDetail.creatorId
-                        }}</el-descriptions-item>
-                </el-descriptions>
+              <el-descriptions v-if="meetingRoomDetail" :column="2" border>
+                <el-descriptions-item label="会议室编号">
+                  {{ String(meetingRoomDetail.meetingRoomId).padStart(6, '0') }}
+                </el-descriptions-item>
+                <el-descriptions-item label="所属院系">
+                  {{ meetingRoomDetail.departmentName }}
+                </el-descriptions-item>
+                <el-descriptions-item label="会议室名称">
+                  {{ meetingRoomDetail.meetingRoomName }}
+                </el-descriptions-item>
+                <el-descriptions-item label="每小时价格">
+                  {{ meetingRoomDetail.pricePerHour.toFixed(1) }}
+                </el-descriptions-item>
+                <el-descriptions-item label="容量">
+                  {{ meetingRoomDetail.capacity }} 人
+                </el-descriptions-item>
+                <el-descriptions-item label="类型">
+                  {{ meetingRoomDetail.type === 'classroom' ? '教室' : '圆桌会议室' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="状态">
+                  <el-tag :type="statusTagType(meetingRoomDetail.status)">
+                    {{ formatStatus(meetingRoomDetail.status) }}
+                  </el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="设备配置">
+                  <div class="equipment-config">
+                    <el-tag v-if="meetingRoomDetail.hasProjector" type="info">投影仪</el-tag>
+                    <el-tag v-if="meetingRoomDetail.hasAudio" type="info">音响</el-tag>
+                    <el-tag v-if="meetingRoomDetail.hasNetwork" type="info">网络</el-tag>
+                    <span v-if="!meetingRoomDetail.hasProjector &&
+                                      !meetingRoomDetail.hasAudio &&
+                                      !meetingRoomDetail.hasNetwork">无</span>
+                  </div>
+                </el-descriptions-item>
+                <el-descriptions-item label="会议室简介" :span="2">
+                  {{ meetingRoomDetail.description }}
+                </el-descriptions-item>
+                <el-descriptions-item label="顾客人数">
+                  {{ meetingRoomDetail.customerCount }}
+                </el-descriptions-item>
+                <el-descriptions-item label="创建者">
+                  {{ meetingRoomDetail.creatorName || meetingRoomDetail.creatorId }}
+                </el-descriptions-item>
+              </el-descriptions>
 
                 <div class="content-container">
                     <div class="assignments-section">

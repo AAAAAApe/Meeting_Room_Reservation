@@ -48,7 +48,7 @@ export interface EmployeeInfo extends UserDetailInfo {
 // 顾客信息接口
 export interface CustomerInfo extends UserDetailInfo {
   major?: string;
-  credit?: number;
+  pricePerHour?: number;
 }
 
 export interface department {
@@ -60,8 +60,14 @@ export interface department {
 export interface MeetingRoomInfo {
   meetingRoomId: number;
   meetingRoomName: string;
-  credit: number;
+  pricePerHour: number;       // 原名 price_per_hour
   description?: string;
+  capacity: number;           // 新增
+  type: 'classroom' | 'round_table'; // 新增
+  status: 'available' | 'locked' | 'reserved' | 'in_use' | 'maintenance'; // 新增
+  hasProjector: boolean;      // 新增
+  hasAudio: boolean;          // 新增
+  hasNetwork: boolean;        // 新增
   creatorId: string;
   creatorName?: string;
   departmentId: string;
@@ -102,13 +108,18 @@ export interface MeetingRoomPublishInfo {
   meetingRoom: {
     meetingRoomId?: number;
     meetingRoomName: string;
-    credit?: number;
+    pricePerHour?: number;
     description?: string;
     departmentId?: string;
+    capacity: number;
+    type: 'classroom' | 'round_table';
+    status: 'available' | 'locked' | 'reserved' | 'in_use' | 'maintenance';
+    hasProjector: boolean;
+    hasAudio: boolean;
+    hasNetwork: boolean;
   },
   employeeIds: string[];
 }
-
 // 登录请求参数
 export interface LoginParams {
   userId: string;

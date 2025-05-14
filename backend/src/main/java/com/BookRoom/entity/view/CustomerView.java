@@ -19,5 +19,5 @@ public class CustomerView {
     private Integer startYear;     // 入学年份
     private String departmentName; // 学院名称
     private String major;          // 专业名称
-    private Double credit;         // 学分
+    private Double pricePerHour;         // 学分
 } 

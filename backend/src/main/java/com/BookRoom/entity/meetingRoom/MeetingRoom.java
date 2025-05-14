@@ -13,6 +13,12 @@ public class MeetingRoom {
     private String meetingRoomName;
     private String creatorId;
     private String departmentId;
-    private Double credit;
+    private Double pricePerHour; // 原 credit 字段已删除，替换为 pricePerHour
     private String description;
+    private String type;
+    private Integer capacity;
+    private String status;
+    private Boolean hasProjector;
+    private Boolean hasAudio;
+    private Boolean hasNetwork;
 }
