@@ -3,6 +3,7 @@ package com.BookRoom.entity.view;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -23,4 +24,15 @@ public class MeetingRoomSelectView {
     private LocalDateTime selectionTime;
     private Double score;
     private String departmentName;
+
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private Integer attendeesCount;
+    private BigDecimal totalPrice;
+    private String paymentStatus;
+    private LocalDateTime paymentTime;
+    private LocalDateTime cancellationTime;
+    private BigDecimal refundAmount;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

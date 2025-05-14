@@ -9,6 +9,9 @@ import com.BookRoom.entity.view.MeetingRoomView;
 import com.BookRoom.mapper.*;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
@@ -27,9 +30,9 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
      * 构造函数，通过依赖注入初始化所有数据访问对象
      *
      * @param meetingRoomMapper           会议室数据访问对象
-     * @param meetingRoomSelectionMapper  选课数据访问对象
+     * @param meetingRoomSelectionMapper  选会议室数据访问对象
      * @param meetingRoomViewMapper       会议室视图数据访问对象
-     * @param meetingRoomSelectViewMapper 选课视图数据访问对象
+     * @param meetingRoomSelectViewMapper 选会议室视图数据访问对象
      */
     public MeetingRoomServiceImpl(MeetingRoomMapper meetingRoomMapper,
                              MeetingRoomSelectionMapper meetingRoomSelectionMapper, MeetingRoomViewMapper meetingRoomViewMapper,
@@ -72,7 +75,7 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
      * @param customerId 顾客ID
      * @param current   当前页码
      * @param size      每页大小
-     * @return 包含分页选课信息的Page对象，包含总记录数、总页数、当前页数据等信息
+     * @return 包含分页选会议室信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @Override
     public Page<MeetingRoomSelectView> getMeetingRoomsByCustomerPage(String customerId, long current, long size) {
@@ -127,18 +130,33 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
     }
 
     @Override
-    public boolean selectMeetingRoom(Integer meetingRoomId, String customerId) {
-        MeetingRoomSelection meetingRoomSelection = new MeetingRoomSelection();
-        meetingRoomSelection.setMeetingRoomId(meetingRoomId);
-        meetingRoomSelection.setCustomerId(customerId);
-        meetingRoomSelection.setScore(0.0);
-        return meetingRoomSelectionMapper.insert(meetingRoomSelection) > 0;
+    public boolean selectMeetingRoom(Integer meetingRoomId, String customerId, LocalDateTime startTime, LocalDateTime endTime) {
+        // 构建插入对象
+        MeetingRoomSelection selection = new MeetingRoomSelection();
+        selection.setMeetingRoomId(meetingRoomId);
+        selection.setCustomerId(customerId);
+        selection.setStartTime(startTime);
+        selection.setEndTime(endTime);
+
+        // 示例逻辑：计算时间差 × 固定价格
+        long hours = ChronoUnit.HOURS.between(startTime, endTime);
+        BigDecimal hourlyRate = BigDecimal.valueOf(100); // 假设每小时100元
+        BigDecimal totalPrice = hourlyRate.multiply(BigDecimal.valueOf(hours));
+
+        selection.setScore((double) 0); // 初始评分为0
+        selection.setStatus("pending_payment");
+        selection.setTotalPrice(totalPrice);
+        selection.setPaymentStatus("unpaid");
+
+        // 调用 mapper 插入
+        return meetingRoomSelectionMapper.insert(selection) > 0;
     }
+
 
     /**
      * 顾客退选会议室
      *
-     * @param meetingRoomSelection 选课信息（包含会议室ID、顾客ID和员工ID）
+     * @param meetingRoomSelection 选会议室信息（包含会议室ID、顾客ID和员工ID）
      * @return 是否退选成功
      */
     @Override
@@ -179,7 +197,7 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
     /**
      * 更新顾客成绩
      *
-     * @param meetingRoomSelection 选课信息（包含会议室ID、顾客ID、员工ID和成绩）
+     * @param meetingRoomSelection 选会议室信息（包含会议室ID、顾客ID、员工ID和成绩）
      * @return 是否更新成功
      */
     @Override

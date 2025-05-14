@@ -40,7 +40,7 @@ const meetingRoomService = {
   },
 
   /**
-   * 顾客选课
+   * 顾客选会议室
    * @param meetingRoomId 会议室ID
    * @returns Promise
    */
@@ -49,7 +49,7 @@ const meetingRoomService = {
   },
 
   /**
-   * 顾客退课
+   * 顾客退会议室
    * @param meetingRoomId 会议室ID
    * @returns Promise
    */
@@ -87,6 +87,13 @@ const meetingRoomService = {
 
   setMeetingRoomScore(meetingRoomId: number, employeeId: string, customerId: string, score: number) {
     return request.put<void>(`/meetingRoom/${meetingRoomId}/${customerId}/score?employeeId=${employeeId}&score=${score}`, {});
+  },
+  reserve: (data: {
+    meetingRoomId: number,
+    startTime: string,
+    endTime: string
+  }) => {
+    return request.post('/meetingRoom/reverse', data)
   },
 };
 

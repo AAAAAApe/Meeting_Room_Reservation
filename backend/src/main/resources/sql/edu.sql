@@ -11,7 +11,7 @@
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 14/05/2025 16:45:27
+ Date: 14/05/2025 18:14:30
 */
 
 SET NAMES utf8mb4;
@@ -243,7 +243,7 @@ CREATE TABLE `meetingroom`  (
 -- ----------------------------
 -- Records of meetingroom
 -- ----------------------------
-INSERT INTO `meetingroom` VALUES (1, '西方哲学史', '202500001', '01', 3.00, '系统介绍西方哲学从古希腊到现代的发展历程', 'classroom', 100, 'available', 1, 1, 1);
+INSERT INTO `meetingroom` VALUES (1, '西方哲学史', '202500001', '01', 3.00, '系统介绍西方哲学从古希腊到现代的发展历程', 'classroom', 100, 'available', 1, 1, 0);
 INSERT INTO `meetingroom` VALUES (2, '中国哲学史', '202500001', '01', 3.00, '探讨中国哲学思想从先秦到近代的演变', NULL, 0, 'available', NULL, 0, 0);
 INSERT INTO `meetingroom` VALUES (3, '伦理学基础', '202500001', '01', 2.50, '研究道德哲学的基本理论和应用', NULL, 0, 'available', NULL, 0, 0);
 INSERT INTO `meetingroom` VALUES (4, '逻辑学', '202500001', '01', 3.00, '学习形式逻辑的基本原理和方法', NULL, 0, 'available', NULL, 0, 0);
@@ -272,23 +272,29 @@ DROP TABLE IF EXISTS `meetingroom_selection`;
 CREATE TABLE `meetingroom_selection`  (
   `meeting_room_id` int NOT NULL,
   `customer_id` char(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `employee_id` char(9) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `selection_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `score` decimal(4, 1) NOT NULL,
-  PRIMARY KEY (`meeting_room_id`, `customer_id`, `employee_id`) USING BTREE,
+  `start_time` datetime NOT NULL,
+  `end_time` datetime NOT NULL,
+  `attendees_count` int NOT NULL DEFAULT 1,
+  `status` enum('pending_payment','confirmed','cancelled','completed') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `total_price` decimal(10, 2) NOT NULL,
+  `payment_status` enum('unpaid','paid','refunded','partial_refund') CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT 'unpaid',
+  `payment_time` datetime NULL DEFAULT NULL,
+  `cancellation_time` datetime NULL DEFAULT NULL,
+  `refund_amount` decimal(10, 2) NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`meeting_room_id`, `customer_id`) USING BTREE,
   INDEX `student_id`(`customer_id` ASC) USING BTREE,
-  INDEX `teacher_id`(`employee_id` ASC) USING BTREE,
   CONSTRAINT `meetingroom_selection_ibfk_1` FOREIGN KEY (`meeting_room_id`) REFERENCES `meetingroom` (`meeting_room_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-  CONSTRAINT `meetingroom_selection_ibfk_3` FOREIGN KEY (`employee_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
   CONSTRAINT `meetingroom_selection_chk_1` CHECK (`score` between 0 and 100)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of meetingroom_selection
 -- ----------------------------
-INSERT INTO `meetingroom_selection` VALUES (1, '202010001', '202010001', '2025-04-23 20:50:01', 0.0);
-INSERT INTO `meetingroom_selection` VALUES (1, '202020002', '202010001', '2025-04-24 05:21:43', 99.0);
-INSERT INTO `meetingroom_selection` VALUES (1, '202020002', '202010002', '2025-04-24 05:21:58', 0.0);
+INSERT INTO `meetingroom_selection` VALUES (1, '202020001', '2025-05-14 18:14:04', 0.0, '2025-05-15 08:00:00', '2025-05-15 09:00:00', 1, 'pending_payment', 100.00, 'unpaid', NULL, NULL, NULL, '2025-05-14 18:14:04', '2025-05-14 18:14:04');
 
 -- ----------------------------
 -- Table structure for refresh_token
@@ -307,7 +313,8 @@ CREATE TABLE `refresh_token`  (
 -- ----------------------------
 -- Records of refresh_token
 -- ----------------------------
-INSERT INTO `refresh_token` VALUES ('202500001', '3ebf23ff-a4c5-4f42-9152-cd8ab3a90acc', '2025-06-13 16:43:47', '2025-05-14 16:43:47');
+INSERT INTO `refresh_token` VALUES ('202020001', '38b833dd-2a68-4622-8a2e-4b52e172e989', '2025-06-13 18:08:56', '2025-05-14 18:08:56');
+INSERT INTO `refresh_token` VALUES ('202500001', 'f1db9584-8a2f-42fc-b8ca-258ec7970a99', '2025-06-13 17:16:50', '2025-05-14 17:16:50');
 
 -- ----------------------------
 -- Table structure for role
@@ -1140,7 +1147,7 @@ CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_info` AS s
 -- View structure for v_meetingroom_selection_info
 -- ----------------------------
 DROP VIEW IF EXISTS `v_meetingroom_selection_info`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_selection_info` AS select `cs`.`meeting_room_id` AS `meeting_room_id`,`mr`.`meeting_room_name` AS `meeting_room_name`,`mr`.`price_per_hour` AS `price_per_hour`,`mr`.`description` AS `description`,`mr`.`capacity` AS `capacity`,`mr`.`type` AS `type`,`mr`.`status` AS `status`,`mr`.`has_projector` AS `has_projector`,`mr`.`has_audio` AS `has_audio`,`mr`.`has_network` AS `has_network`,`cs`.`customer_id` AS `customer_id`,`ui_customer`.`name` AS `customer_name`,`cs`.`employee_id` AS `employee_id`,`ui_employee`.`name` AS `employee_name`,`cs`.`selection_time` AS `selection_time`,`cs`.`score` AS `score`,`d`.`department_name` AS `department_name` from ((((`meetingroom_selection` `cs` join `meetingroom` `mr` on((`cs`.`meeting_room_id` = `mr`.`meeting_room_id`))) left join `user_info` `ui_customer` on((`cs`.`customer_id` = `ui_customer`.`user_id`))) left join `user_info` `ui_employee` on((`cs`.`employee_id` = `ui_employee`.`user_id`))) left join `department` `d` on((`mr`.`department_id` = `d`.`department_id`)));
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `v_meetingroom_selection_info` AS select `cs`.`meeting_room_id` AS `meeting_room_id`,`mr`.`meeting_room_name` AS `meeting_room_name`,`mr`.`price_per_hour` AS `price_per_hour`,`mr`.`description` AS `description`,`mr`.`capacity` AS `capacity`,`mr`.`type` AS `type`,`mr`.`status` AS `status`,`mr`.`has_projector` AS `has_projector`,`mr`.`has_audio` AS `has_audio`,`mr`.`has_network` AS `has_network`,`cs`.`customer_id` AS `customer_id`,`ui_customer`.`name` AS `customer_name`,`cs`.`selection_time` AS `selection_time`,`cs`.`score` AS `score`,`d`.`department_name` AS `department_name` from (((`meetingroom_selection` `cs` join `meetingroom` `mr` on((`cs`.`meeting_room_id` = `mr`.`meeting_room_id`))) left join `user_info` `ui_customer` on((`cs`.`customer_id` = `ui_customer`.`user_id`))) left join `department` `d` on((`mr`.`department_id` = `d`.`department_id`)));
 
 -- ----------------------------
 -- View structure for v_user_info

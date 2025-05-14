@@ -5,6 +5,8 @@ import { meetingRoomService, departmentService } from '../api/index';
 import type { MeetingRoomInfo, PaginationParams } from '../api/types';
 import MeetingRoomEditor from './MeetingRoomEditor.vue';
 import { useUserStore } from '../stores/userStore';
+import dayjs from 'dayjs'
+import {ElMessage} from "element-plus"; // 确保安装了 dayjs
 
 const userStore = useUserStore();
 const userRole = computed(() => userStore.user?.roleName || '');
@@ -128,24 +130,49 @@ const handleSelectMeetingRoom = (room: MeetingRoomInfo) => {
   endHour.value = 9
   showTimePicker.value = true
 }
-const handleTimeConfirm = () => {
-  if (startHour.value > endHour.value) {
-    // ElMessage.error('开始时间不能晚于结束时间')
+const handleTimeConfirm = async () => {
+  if (startHour.value >= endHour.value) {
+    ElMessage.error('开始时间不能晚于结束时间')
     return
   }
 
-  console.log('提交预订：', {
-    roomId: selectedMeetingRoom.value?.meetingRoomId,
-    date: selectedDate.value,
-    startHour: startHour.value,
-    endHour: endHour.value
-  })
+  if (!selectedDate.value) {
+    ElMessage.error('请选择日期')
+    return
+  }
 
-  // TODO: 调用预订接口
-  // meetingRoomService.reserve({ roomId, date, startHour, endHour })
+  const roomId = selectedMeetingRoom.value?.meetingRoomId
+  const userId = userStore.user?.userId
+  if (!roomId || !userId) {
+    ElMessage.error('用户或会议室信息缺失')
+    return
+  }
 
-  showTimePicker.value = false
+  const formatTime = (date: string | Date, hour: string | number): string => {
+    const fullTime = `${dayjs(date).format('YYYY-MM-DD')} ${hour.toString().padStart(2, '0')}:00:00`
+    const parsed = dayjs(fullTime)
+    if (!parsed.isValid()) {
+      throw new Error(`无效时间: ${fullTime}`)
+    }
+    return parsed.format('YYYY-MM-DD HH:mm:ss')
+  }
+
+  const startTime = formatTime(selectedDate.value, startHour.value)
+  const endTime = formatTime(selectedDate.value, endHour.value)
+
+  try {
+    await meetingRoomService.reserve({
+      meetingRoomId: roomId,
+      startTime,
+      endTime
+    })
+    ElMessage.success('预订成功')
+    showTimePicker.value = false
+  } catch (e) {
+    ElMessage.error('预订失败')
+  }
 }
+
 </script>
 
 <template>

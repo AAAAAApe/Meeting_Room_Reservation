@@ -9,6 +9,8 @@ import com.BookRoom.service.MeetingRoomService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -103,17 +105,28 @@ public class MeetingRoomController {
                 creatorId);
     }
 
-    @PostMapping("/meetingRoom/select")
+    @PostMapping("/meetingRoom/reverse")
     public boolean selectMeetingRoom(
             HttpServletRequest request,
             @RequestBody MeetingRoomSelectRequest meetingRoomSelectRequest
     ) {
         String customerId = (String) request.getAttribute("userId");
+        System.out.println("用户ID: " + customerId);
+        System.out.println("开始时间: " + meetingRoomSelectRequest.startTime());
+        System.out.println("结束时间: " + meetingRoomSelectRequest.endTime());
+        // 解析时间字符串
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime startTime = LocalDateTime.parse(meetingRoomSelectRequest.startTime(), formatter);
+        LocalDateTime endTime = LocalDateTime.parse(meetingRoomSelectRequest.endTime(), formatter);
+
         return meetingRoomService.selectMeetingRoom(
-            meetingRoomSelectRequest.meetingRoomId(),
-            customerId
+                meetingRoomSelectRequest.meetingRoomId(),
+                customerId,
+                startTime,
+                endTime
         );
     }
+
 
     @GetMapping("/customer/meetingRoom/getPage")
     public Page<MeetingRoomSelectView> getCustomerMeetingRoomSelections(

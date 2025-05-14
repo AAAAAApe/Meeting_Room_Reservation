@@ -218,7 +218,7 @@ const formatStatus = (status: string) => {
                         <el-table :data="customers" border stripe v-loading="customerLoading || savingScores">
                             <el-table-column label="学号" prop="customerId"></el-table-column>
                             <el-table-column label="姓名" prop="customerName"></el-table-column>
-                            <el-table-column label="选课时间" prop="selectionTime">
+                            <el-table-column label="选会议室时间" prop="selectionTime">
                                 <template #default="{ row }">
                                     {{ new Date(row.selectionTime).toLocaleString() }}
                                 </template>

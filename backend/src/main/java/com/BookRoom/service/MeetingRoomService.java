@@ -6,11 +6,12 @@ import com.BookRoom.entity.meetingRoom.MeetingRoomSelection;
 import com.BookRoom.entity.view.MeetingRoomSelectView;
 import com.BookRoom.entity.view.MeetingRoomView;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * 会议室服务接口
- * 定义了会议室管理相关的业务逻辑方法，包括会议室的增删改查、选课、退课和成绩管理等功能
+ * 定义了会议室管理相关的业务逻辑方法，包括会议室的增删改查、选会议室、退会议室和成绩管理等功能
  */
 public interface MeetingRoomService {
     /**
@@ -68,18 +69,18 @@ public interface MeetingRoomService {
     boolean deleteMeetingRoom(Integer meetingRoomId);
 
     /**
-     * 顾客选课
+     * 顾客选会议室
      *
      * @param meetingRoomId
      * @param customerId
      * @return
      */
-    boolean selectMeetingRoom(Integer meetingRoomId, String customerId);
+    boolean selectMeetingRoom(Integer meetingRoomId, String customerId, LocalDateTime startTime, LocalDateTime endTime);
 
     /**
      * 顾客退选会议室
      *
-     * @param meetingRoomSelection 选课信息（包含会议室ID、顾客ID和员工ID）
+     * @param meetingRoomSelection 选会议室信息（包含会议室ID、顾客ID和员工ID）
      * @return 是否退选成功
      */
     boolean dropMeetingRoom(MeetingRoomSelection meetingRoomSelection);
@@ -105,7 +106,7 @@ public interface MeetingRoomService {
     /**
      * 更新顾客成绩
      *
-     * @param meetingRoomSelection 选课信息（包含会议室ID、顾客ID、员工ID和成绩）
+     * @param meetingRoomSelection 选会议室信息（包含会议室ID、顾客ID、员工ID和成绩）
      * @return 是否更新成功
      */
     boolean updateScore(MeetingRoomSelection meetingRoomSelection);
