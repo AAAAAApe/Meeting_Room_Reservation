@@ -279,4 +279,31 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
                 new LambdaQueryWrapper<MeetingRoomView>()
                         .eq(MeetingRoomView::getMeetingRoomId, meetingRoomId));
     }
+    @Override
+    public boolean confirmPayment(Integer meetingRoomId, String customerId) {
+        // 查找订单
+        LambdaQueryWrapper<MeetingRoomSelection> query = new LambdaQueryWrapper<>();
+        query.eq(MeetingRoomSelection::getMeetingRoomId, meetingRoomId)
+                .eq(MeetingRoomSelection::getCustomerId, customerId)
+                .eq(MeetingRoomSelection::getStatus, "pending_payment");
+
+        MeetingRoomSelection order = meetingRoomSelectionMapper.selectOne(query);
+        if (order == null) return false;
+
+        // 更新状态为已确认
+        order.setStatus("confirmed");
+        order.setPaymentStatus("paid");
+        order.setPaymentTime(LocalDateTime.now());
+
+        return meetingRoomSelectionMapper.updateById(order) > 0;
+    }
+    @Override
+    public BigDecimal calculateRefundAmount(LocalDateTime startTime, BigDecimal totalPrice) {
+        long hours = ChronoUnit.HOURS.between(LocalDateTime.now(), startTime);
+        if (hours >= 72) return totalPrice;
+        else if (hours >= 48) return totalPrice.multiply(BigDecimal.valueOf(0.75));
+        else if (hours >= 24) return totalPrice.multiply(BigDecimal.valueOf(0.25));
+        else return BigDecimal.ZERO;
+    }
+
 }

@@ -125,4 +125,8 @@ public interface MeetingRoomService {
     boolean setMeetingRoomScore(Integer meetingRoomId, String customerId, Double score);
 
     Page<MeetingRoomView> getMeetingRoomDetails(Integer meetingRoomId, long current, long size);
+
+    boolean confirmPayment(Integer meetingRoomId, String customerId);
+
+    BigDecimal calculateRefundAmount(LocalDateTime startTime, BigDecimal totalPrice);
 }

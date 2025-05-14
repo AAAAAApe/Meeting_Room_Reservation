@@ -4,6 +4,7 @@ import { useRequest } from 'vue-hooks-plus'
 import { meetingRoomService } from '../api/index';
 import type { MeetingRoomWithEmployeeInfo, PaginationParams, CustomerMeetingRoomSelection } from '../api/types';
 import MeetingRoomDetail from './MeetingRoomDetail.vue';
+import {ElMessage, ElMessageBox} from "element-plus";
 
 // 存储会议室列表数据，用于表格展示
 const meetingRoomList = ref<CustomerMeetingRoomSelection[]>([]);
@@ -46,6 +47,26 @@ const handleCurrentChange = (current: number) => {
 const showDetailDialog = ref(false);
 const selectedMeetingRoom = ref<MeetingRoomWithEmployeeInfo>();
 
+const handleCancelReservation = async (room: MeetingRoomWithEmployeeInfo) => {
+  const confirmed = await ElMessageBox.confirm(
+      '确定取消预约？需提前24小时申请，审核通过后将执行退款。',
+      '取消预约确认',
+      {
+        confirmButtonText: '确认取消',
+        cancelButtonText: '我再想想',
+        type: 'warning'
+      }
+  ).catch(() => false)
+
+  if (!confirmed) return;
+
+  try {
+    await meetingRoomService.cancelReservation({ meetingRoomId: room.meetingRoomId })
+    ElMessage.success('已提交取消申请，等待审核')
+  } catch (e) {
+    ElMessage.error('提交失败，请稍后重试')
+  }
+}
 const handleShowDetail = (meetingRoom: MeetingRoomWithEmployeeInfo) => {
     selectedMeetingRoom.value = meetingRoom;
     showDetailDialog.value = true;
@@ -79,13 +100,18 @@ const handleShowDetail = (meetingRoom: MeetingRoomWithEmployeeInfo) => {
                     </template>
                 </el-table-column>
                 <el-table-column label="会议室简介" prop="description" show-overflow-tooltip />
-                <el-table-column label="操作" width="120px">
-                    <template #default="scope">
-                        <el-button type="primary" size="small" @click="handleShowDetail(scope.row)">
-                            查看详情
-                        </el-button>
-                    </template>
-                </el-table-column>
+              <el-table-column label="操作" width="200px">
+                <template #default="scope">
+                  <el-button type="primary" size="small" @click="handleShowDetail(scope.row)">查看详情</el-button>
+                  <el-button
+                      type="danger"
+                      size="small"
+                      @click="handleCancelReservation(scope.row)"
+                  >
+                    取消预约
+                  </el-button>
+                </template>
+              </el-table-column>
             </el-table>
         </el-main>
         <el-footer class="main-footer">

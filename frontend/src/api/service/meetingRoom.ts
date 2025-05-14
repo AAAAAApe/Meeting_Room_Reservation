@@ -95,6 +95,10 @@ const meetingRoomService = {
   }) => {
     return request.post('/meetingRoom/reverse', data)
   },
+
+  cancelReservation: (data: { meetingRoomId: number }) => {
+    return request.put('/cancelRequest/apply', data);
+  },
 };
 
 export default meetingRoomService;

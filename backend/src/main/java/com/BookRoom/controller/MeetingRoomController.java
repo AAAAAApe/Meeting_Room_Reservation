@@ -1,5 +1,8 @@
 package com.BookRoom.controller;
 
+import com.BookRoom.entity.meetingRoom.MeetingRoomSelection;
+import com.BookRoom.mapper.MeetingRoomSelectionMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.dto.MeetingRoomRequest;
 import com.BookRoom.dto.MeetingRoomSelectRequest;
@@ -22,6 +25,7 @@ import java.util.List;
 public class MeetingRoomController {
     private final MeetingRoomService meetingRoomService;
 
+    private MeetingRoomSelectionMapper meetingRoomSelectionMapper;
     /**
      * 构造函数，通过依赖注入初始化服务
      *
@@ -160,4 +164,15 @@ public class MeetingRoomController {
     ) {
         return meetingRoomService.setMeetingRoomScore(meetingRoomId, customerId, score);
     }
+
+    @PutMapping("/meetingRoom/{meetingRoomId}/pay")
+    public boolean confirmPayment(
+            @PathVariable Integer meetingRoomId,
+            HttpServletRequest request
+    ) {
+        String customerId = (String) request.getAttribute("userId");
+
+        return meetingRoomService.confirmPayment(meetingRoomId, customerId);
+    }
+
 }

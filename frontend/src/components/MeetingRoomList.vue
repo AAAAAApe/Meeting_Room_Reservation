@@ -283,7 +283,17 @@ const handleFilterConfirm = async () => {
     <el-dialog v-model="showFilterDialog" title="预约条件筛选" width="40%">
       <el-form label-width="100px">
         <el-form-item label="日期">
-          <el-date-picker v-model="filterForm.date" type="date" />
+          <el-date-picker
+              v-model="filterForm.date"
+              type="date"
+              placeholder="选择日期"
+              :disabled-date="(date) => {
+              const today = new Date()
+              const max = new Date()
+              max.setDate(today.getDate() + 60)
+              return date < today || date > max
+            }"
+          />
         </el-form-item>
         <el-form-item label="开始时间">
           <el-select v-model="filterForm.startHour">
