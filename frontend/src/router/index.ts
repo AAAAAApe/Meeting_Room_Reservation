@@ -42,6 +42,11 @@ const routes = [
                 meta: { requiresAuth: false }
             },
             {
+                path: "employee/cancelRequests",
+                component: () => import("../components/EmployeeCancelRequests.vue"),
+                meta: { requiresAuth: true, role: 'employee' }
+            },
+            {
                 path: "customers",
                 component: () => import("../components/CustomerList.vue"),
                 meta: { requiresAuth: false }

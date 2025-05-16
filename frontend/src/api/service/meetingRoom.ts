@@ -2,7 +2,15 @@
  * 会议室相关API
  */
 import request from '../../utils/http/request';
-import type { MeetingRoomAssignment, MeetingRoomInfo, MeetingRoomPublishInfo, MeetingRoomWithEmployeeInfo, PaginationParams, PaginationResult, CustomerMeetingRoomSelection } from '../types';
+import type {
+  MeetingRoomAssignment,
+  MeetingRoomPublishInfo,
+  MeetingRoomInfo,
+  PaginationParams,
+  PaginationResult,
+  CustomerMeetingRoomSelection,
+  CancelRequestInfo
+} from '../types';
 
 /**
  * 会议室API服务
@@ -17,9 +25,9 @@ const meetingRoomService = {
     return request.get<PaginationResult<MeetingRoomInfo>>('/meetingRoom/getPage', { ...params, departmentIds });
   },
 
-  getMeetingRoomWithEmployees(params: PaginationParams, meetingRoomId: number) {
-    return request.get<PaginationResult<MeetingRoomWithEmployeeInfo>>(`/meetingRoom/${meetingRoomId}`, { ...params });
-  },
+  // getMeetingRoomWithEmployees(params: PaginationParams, meetingRoomId: number) {
+  //   return request.get<PaginationResult<MeetingRoomWithEmployeeInfo>>(`/meetingRoom/${meetingRoomId}`, { ...params });
+  // },
 
   /**
    * 发布会议室
@@ -29,6 +37,7 @@ const meetingRoomService = {
   publishMeetingRoom(meetingRoom: MeetingRoomPublishInfo) {
     return request.post<number>('/meetingRoom/createOrUpdate', meetingRoom);
   },
+
   /**
    * 删除会议室
    * @param meetingRoomId 会议室ID
@@ -104,6 +113,17 @@ const meetingRoomService = {
    */
   payMeetingRoom(meetingRoomId: number) {
     return request.put<void>(`/meetingRoom/${meetingRoomId}/pay`);
+  },
+  getPendingCancelRequests() {
+    return request.get<CancelRequestInfo[]>('/cancelRequest/pending');
+  },
+
+  approveCancelRequest(id: number) {
+    return request.put<void>(`/cancelRequest/${id}/approve`);
+  },
+
+  rejectCancelRequest(id: number) {
+    return request.put<void>(`/cancelRequest/${id}/reject`);
   },
 
 };

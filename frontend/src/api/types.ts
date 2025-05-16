@@ -73,14 +73,14 @@ export interface MeetingRoomInfo {
   departmentId: string;
   departmentName: string;
 }
-
-export interface MeetingRoomWithEmployeeInfo extends MeetingRoomInfo {
-  employeeId: string;
-  employeeName: string;
-  employeeTitleName?: string;
-  employeeDepartmentName?: string;
-  customerCount?: number;
-}
+//
+// export interface MeetingRoomWithEmployeeInfo extends MeetingRoomInfo {
+//   employeeId: string;
+//   employeeName: string;
+//   employeeTitleName?: string;
+//   employeeDepartmentName?: string;
+//   customerCount?: number;
+// }
 
 export interface CustomerMeetingRoomSelection {
   meetingRoomId: number;
@@ -134,4 +134,15 @@ export interface LoginParams {
 export interface LoginResult {
   token: string;
   roleName: string;
+}
+
+export interface CancelRequestInfo {
+  id: number;
+  meetingRoomId: number;
+  customerId: string;
+  requestTime: string; // ISO 日期字符串
+  status: 'pending' | 'approved' | 'rejected';
+  reviewTime: string | null;
+  reason: string;
+  refundAmount: number | null;
 }

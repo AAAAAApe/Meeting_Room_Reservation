@@ -9,6 +9,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 public class CancelRequestServiceImpl implements CancelRequestService {
 
@@ -57,5 +59,20 @@ public class CancelRequestServiceImpl implements CancelRequestService {
         request.setStatus("pending");
         System.out.println("要求"+request);
         return cancelRequestMapper.insert(request) > 0;
+    }
+
+    @Override
+    public List<CancelRequest> getPendingRequests() {
+        return cancelRequestMapper.selectList(new LambdaQueryWrapper<CancelRequest>()
+                .eq(CancelRequest::getStatus, "pending"));
+    }
+
+    @Override
+    public void updateStatus(Long id, String status) {
+        CancelRequest update = new CancelRequest();
+        update.setId(id);
+        update.setStatus(status);
+        update.setReviewTime(LocalDateTime.now());
+        cancelRequestMapper.updateById(update);
     }
 }

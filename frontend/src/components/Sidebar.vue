@@ -30,6 +30,7 @@
           </el-icon>会议室管理
         </template>
         <el-menu-item index="/employee/meetingRooms">我的会议室</el-menu-item>
+        <el-menu-item index="/employee/cancelRequests">取消订单审核</el-menu-item>
       </el-sub-menu>
     </template>
 

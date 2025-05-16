@@ -11,7 +11,7 @@
  Target Server Version : 80036 (8.0.36)
  File Encoding         : 65001
 
- Date: 15/05/2025 05:18:55
+ Date: 16/05/2025 19:20:23
 */
 
 SET NAMES utf8mb4;
@@ -38,8 +38,8 @@ CREATE TABLE `cancellation_request`  (
 -- ----------------------------
 -- Records of cancellation_request
 -- ----------------------------
-INSERT INTO `cancellation_request` VALUES (1, 5, '202020001', '2025-05-15 04:28:05', 'pending', NULL, NULL, NULL);
-INSERT INTO `cancellation_request` VALUES (2, 1, '202020001', '2025-05-15 05:18:29', 'pending', NULL, NULL, NULL);
+INSERT INTO `cancellation_request` VALUES (1, 5, '202020001', '2025-05-15 04:28:05', 'approved', '2025-05-16 19:18:49', NULL, NULL);
+INSERT INTO `cancellation_request` VALUES (2, 1, '202020001', '2025-05-15 05:18:29', 'approved', '2025-05-16 19:18:57', NULL, NULL);
 
 -- ----------------------------
 -- Table structure for customer_info
@@ -311,8 +311,8 @@ CREATE TABLE `meetingroom_selection`  (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `student_id`(`customer_id` ASC) USING BTREE,
   UNIQUE INDEX `idx_room_customer_time`(`meeting_room_id` ASC, `customer_id` ASC, `start_time` ASC, `end_time` ASC) USING BTREE,
+  INDEX `student_id`(`customer_id` ASC) USING BTREE,
   CONSTRAINT `meetingroom_selection_chk_1` CHECK (`score` between 0 and 100)
 ) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
 
@@ -344,7 +344,7 @@ CREATE TABLE `refresh_token`  (
 -- ----------------------------
 -- Records of refresh_token
 -- ----------------------------
-INSERT INTO `refresh_token` VALUES ('202020001', '8606621a-81aa-453b-8206-721802659364', '2025-06-14 05:00:30', '2025-05-15 05:00:30');
+INSERT INTO `refresh_token` VALUES ('202010001', '71dd4656-a19a-400b-a0e2-dc3ed1f0792d', '2025-06-15 18:51:50', '2025-05-16 18:51:50');
 
 -- ----------------------------
 -- Table structure for role
