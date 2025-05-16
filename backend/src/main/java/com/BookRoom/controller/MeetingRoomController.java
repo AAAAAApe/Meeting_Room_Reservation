@@ -1,5 +1,8 @@
 package com.BookRoom.controller;
 
+import com.BookRoom.dto.MeetingRoomFilterRequest;
+import com.BookRoom.dto.PaymentRequest;
+import com.BookRoom.entity.meetingRoom.MeetingRoom;
 import com.BookRoom.entity.meetingRoom.MeetingRoomSelection;
 import com.BookRoom.mapper.MeetingRoomSelectionMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -9,13 +12,17 @@ import com.BookRoom.dto.MeetingRoomSelectRequest;
 import com.BookRoom.entity.view.MeetingRoomSelectView;
 import com.BookRoom.entity.view.MeetingRoomView;
 import com.BookRoom.service.MeetingRoomService;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 会议室控制器，处理会议室相关的HTTP请求
@@ -44,18 +51,16 @@ public class MeetingRoomController {
      *
      * @param current       当前页码，默认为1
      * @param size          每页记录数，默认为16
-     * @param departmentIds 院系ID列表，用于筛选特定院系的会议室，为空时获取所有会议室
      * @return 包含分页会议室信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
     @GetMapping("/meetingRoom/getPage")
     public Page<MeetingRoomView> getAllMeetingRoom(
             @RequestParam(value = "current", defaultValue = "1") long current,
             @RequestParam(value = "size", defaultValue = "16") long size,
-            @RequestParam(value = "departmentIds", required = false) List<String> departmentIds,
             @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
             @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
             @RequestParam(value = "minCapacity", required = false) Integer minCapacity) {
-        return meetingRoomService.getAllMeetingRoomsByPage(current, size, departmentIds, minPrice, maxPrice,
+        return meetingRoomService.getAllMeetingRoomsByPage(current, size,minPrice, maxPrice,
                 minCapacity);
     }
 
@@ -112,10 +117,8 @@ public class MeetingRoomController {
     public Integer createOrUpdateMeetingRoom(
             HttpServletRequest request,
             @RequestBody MeetingRoomRequest meetingRoomRequest) {
-        String creatorId = (String) request.getAttribute("userId");
         return meetingRoomService.createOrUpdateMeetingRoom(
-                meetingRoomRequest.meetingRoom(),
-                creatorId);
+                meetingRoomRequest.meetingRoom());
     }
 
     @PostMapping("/meetingRoom/reverse")
@@ -156,24 +159,35 @@ public class MeetingRoomController {
         return meetingRoomService.getMeetingRoomCustomers(meetingRoomId, current, size);
     }
 
-    @PutMapping("/meetingRoom/{meetingRoomId}/{customerId}/score")
-    public boolean setMeetingRoomScore(
-            @PathVariable Integer meetingRoomId,
-            @PathVariable String customerId,
-            @RequestParam(value = "employeeId") String employeeId,
-            @RequestParam(value = "score") Double score) {
-        return meetingRoomService.setMeetingRoomScore(meetingRoomId, customerId, score);
-    }
-
     @PutMapping("/meetingRoom/{meetingRoomId}/pay")
-    public boolean confirmPayment(
+    public ResponseEntity<?> confirmPayment(
             @PathVariable Integer meetingRoomId,
-            HttpServletRequest request) {
+            @RequestBody PaymentRequest requestBody, // 新增请求体参数
+            HttpServletRequest request
+    ) {
         String customerId = (String) request.getAttribute("userId");
 
-        return meetingRoomService.confirmPayment(meetingRoomId, customerId);
-    }
+        try {
+            boolean success = meetingRoomService.confirmPayment(
+                    meetingRoomId,
+                    customerId,
+                    requestBody.getStartTime(),
+                    requestBody.getEndTime()
+            );
 
+            return success
+                    ? ResponseEntity.ok().build()
+                    : ResponseEntity.badRequest().body(Map.of(
+                    "code", 4001,
+                    "message", "未找到待支付订单"
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "code", 5001,
+                    "message", "支付处理失败: " + e.getMessage()
+            ));
+        }
+    }
     /**
      * 删除会议室
      * @param meetingRoomId 会议室ID
@@ -184,5 +198,21 @@ public class MeetingRoomController {
         return meetingRoomService.deleteMeetingRoom(meetingRoomId);
     }
 
-    
+    @PostMapping("/meetingRoom/available")
+    public ResponseEntity<Page<MeetingRoom>> getAvailableRooms(@RequestBody MeetingRoomFilterRequest filterRequest) {
+        System.out.println("接收到参数：" + filterRequest);
+
+        Page<MeetingRoom> page = new Page<>(filterRequest.getCurrent(), filterRequest.getSize());
+        return ResponseEntity.ok(
+                meetingRoomService.getAvailableRooms(
+                        page,
+                        filterRequest.getStartTime(),
+                        filterRequest.getEndTime(),
+                        filterRequest.getHasProjector(),
+                        filterRequest.getHasAudio(),
+                        filterRequest.getHasNetwork()
+                )
+        );
+    }
+
 }

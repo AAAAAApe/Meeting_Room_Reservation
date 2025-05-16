@@ -17,6 +17,4 @@ public class EmployeeView {
     private String phoneNumber;    // 电话号码
     private String email;          // 邮箱
     private Integer startYear;     // 入职年份
-    private String departmentName; // 所在部门名称
-    private String title;          // 职称
 }

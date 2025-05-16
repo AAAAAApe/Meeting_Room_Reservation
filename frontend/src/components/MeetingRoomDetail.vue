@@ -64,9 +64,6 @@ const formatStatus = (status: string) => {
           <el-descriptions-item label="会议室编号">
             {{ String(meetingRoomDetail.meetingRoomId).padStart(6, '0') }}
           </el-descriptions-item>
-          <el-descriptions-item label="所属院系">
-            {{ meetingRoomDetail.departmentName }}
-          </el-descriptions-item>
           <el-descriptions-item label="会议室名称">
             {{ meetingRoomDetail.meetingRoomName }}
           </el-descriptions-item>
@@ -93,12 +90,6 @@ const formatStatus = (status: string) => {
                           !meetingRoomDetail.hasAudio &&
                           !meetingRoomDetail.hasNetwork">无</span>
             </div>
-          </el-descriptions-item>
-          <el-descriptions-item label="会议室简介" :span="2">
-            {{ meetingRoomDetail.description }}
-          </el-descriptions-item>
-          <el-descriptions-item label="创建者">
-            {{ meetingRoomDetail.creatorName || meetingRoomDetail.creatorId }}
           </el-descriptions-item>
         </el-descriptions>
 

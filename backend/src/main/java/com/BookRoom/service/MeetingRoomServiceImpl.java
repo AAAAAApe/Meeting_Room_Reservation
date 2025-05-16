@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 会议室服务实现类
@@ -55,21 +56,6 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
     }
 
     /**
-     * 根据部门ID获取会议室列表（分页）
-     *
-     * @param departmentId 部门ID
-     * @param current      当前页码
-     * @param size         每页大小
-     * @return 包含分页会议室信息的Page对象，包含总记录数、总页数、当前页数据等信息
-     */
-    @Override
-    public Page<MeetingRoomView> getMeetingRoomsByDepartmentPage(String departmentId, long current, long size) {
-        Page<MeetingRoomView> page = new Page<>(current, size);
-        return meetingRoomViewMapper.selectPage(page,
-                new LambdaQueryWrapper<MeetingRoomView>().eq(MeetingRoomView::getDepartmentId, departmentId));
-    }
-
-    /**
      * 根据顾客ID获取会议室列表（分页）
      *
      * @param customerId 顾客ID
@@ -95,7 +81,6 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
     public Page<MeetingRoomView> getAllMeetingRoomsByPage(
             long current,
             long size,
-            List<String> departmentIds,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             Integer minCapacity
@@ -103,9 +88,6 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
         Page<MeetingRoomView> page = new Page<>(current, size);
         LambdaQueryWrapper<MeetingRoomView> queryWrapper = new LambdaQueryWrapper<>();
 
-        if (departmentIds != null && !departmentIds.isEmpty()) {
-            queryWrapper.in(MeetingRoomView::getDepartmentId, departmentIds);
-        }
         if (minPrice != null) {
             queryWrapper.ge(MeetingRoomView::getPricePerHour, minPrice);
         }
@@ -127,8 +109,7 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
      * @return 会议室ID
      */
     @Override
-    public Integer createOrUpdateMeetingRoom(MeetingRoom meetingRoom, String creatorId) {
-        meetingRoom.setCreatorId(creatorId);
+    public Integer createOrUpdateMeetingRoom(MeetingRoom meetingRoom) {
         if (meetingRoomMapper.insertOrUpdate(meetingRoom)) {
             // 完全移除员工关联处理逻辑
             return meetingRoom.getMeetingRoomId();
@@ -179,7 +160,6 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
         selection.setCustomerId(customerId);
         selection.setStartTime(startTime);
         selection.setEndTime(endTime);
-        selection.setScore(0.0);
         selection.setStatus("pending_payment");
         selection.setPaymentStatus("unpaid");
         selection.setTotalPrice(totalPrice);
@@ -230,20 +210,6 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
                 .eq(MeetingRoomSelectView::getCustomerId, customerId));
     }
 
-    /**
-     * 更新顾客成绩
-     *
-     * @param meetingRoomSelection 选会议室信息（包含会议室ID、顾客ID、员工ID和成绩）
-     * @return 是否更新成功
-     */
-    @Override
-    public boolean updateScore(MeetingRoomSelection meetingRoomSelection) {
-        return meetingRoomSelectionMapper.update(meetingRoomSelection,
-                new LambdaQueryWrapper<MeetingRoomSelection>()
-                        .eq(MeetingRoomSelection::getMeetingRoomId, meetingRoomSelection.getMeetingRoomId())
-                        .eq(MeetingRoomSelection::getCustomerId, meetingRoomSelection.getCustomerId())) > 0;
-    }
-
     @Override
     public Page<MeetingRoomSelectView> getCustomerMeetingRoomSelections(String customerId, long current, long size) {
         Page<MeetingRoomSelectView> page = new Page<>(current, size);
@@ -260,19 +226,6 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
     }
 
     @Override
-    public boolean setMeetingRoomScore(Integer meetingRoomId,  String customerId, Double score) {
-        MeetingRoomSelection meetingRoomSelection = new MeetingRoomSelection();
-        meetingRoomSelection.setMeetingRoomId(meetingRoomId);
-        meetingRoomSelection.setCustomerId(customerId);
-        meetingRoomSelection.setScore(score);
-
-        return meetingRoomSelectionMapper.update(meetingRoomSelection,
-                new LambdaQueryWrapper<MeetingRoomSelection>()
-                        .eq(MeetingRoomSelection::getMeetingRoomId, meetingRoomId)
-                        .eq(MeetingRoomSelection::getCustomerId, customerId)) > 0;
-    }
-
-    @Override
     public Page<MeetingRoomView> getMeetingRoomDetails(Integer meetingRoomId, long current, long size) {
         Page<MeetingRoomView> page = new Page<>(current, size);
         return meetingRoomViewMapper.selectPage(page,
@@ -280,12 +233,14 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
                         .eq(MeetingRoomView::getMeetingRoomId, meetingRoomId));
     }
     @Override
-    public boolean confirmPayment(Integer meetingRoomId, String customerId) {
+    public boolean confirmPayment(Integer meetingRoomId, String customerId,LocalDateTime startTime, LocalDateTime endTime) {
         // 查找订单
         LambdaQueryWrapper<MeetingRoomSelection> query = new LambdaQueryWrapper<>();
         query.eq(MeetingRoomSelection::getMeetingRoomId, meetingRoomId)
                 .eq(MeetingRoomSelection::getCustomerId, customerId)
-                .eq(MeetingRoomSelection::getStatus, "pending_payment");
+                .eq(MeetingRoomSelection::getStatus, "pending_payment")
+                .eq(MeetingRoomSelection::getStartTime, startTime) // 新增时间条件
+                .eq(MeetingRoomSelection::getEndTime, endTime);
 
         MeetingRoomSelection order = meetingRoomSelectionMapper.selectOne(query);
         if (order == null) return false;
@@ -306,5 +261,38 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
         else if (hours >= 24) return totalPrice.multiply(BigDecimal.valueOf(0.25));
         else return BigDecimal.ZERO;
     }
+    @Override
+    public Page<MeetingRoom> getAvailableRooms(Page<MeetingRoom> page,
+                                                   LocalDateTime startTime,
+                                                   LocalDateTime endTime,
+                                                   Boolean hasProjector,
+                                                   Boolean hasAudio,
+                                                   Boolean hasNetwork) {
+        LambdaQueryWrapper<MeetingRoom> queryWrapper = new LambdaQueryWrapper<>();
 
+        // 增强版时间冲突检测
+        if (startTime != null && endTime != null) {
+            String conflictCondition = String.format(
+                    "(start_time < '%s' AND end_time > '%s')",
+                    endTime, startTime
+            );
+
+            queryWrapper.notInSql(
+                    MeetingRoom::getMeetingRoomId,
+                    "SELECT DISTINCT meeting_room_id FROM meetingroom_selection " +
+                            "WHERE status NOT IN ('completed', 'cancelled') " +
+                            "AND " + conflictCondition
+            );
+        }
+
+        // 设备筛选逻辑（严格包含）
+        Optional.ofNullable(hasProjector).ifPresent(v ->
+                queryWrapper.eq(MeetingRoom::getHasProjector, v));
+        Optional.ofNullable(hasAudio).ifPresent(v ->
+                queryWrapper.eq(MeetingRoom::getHasAudio, v));
+        Optional.ofNullable(hasNetwork).ifPresent(v ->
+                queryWrapper.eq(MeetingRoom::getHasNetwork, v));
+
+        return meetingRoomMapper.selectPage(page, queryWrapper);
+    }
 }

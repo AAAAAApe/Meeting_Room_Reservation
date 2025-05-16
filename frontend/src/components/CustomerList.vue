@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
-import { departmentService, userService } from '../api/index';
+import { userService } from '../api/index';
 import type { PaginationParams, CustomerInfo } from '../api/types';
 
 // 存储顾客列表数据，用于表格展示
@@ -18,10 +18,6 @@ let filterParams: {
   userId?: string;
   departmentNames?: string[];
 } = {};
-
-const { data: departmentList } = useRequest(
-  departmentService.getDepartmentList,
-);
 
 // 分页参数配置
 // current: 当前页码
@@ -135,11 +131,6 @@ const handleFilterChange = () => {
         <el-table-column label="姓名" prop="name" width="100">
           <template #default="scope">
             <span class="customer-name">{{ scope.row.name }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="所属公司" prop="departmentName">
-          <template #default="scope">
-            <span class="company-name">{{ scope.row.departmentName || '未设置' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="注册时间" prop="startYear" width="100">

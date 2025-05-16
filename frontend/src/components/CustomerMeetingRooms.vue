@@ -2,9 +2,10 @@
 import { ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
 import { meetingRoomService } from '../api/index';
-import type { MeetingRoomWithEmployeeInfo, PaginationParams, CustomerMeetingRoomSelection } from '../api/types';
+import type { MeetingRoomInfo, PaginationParams, CustomerMeetingRoomSelection } from '../api/types';
 import MeetingRoomDetail from './MeetingRoomDetail.vue';
 import {ElMessage, ElMessageBox} from "element-plus";
+import dayjs from "dayjs";
 
 // 存储会议室列表数据，用于表格展示
 const meetingRoomList = ref<CustomerMeetingRoomSelection[]>([]);
@@ -45,9 +46,9 @@ const handleCurrentChange = (current: number) => {
 };
 
 const showDetailDialog = ref(false);
-const selectedMeetingRoom = ref<MeetingRoomWithEmployeeInfo>();
+const selectedMeetingRoom = ref<MeetingRoomInfo>();
 
-const handleCancelReservation = async (room: MeetingRoomWithEmployeeInfo) => {
+const handleCancelReservation = async (room: MeetingRoomInfo) => {
   const confirmed = await ElMessageBox.confirm(
       '确定取消预约？需提前24小时申请，审核通过后将执行退款。',
       '取消预约确认',
@@ -84,26 +85,36 @@ const handlePay = async (order: CustomerMeetingRoomSelection) => {
   if (!confirmed) return;
 
   try {
-    await meetingRoomService.payMeetingRoom(order.meetingRoomId);
+    await meetingRoomService.payMeetingRoom(
+        order.meetingRoomId,
+        formatDateTime(order.startTime), // 格式化为yyyy-MM-dd HH:mm:ss
+        formatDateTime(order.endTime)
+    );
     ElMessage.success('支付成功');
-    fetchOrders(params.value); // 刷新列表
-  } catch (e) {
-    ElMessage.error('支付失败，请稍后重试');
+    fetchOrders(params.value);
+  } catch (e: any) {
+    const msg = e.response?.data?.message || '支付失败，请稍后重试'
+    ElMessage.error(msg);
   }
+};
+const formatDateTime = (date: Date) => {
+  return dayjs(date).format('YYYY-MM-DD HH:mm:ss');
 };
 
 
-const handleShowDetail = (meetingRoom: MeetingRoomWithEmployeeInfo) => {
+const handleShowDetail = (meetingRoom: MeetingRoomInfo) => {
     selectedMeetingRoom.value = meetingRoom;
     showDetailDialog.value = true;
 };
+
 </script>
 
 <template>
     <el-container class="main-container">
         <el-dialog v-model="showDetailDialog" width="80%" destroy-on-close>
-            <MeetingRoomDetail v-if="selectedMeetingRoom" :meetingRoomId="selectedMeetingRoom.meetingRoomId"
-                :employeeId="selectedMeetingRoom.employeeId" />
+            <MeetingRoomDetail v-if="selectedMeetingRoom"
+                               :meetingRoomId="selectedMeetingRoom.meetingRoomId"
+            />
         </el-dialog>
         <el-header class="main-header">
             <div class="title-container">
@@ -117,45 +128,20 @@ const handleShowDetail = (meetingRoom: MeetingRoomWithEmployeeInfo) => {
                         {{ String(scope.row.meetingRoomId).padStart(6, '0') }}
                     </template>
                 </el-table-column>
-                <el-table-column label="所属院系" prop="departmentName" />
                 <el-table-column label="会议室名称" prop="meetingRoomName" />
-                <el-table-column label="员工" prop="employeeName" />
-                <el-table-column label="会议室学分" prop="pricePerHour" width="100px">
+                <el-table-column label="会议室价格" prop="pricePerHour" width="100px">
                     <template #default="scope">
                         {{ scope.row.pricePerHour.toFixed(1) }}
                     </template>
                 </el-table-column>
-                <el-table-column label="会议室简介" prop="description" show-overflow-tooltip />
               <el-table-column label="操作" width="200px">
                 <template #default="scope">
-                  <el-button type="primary" size="small" @click="handleShowDetail(scope.row)">查看详情</el-button>
-                  <!-- 支付按钮 -->
-<!--                  <el-button-->
-<!--                      v-if="scope.row.status === 'pending_payment' && scope.row.paymentStatus === 'unpaid'"-->
-<!--                      type="success"-->
-<!--                      size="small"-->
-<!--                      @click="handlePay(scope.row)"-->
-<!--                  >-->
-<!--                    支付-->
-<!--                  </el-button>-->
-
-<!--                  &lt;!&ndash; 取消预约按钮 &ndash;&gt;-->
-<!--                  <el-button-->
-<!--                      v-else-if="scope.row.status === 'confirmed'"-->
-<!--                      type="danger"-->
-<!--                      size="small"-->
-<!--                      @click="handleCancelReservation(scope.row)"-->
-<!--                  >-->
-<!--                    取消预约-->
-<!--                  </el-button>-->
                   <el-button
                       type="success"
                       size="small"
-                      @click="handlePay(scope.row)"
-                  >
+                      @click="handlePay(scope.row)">
                     支付
                   </el-button>
-
                   <!-- 取消预约按钮 -->
                   <el-button
                       type="danger"

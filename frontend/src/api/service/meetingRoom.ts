@@ -21,13 +21,13 @@ const meetingRoomService = {
    * @param params 分页参数
    * @returns Promise
    */
-  getMeetingRoomList(params: PaginationParams, departmentIds?: string[]) {
-    return request.get<PaginationResult<MeetingRoomInfo>>('/meetingRoom/getPage', { ...params, departmentIds });
+  getMeetingRoomList(params: PaginationParams) {
+    return request.get<PaginationResult<MeetingRoomInfo>>('/meetingRoom/getPage', { ...params});
   },
-
-  // getMeetingRoomWithEmployees(params: PaginationParams, meetingRoomId: number) {
-  //   return request.get<PaginationResult<MeetingRoomWithEmployeeInfo>>(`/meetingRoom/${meetingRoomId}`, { ...params });
-  // },
+  // CustomerMeetingRoomSelection
+  getChooseMeetingRoomList(params: PaginationParams) {
+    return request.get<PaginationResult<CustomerMeetingRoomSelection>>('/meetingRoom/choose/getPage', { ...params});
+  },
 
   /**
    * 发布会议室
@@ -111,12 +111,16 @@ const meetingRoomService = {
    * 顾客支付会议室租赁费
    * @param meetingRoomId 会议室ID
    */
-  payMeetingRoom(meetingRoomId: number) {
-    return request.put<void>(`/meetingRoom/${meetingRoomId}/pay`);
+  payMeetingRoom(meetingRoomId: number, startTime: string, endTime: string) {
+    return request.put(`/meetingRoom/${meetingRoomId}/pay`, {
+      startTime,
+      endTime
+    });
   },
   getPendingCancelRequests() {
     return request.get<CancelRequestInfo[]>('/cancelRequest/pending');
   },
+
 
   approveCancelRequest(id: number) {
     return request.put<void>(`/cancelRequest/${id}/approve`);
@@ -125,7 +129,17 @@ const meetingRoomService = {
   rejectCancelRequest(id: number) {
     return request.put<void>(`/cancelRequest/${id}/reject`);
   },
-
+  getAvailableRooms(data: {
+    current: number;
+    size: number;
+    startTime?: string;
+    endTime?: string;
+    hasProjector?: boolean;
+    hasAudio?: boolean;
+    hasNetwork?: boolean;
+  }) {
+    return request.post<PaginationResult<CustomerMeetingRoomSelection>>('/meetingRoom/available', data);
+  },
 };
 
 export default meetingRoomService;

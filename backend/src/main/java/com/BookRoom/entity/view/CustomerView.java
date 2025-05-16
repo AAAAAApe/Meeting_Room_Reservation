@@ -17,7 +17,5 @@ public class CustomerView {
     private String phoneNumber;    // 电话号码
     private String email;          // 邮箱
     private Integer startYear;     // 入学年份
-    private String departmentName; // 学院名称
-    private String major;          // 专业名称
-    private Double pricePerHour;         // 学分
+    private Double pricePerHour;         // 价格
 } 

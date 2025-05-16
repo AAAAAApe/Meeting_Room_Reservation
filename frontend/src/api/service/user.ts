@@ -2,7 +2,16 @@
  * 用户相关API
  */
 import request from '../../utils/http/request';
-import type { LoginParams, LoginResult, PaginationParams, PaginationResult, CustomerInfo, EmployeeInfo, UserBaseInfo } from '../types';
+import type {
+  LoginParams,
+  LoginResult,
+  PaginationParams,
+  PaginationResult,
+  CustomerInfo,
+  EmployeeInfo,
+  UserBaseInfo,
+  RegisterParams, RegisterResult
+} from '../types';
 import { useUserStore } from '../../stores/userStore';
 
 /**
@@ -103,7 +112,12 @@ const userService = {
   }) {
     return request.get<PaginationResult<EmployeeInfo>>('/user/employee/getPage', { ...params })
   },
-
+  register(params: RegisterParams) {
+    const endpoint = params.roleType === 'employee'
+        ? '/register/employee'
+        : '/register/customer';
+    return request.post<RegisterResult>(endpoint, params, { withToken: false });
+  },
   getCustomerList(params: PaginationParams & {
     name?: string;
     userId?: string;

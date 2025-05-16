@@ -21,7 +21,6 @@ public class MeetingRoomSelection {
     private String customerId;
     
     private LocalDateTime selectionTime;
-    private Double score;
 
     private LocalDateTime startTime;
 

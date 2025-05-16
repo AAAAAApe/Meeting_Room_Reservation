@@ -11,15 +11,10 @@ public class MeetingRoomView {
     private Integer meetingRoomId;
     private String meetingRoomName;
     private Double pricePerHour;
-    private String description;
     private Integer capacity;
     private String type;
     private String status;
     private Boolean hasProjector;   
     private Boolean hasAudio;       
-    private Boolean hasNetwork;     
-    private String creatorId;
-    private String creatorName;
-    private String departmentId;
-    private String departmentName;
+    private Boolean hasNetwork;
 }

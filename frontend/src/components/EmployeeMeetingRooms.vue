@@ -87,8 +87,7 @@ fetchMeetingRooms(params.value);
         </el-table-column>
 
         <el-table-column label="会议室名称" prop="meetingRoomName" />
-        <el-table-column label="所属院系" prop="departmentName" />
-        <el-table-column label="学分/小时" prop="pricePerHour" width="100px">
+        <el-table-column label="元/小时" prop="pricePerHour" width="100px">
           <template #default="scope">
             {{ scope.row.pricePerHour.toFixed(1) }}
           </template>
@@ -96,8 +95,6 @@ fetchMeetingRooms(params.value);
         <el-table-column label="容纳人数" prop="capacity" width="100px" />
         <el-table-column label="类型" prop="type" width="120px" />
         <el-table-column label="状态" prop="status" width="120px" />
-        <el-table-column label="简介" prop="description" show-overflow-tooltip />
-
         <el-table-column label="操作" width="120px">
           <template #default="scope">
             <el-button type="primary" size="small" @click="handleShowDetail(scope.row)">

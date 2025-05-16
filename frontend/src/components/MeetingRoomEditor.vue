@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import { useRequest } from 'vue-hooks-plus'
-import { meetingRoomService, departmentService } from '../api/index';
+import { meetingRoomService } from '../api/index';
 import type { MeetingRoomInfo, MeetingRoomPublishInfo } from '../api/types';
 import { ElMessage } from 'element-plus';
 
@@ -18,8 +17,6 @@ const meetingRoomForm = ref<MeetingRoomPublishInfo>({
   meetingRoom: {
     meetingRoomName: '',
     pricePerHour: undefined,
-    departmentId: '',
-    description: '',
     capacity: 20,
     type: 'classroom',
     status: 'available',
@@ -30,19 +27,11 @@ const meetingRoomForm = ref<MeetingRoomPublishInfo>({
   employeeIds: [] // 保留字段但不再使用
 });
 
-// 获取院系列表数据
-const { data: departmentList } = useRequest(
-  departmentService.getDepartmentList,
-);
-
 // 表单验证规则（保留必要验证）
 const rules = {
   'meetingRoom.meetingRoomName': [
     { required: true, message: '请输入会议室名称', trigger: 'blur' },
     { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
-  ],
-  'meetingRoom.departmentId': [
-    { required: true, message: '请选择所属院系', trigger: 'change' }
   ],
   'meetingRoom.pricePerHour': [
     { required: true, message: '请输入每小时价格', trigger: 'change' }
@@ -83,9 +72,6 @@ watch(() => props.meetingRoom, (newMeetingRoom) => {
       meetingRoomId: newMeetingRoom.meetingRoomId,
       meetingRoomName: newMeetingRoom.meetingRoomName,
       pricePerHour: newMeetingRoom.pricePerHour,
-      departmentId: newMeetingRoom.departmentId,
-      description: newMeetingRoom.description || '',
-      // 显式同步新增字段
       capacity: newMeetingRoom.capacity,
       type: newMeetingRoom.type,
       status: newMeetingRoom.status,
@@ -99,8 +85,6 @@ watch(() => props.meetingRoom, (newMeetingRoom) => {
         meetingRoomId: undefined,
         meetingRoomName: '',
         pricePerHour: undefined,
-        departmentId: '',
-        description: '',
         capacity: 20,
         type: 'classroom',
         status: 'available',
@@ -184,11 +168,6 @@ const typeOptions = [
               </div>
             </el-checkbox>
           </div>
-        </el-form-item>
-
-        <el-form-item label="会议室简介">
-          <el-input type="textarea" placeholder="请输入会议室简介" v-model="meetingRoomForm.meetingRoom.description"
-            :rows="4" />
         </el-form-item>
 
         <!-- 删除员工相关代码 -->

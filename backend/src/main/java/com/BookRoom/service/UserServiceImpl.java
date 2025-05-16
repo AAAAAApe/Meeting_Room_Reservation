@@ -1,5 +1,9 @@
 package com.BookRoom.service;
 
+import com.BookRoom.dto.RegisterRequest;
+import com.BookRoom.entity.account.CustomerInfo;
+import com.BookRoom.entity.account.EmployeeInfo;
+import com.BookRoom.entity.account.UserInfo;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.entity.account.User;
@@ -9,7 +13,9 @@ import com.BookRoom.entity.view.UserView;
 import com.BookRoom.mapper.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Year;
 import java.util.List;
 
 @Service
@@ -18,12 +24,22 @@ public class UserServiceImpl implements UserService{
     private final UserViewMapper userViewMapper;
     private final EmployeeViewMapper employeeViewMapper;
     private final CustomerViewMapper customerViewMapper;
+    private final EmployeeInfoMapper employeeInfoMapper;
+    private final CustomerInfoMapper customerInfoMapper;
+    private final UserInfoMapper userInfoMapper;
+    private final SequenceService sequenceService;
+    private final RoleService roleService;
 
-    public UserServiceImpl(UserMapper userMapper, UserViewMapper userViewMapper, EmployeeViewMapper employeeViewMapper, CustomerViewMapper customerViewMapper){
+    public UserServiceImpl(UserMapper userMapper, UserViewMapper userViewMapper, EmployeeViewMapper employeeViewMapper, CustomerViewMapper customerViewMapper, EmployeeInfoMapper employeeInfoMapper, CustomerInfoMapper customerInfoMapper, UserInfoMapper userInfoMapper, SequenceService sequenceService, RoleService roleService){
         this.userMapper = userMapper;
         this.userViewMapper = userViewMapper;
         this.employeeViewMapper = employeeViewMapper;
         this.customerViewMapper = customerViewMapper;
+        this.employeeInfoMapper = employeeInfoMapper;
+        this.customerInfoMapper = customerInfoMapper;
+        this.userInfoMapper = userInfoMapper;
+        this.sequenceService = sequenceService;
+        this.roleService = roleService;
     }
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
@@ -149,17 +165,7 @@ public class UserServiceImpl implements UserService{
         if (userId != null && !userId.isEmpty()) {
             queryWrapper.like(EmployeeView::getUserId, userId);
         }
-        
-        // 添加部门名称条件查询
-        if (departmentNames != null && !departmentNames.isEmpty()) {
-            queryWrapper.in(EmployeeView::getDepartmentName, departmentNames);
-        }
 
-        // 按职称筛选
-        if (titles != null && !titles.isEmpty()) {
-            queryWrapper.in(EmployeeView::getTitle, titles);
-        }
-        
         return employeeViewMapper.selectPage(page, queryWrapper);
     }
 
@@ -188,10 +194,6 @@ public class UserServiceImpl implements UserService{
             queryWrapper.like(CustomerView::getUserId, userId);
         }
 
-        // 添加部门名称条件查询
-        if (departmentNames != null && !departmentNames.isEmpty()) {
-            queryWrapper.in(CustomerView::getDepartmentName, departmentNames);
-        }
         return customerViewMapper.selectPage(page, queryWrapper);
     }
 
@@ -211,5 +213,63 @@ public class UserServiceImpl implements UserService{
     @Override
     public void removeUserById(String userId) {
         userMapper.deleteById(userId);
+    }
+
+    // 新增注册方法
+    @Override
+    @Transactional
+    public String registerUser(RegisterRequest request, String roleType) {
+        try {
+            // 1. 生成用户ID（使用您的SequenceService）
+            int currentYear = Year.now().getValue();
+            String userId = sequenceService.generateUserId(currentYear, roleType);
+
+            // 2. 创建用户主体
+            User user = new User();
+            user.setUserId(userId);
+            user.setRoleId(getRoleId(roleType)); // 需要实现getRoleId方法
+            user.setEncryptedPassword(bCryptPasswordEncoder.encode(request.getPassword()));
+            userMapper.insert(user);
+
+            // 3. 创建用户信息
+            UserInfo userInfo = new UserInfo();
+            userInfo.setUserId(userId);
+            userInfo.setName(request.getName());
+            userInfo.setGender(convertGender(request.getGender()));
+            userInfo.setBirthday(request.getBirthday());
+            userInfoMapper.insert(userInfo);
+
+            // 4. 创建角色特定信息
+            createRoleSpecificInfo(roleType, userId);
+
+            return userId;
+        } catch (Exception e) {
+            throw new RuntimeException("注册失败: " + e.getMessage());
+        }
+    }
+
+    private Byte getRoleId(String roleType) {
+        return roleService.getRoleId(roleType);
+    }
+
+    private Boolean convertGender(Integer gender) {
+        return gender != null ? gender == 1 : null;
+    }
+
+    private void createRoleSpecificInfo(String roleType, String userId) {
+        switch (roleType.toLowerCase()) {
+            case "employee":
+                EmployeeInfo employeeInfo = new EmployeeInfo();
+                employeeInfo.setUserId(userId);
+                employeeInfoMapper.insert(employeeInfo);
+                break;
+            case "customer":
+                CustomerInfo customerInfo = new CustomerInfo();
+                customerInfo.setUserId(userId);
+                customerInfoMapper.insert(customerInfo);
+                break;
+            default:
+                throw new IllegalArgumentException("无效的用户类型");
+        }
     }
 }

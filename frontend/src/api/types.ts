@@ -37,7 +37,6 @@ export interface UserDetailInfo extends UserBaseInfo {
   phoneNumber?: string;
   email?: string;
   startYear?: number;
-  departmentName?: string;
 }
 
 // 员工信息接口
@@ -47,31 +46,20 @@ export interface EmployeeInfo extends UserDetailInfo {
 
 // 顾客信息接口
 export interface CustomerInfo extends UserDetailInfo {
-  major?: string;
   pricePerHour?: number;
-}
-
-export interface department {
-  departmentId: string;
-  departmentName: string;
 }
 
 // 会议室信息接口
 export interface MeetingRoomInfo {
   meetingRoomId: number;
   meetingRoomName: string;
-  pricePerHour: number;       // 原名 price_per_hour
-  description?: string;
+  pricePerHour: number;
   capacity: number;           // 新增
   type: 'classroom' | 'round_table'; // 新增
   status: 'available' | 'locked' | 'reserved' | 'in_use' | 'maintenance'; // 新增
   hasProjector: boolean;      // 新增
   hasAudio: boolean;          // 新增
   hasNetwork: boolean;        // 新增
-  creatorId: string;
-  creatorName?: string;
-  departmentId: string;
-  departmentName: string;
 }
 //
 // export interface MeetingRoomWithEmployeeInfo extends MeetingRoomInfo {
@@ -87,7 +75,8 @@ export interface CustomerMeetingRoomSelection {
   customerId: string;
   customerName: string;
   selectionTime: Date;
-  score: number;
+  startTime: Date;
+  endTime: Date;
   totalPrice: number; //
   paymentStatus: 'unpaid' | 'paid' | 'refunded' | 'partial_refund';
   refundAmount?: number; //
@@ -113,8 +102,6 @@ export interface MeetingRoomPublishInfo {
     meetingRoomId?: number;
     meetingRoomName: string;
     pricePerHour?: number;
-    description?: string;
-    departmentId?: string;
     capacity: number;
     type: 'classroom' | 'round_table';
     status: 'available' | 'locked' | 'reserved' | 'in_use' | 'maintenance';
@@ -146,3 +133,17 @@ export interface CancelRequestInfo {
   reason: string;
   refundAmount: number | null;
 }
+// 注册请求参数
+export interface RegisterParams {
+  roleType: 'employee' | 'customer';
+  name: string;
+  password: string;
+  gender?: 0 | 1; // 0-女 1-男
+  birthday?: string;
+}
+
+// 注册响应数据
+export interface RegisterResult {
+  userId: string;
+}
+

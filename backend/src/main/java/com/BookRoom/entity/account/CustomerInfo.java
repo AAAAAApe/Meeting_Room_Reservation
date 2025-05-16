@@ -9,6 +9,5 @@ import lombok.Data;
 public class CustomerInfo {
     @TableId
     private String userId;
-    private String majorId;
     private Double pricePerHour;
 }

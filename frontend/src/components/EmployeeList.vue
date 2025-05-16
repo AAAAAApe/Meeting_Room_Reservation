@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
-import { departmentService, userService } from '../api/index';
+import {  userService } from '../api/index';
 import type { PaginationParams, EmployeeInfo } from '../api/types';
 import type { TableInstance } from 'element-plus';
 
@@ -29,12 +29,6 @@ let filterParams: {
   titles?: string[];
 } = {};
 
-const { data: departmentList } = useRequest(
-  departmentService.getDepartmentList,
-);
-
-// 职称选项
-const titleOptions = ['professor', 'associate_professor', 'lecturer', 'senior_lecturer'];
 
 
 // 分页参数配置

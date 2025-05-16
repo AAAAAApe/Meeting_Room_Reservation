@@ -1,5 +1,6 @@
 package com.BookRoom.service;
 
+import com.BookRoom.dto.RegisterRequest;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.entity.account.User;
 import com.BookRoom.entity.view.CustomerView;
@@ -89,4 +90,5 @@ public interface UserService {
 
     void createOrUpdateUser(User user);
     void removeUserById(String userId);
+    String registerUser(RegisterRequest request, String roleType);
 }

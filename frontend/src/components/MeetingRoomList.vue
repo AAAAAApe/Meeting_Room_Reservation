@@ -1,18 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus'
-import type { MeetingRoomInfo, PaginationParams } from '../api/types';
+import type { MeetingRoomInfo, PaginationParams,CustomerMeetingRoomSelection } from '../api/types';
 import MeetingRoomEditor from './MeetingRoomEditor.vue';
 import { useUserStore } from '../stores/userStore';
 import dayjs from 'dayjs'
 import { ElMessage, ElMessageBox } from "element-plus";
-import { meetingRoomService } from "@/api";
+import { meetingRoomService } from '../api/index';
 
 const userStore = useUserStore();
 const userRole = computed(() => userStore.user?.roleName || '');
 
 // 存储会议室列表数据，用于表格展示
 const meetingRoomList = ref<MeetingRoomInfo[]>([]);
+const meetingRoomChooseList = ref<CustomerMeetingRoomSelection[]>([]);
+const isFiltering = ref(false);
 
 // 存储用户选择的ID数组，用于筛选会议室
 const departmentsSelected = ref([]);
@@ -61,17 +63,9 @@ const { run: fetchMeetingRoomList, loading } = useRequest(
 
 const handleCurrentChange = (current: number) => {
   params.value.current = current;
-  fetchMeetingRoomList(params.value, departmentIdsParams);
+  fetchMeetingRoomList(params.value);
 };
 
-const handleDepartmentChange = () => {
-  departmentIdsParams = departmentsSelected.value;
-  fetchMeetingRoomList({
-    current: 1,
-    size: pagination.value.size
-  },
-    departmentsSelected.value);
-};
 
 const showEditor = ref(false);
 const showEmployeeList = ref(false);
@@ -184,37 +178,37 @@ const handleTimeConfirm = async () => {
     ElMessage.error('预订失败')
   }
 }
-
 const handleFilterConfirm = async () => {
-  const start = filterForm.value.startHour
-  const end = filterForm.value.endHour
-  if (start >= end) {
-    ElMessage.error('开始时间不能晚于结束时间')
-    return
-  }
+      let startTime = '', endTime = '';
+      if (filterForm.value.date) {
+        const dateStr = dayjs(filterForm.value.date).format('YYYY-MM-DD');
+        startTime = `${dateStr} ${filterForm.value.startHour.toString().padStart(2,'0')}:00:00`;
+        endTime = `${dateStr} ${filterForm.value.endHour.toString().padStart(2,'0')}:00:00`;
+      }
 
-  // const time = dayjs(filterForm.value.date).format('YYYY-MM-DD')
-  // const startTime = `${time} ${String(start).padStart(2, '0')}:00:00`
-  // const endTime = `${time} ${String(end).padStart(2, '0')}:00:00`
+      const res = await meetingRoomService.getAvailableRooms({
+        current: 1,
+        size: pagination.value.size,
+        startTime,
+        endTime,
+        hasProjector: filterForm.value.hasProjector,
+        hasAudio: filterForm.value.hasAudio,
+        hasNetwork: filterForm.value.hasNetwork
+      });
 
-  const query = {
-    current: 1,
-    size: pagination.value.size,
-    departmentIds: departmentIdsParams,
-    minPrice: filterForm.value.minPrice,
-    maxPrice: filterForm.value.maxPrice,
-    minCapacity: filterForm.value.minCapacity
-    // 如果你后续扩展了 hasProjector/hasAudio/hasNetwork 筛选也可以加
-  }
+      meetingRoomChooseList.value = res.data.records;
+      pagination.value.current = res.data.current;
+      pagination.value.total = res.data.total;
+      pagination.value.size = res.data.size;
 
-  try {
-    const result = await meetingRoomService.getMeetingRoomList(query, departmentIdsParams)
-    meetingRoomList.value = result.data.records
-    showFilterDialog.value = false
-  } catch (e) {
-    ElMessage.error('查询失败')
-  }
-}
+      isFiltering.value = true; // ⬅️ 切换为筛选状态
+      showFilterDialog.value = false; // 可选：关闭弹窗
+    }
+;
+const clearFilter = () => {
+  isFiltering.value = false;
+  meetingRoomChooseList.value = [];
+};
 
 // 删除会议室的处理方法
 const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
@@ -234,7 +228,7 @@ const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
     await meetingRoomService.deleteMeetingRoom(meetingRoom.meetingRoomId);
     ElMessage.success('会议室删除成功');
     // 刷新会议室列表
-    fetchMeetingRoomList(params.value, departmentIdsParams);
+    fetchMeetingRoomList(params.value);
   } catch (error) {
     ElMessage.error('删除会议室失败');
     console.error('删除会议室失败:', error);
@@ -365,12 +359,6 @@ const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
         <span class="record-count">记录数：{{ pagination.total }}</span>
       </div>
       <div class="tool-bar">
-        <el-select class="dp-selector" v-model="departmentsSelected" placeholder="会议室筛选" multiple collapse-tags
-          collapse-tags-tooltip>
-          <el-option v-for="item in departmentList?.data" :key="item.departmentId" :label="item.departmentName"
-            :value="item.departmentId" />
-        </el-select>
-        <el-button type="success" plain @click="handleDepartmentChange">搜索</el-button>
         <el-button type="primary" plain @click="showFilterDialog = true">提交预约要求</el-button>
         <el-divider v-if="userRole === 'admin'" direction="vertical" />
         <el-button v-if="userRole === 'admin'" type="primary" plain @click="handleEditMeetingRoom()">发布会议室</el-button>
@@ -379,68 +367,106 @@ const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
 
     <!-- 表格内容 -->
     <el-main class="table-container">
-      <el-table class="table-content" :data="meetingRoomList" border stripe v-loading="loading"
-        :row-class-name="tableRowClassName">
-        <el-table-column label="会议室编号" prop="meetingRoomId" width="100px">
-          <template #default="scope">
-            <span class="room-id">{{ String(scope.row.meetingRoomId).padStart(6, '0') }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="会议室名称" prop="meetingRoomName" min-width="50px">
-          <template #default="scope">
-            <div class="room-name">{{ scope.row.meetingRoomName }}</div>
-          </template>
-        </el-table-column>
-        <el-table-column label="价格" prop="pricePerHour" width="140px" >
-          <template #default="scope">
-            <span class="price" >¥{{ scope.row.pricePerHour.toFixed(1) }}/小时</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="容量" prop="capacity" width="90px">
-          <template #default="scope">
-            <span class="capacity">{{ scope.row.capacity }}人</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="类型" prop="type" width="120px" align="center">
-          <template #default="scope">
-            <el-tag size="small" :type="scope.row.type === 'classroom' ? 'info' : 'success'" effect="plain">
-              {{ scope.row.type === 'classroom' ? '教室' : '圆桌' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" width="100px" align="center">
-          <template #default="scope">
-            <el-tag :type="statusTagType(scope.row.status)" size="small">
-              {{ formatStatus(scope.row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="设备" show-overflow-tooltip align="center" width="300px">
-          <template #default="scope">
-            <div class="equipment-list">
-              <el-tag v-if="scope.row.hasProjector" size="small" type="info" effect="plain"
-                class="equipment-tag">投影仪</el-tag>
-              <el-tag v-if="scope.row.hasAudio" size="small" type="info" effect="plain"
-                class="equipment-tag">音响</el-tag>
-              <el-tag v-if="scope.row.hasNetwork" size="small" type="info" effect="plain"
-                class="equipment-tag">网络</el-tag>
-              <span v-if="!scope.row.hasProjector && !scope.row.hasAudio && !scope.row.hasNetwork"
-                class="no-equipment">无</span>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="220">
-          <template #default="{ row }">
-            <div class="action-buttons">
-              <el-button size="small" type="primary" plain @click="handleSelectMeetingRoom(row)">预定</el-button>
-              <el-button v-if="userRole === 'admin'" size="small" type="warning" plain
-                @click="handleEditMeetingRoom(row)">编辑</el-button>
-              <el-button v-if="userRole === 'admin'" type="danger" size="small" plain
-                @click="handleDeleteMeetingRoom(row)">删除</el-button>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
+      <div v-if="isFiltering">
+        <el-alert
+            title="当前显示为筛选后的会议室结果"
+            type="info"
+            show-icon
+            closable={false}
+            class="mb-2"
+        />
+        <el-button type="warning" class="mb-2" @click="clearFilter">清除筛选</el-button>
+
+        <el-table :data="meetingRoomChooseList" style="width: 100%" v-if="meetingRoomChooseList.length > 0">
+          <el-table-column prop="meetingRoomName" label="会议室名称" />
+          <el-table-column prop="capacity" label="容量" />
+          <el-table-column label="价格" prop="pricePerHour" width="140px" >
+            <template #default="scope">
+              <span class="price" >¥{{ scope.row.pricePerHour.toFixed(1) }}/小时</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="类型" prop="type" width="120px" align="center">
+            <template #default="scope">
+              <el-tag size="small" :type="scope.row.type === 'classroom' ? 'info' : 'success'" effect="plain">
+                {{ scope.row.type === 'classroom' ? '教室' : '圆桌' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="设备">
+            <template #default="{ row }">{{ formatEquipment(row) }}</template>
+          </el-table-column>
+          <el-table-column label="操作">
+            <template #default="{ row }">
+              <el-button type="primary" size="small" @click="handleSelectMeetingRoom(row)">预订</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <el-empty description="暂无可用会议室" v-else />
+      </div>
+      <div v-else>
+        <el-table class="table-content" :data="meetingRoomList" border stripe v-loading="loading">
+          <el-table-column label="会议室编号" prop="meetingRoomId" width="100px">
+            <template #default="scope">
+              <span class="room-id">{{ String(scope.row.meetingRoomId).padStart(6, '0') }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="会议室名称" prop="meetingRoomName" min-width="50px">
+            <template #default="scope">
+              <div class="room-name">{{ scope.row.meetingRoomName }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="价格" prop="pricePerHour" width="140px" >
+            <template #default="scope">
+              <span class="price" >¥{{ scope.row.pricePerHour.toFixed(1) }}/小时</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="容量" prop="capacity" width="90px">
+            <template #default="scope">
+              <span class="capacity">{{ scope.row.capacity }}人</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="类型" prop="type" width="120px" align="center">
+            <template #default="scope">
+              <el-tag size="small" :type="scope.row.type === 'classroom' ? 'info' : 'success'" effect="plain">
+                {{ scope.row.type === 'classroom' ? '教室' : '圆桌' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="状态" width="100px" align="center">
+            <template #default="scope">
+              <el-tag :type="statusTagType(scope.row.status)" size="small">
+                {{ formatStatus(scope.row.status) }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="设备" show-overflow-tooltip align="center" width="300px">
+            <template #default="scope">
+              <div class="equipment-list">
+                <el-tag v-if="scope.row.hasProjector" size="small" type="info" effect="plain"
+                  class="equipment-tag">投影仪</el-tag>
+                <el-tag v-if="scope.row.hasAudio" size="small" type="info" effect="plain"
+                  class="equipment-tag">音响</el-tag>
+                <el-tag v-if="scope.row.hasNetwork" size="small" type="info" effect="plain"
+                  class="equipment-tag">网络</el-tag>
+                <span v-if="!scope.row.hasProjector && !scope.row.hasAudio && !scope.row.hasNetwork"
+                  class="no-equipment">无</span>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="220">
+            <template #default="{ row }">
+              <div class="action-buttons">
+                <el-button size="small" type="primary" plain @click="handleSelectMeetingRoom(row)">预定</el-button>
+                <el-button v-if="userRole === 'admin'" size="small" type="warning" plain
+                  @click="handleEditMeetingRoom(row)">编辑</el-button>
+                <el-button v-if="userRole === 'admin'" type="danger" size="small" plain
+                  @click="handleDeleteMeetingRoom(row)">删除</el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
     </el-main>
 
     <!-- 页脚分页 -->

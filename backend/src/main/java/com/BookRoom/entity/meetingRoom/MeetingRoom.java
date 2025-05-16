@@ -13,10 +13,7 @@ public class MeetingRoom {
     @TableId(type = IdType.AUTO)
     private Integer meetingRoomId;
     private String meetingRoomName;
-    private String creatorId;
-    private String departmentId;
-    private BigDecimal pricePerHour; // 原 credit 字段已删除，替换为 pricePerHour
-    private String description;
+    private BigDecimal pricePerHour;
     private String type;
     private Integer capacity;
     private String status;

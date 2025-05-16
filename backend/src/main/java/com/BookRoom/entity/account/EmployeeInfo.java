@@ -9,6 +9,4 @@ import lombok.Data;
 public class EmployeeInfo {
     @TableId
     private String userId;
-    private Byte titleId;
-    private String departmentId;
 }

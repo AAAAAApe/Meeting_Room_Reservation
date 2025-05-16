@@ -24,16 +24,6 @@ public interface MeetingRoomService {
     MeetingRoomView getMeetingRoomById(String meetingRoomId);
 
     /**
-     * 根据部门ID获取会议室列表（分页）
-     *
-     * @param departmentId 部门ID
-     * @param current      当前页码
-     * @param size         每页大小
-     * @return 分页会议室列表
-     */
-    Page<MeetingRoomView> getMeetingRoomsByDepartmentPage(String departmentId, long current, long size);
-
-    /**
      * 根据顾客ID获取会议室列表（分页）
      *
      * @param customerId 顾客ID
@@ -44,17 +34,15 @@ public interface MeetingRoomService {
     Page<MeetingRoomSelectView> getMeetingRoomsByCustomerPage(String customerId, long current, long size);
 
     /**
-     * 获取所有会议室（分页），支持按院系ID列表筛选
+     * 获取所有会议室（分页）
      *
      * @param current 当前页码
      * @param size    每页大小
-     * @param departmentIds 院系ID列表，为null时获取所有会议室
      * @return 分页会议室列表
      */
     Page<MeetingRoomView> getAllMeetingRoomsByPage(
             long current,
             long size,
-            List<String> departmentIds,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             Integer minCapacity
@@ -65,7 +53,7 @@ public interface MeetingRoomService {
      * @param meetingRoom 会议室信息
      * @return 会议室ID
      */
-    Integer createOrUpdateMeetingRoom(MeetingRoom meetingRoom, String creatorId);
+    Integer createOrUpdateMeetingRoom(MeetingRoom meetingRoom);
 
     /**
      * 删除会议室
@@ -110,23 +98,19 @@ public interface MeetingRoomService {
      */
     Page<MeetingRoomSelectView> getCustomerMeetingRoomsPage(String customerId, long current, long size);
 
-    /**
-     * 更新顾客成绩
-     *
-     * @param meetingRoomSelection 选会议室信息（包含会议室ID、顾客ID、员工ID和成绩）
-     * @return 是否更新成功
-     */
-    boolean updateScore(MeetingRoomSelection meetingRoomSelection);
-
     Page<MeetingRoomSelectView> getCustomerMeetingRoomSelections(String customerId, long current, long size);
 
     Page<MeetingRoomSelectView> getMeetingRoomCustomers(Integer meetingRoomId, long current, long size);
 
-    boolean setMeetingRoomScore(Integer meetingRoomId, String customerId, Double score);
-
     Page<MeetingRoomView> getMeetingRoomDetails(Integer meetingRoomId, long current, long size);
 
-    boolean confirmPayment(Integer meetingRoomId, String customerId);
+    boolean confirmPayment(Integer meetingRoomId, String customerId,LocalDateTime startTime, LocalDateTime endTime);
 
     BigDecimal calculateRefundAmount(LocalDateTime startTime, BigDecimal totalPrice);
+    Page<MeetingRoom> getAvailableRooms(Page<MeetingRoom> page,
+                                            LocalDateTime startTime,
+                                            LocalDateTime endTime,
+                                            Boolean hasProjector,
+                                            Boolean hasAudio,
+                                            Boolean hasNetwork);
 }

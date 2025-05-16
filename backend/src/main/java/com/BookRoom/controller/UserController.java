@@ -1,5 +1,6 @@
 package com.BookRoom.controller;
 
+import com.BookRoom.dto.RegisterRequest;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.constants.TokenConstants;
 import com.BookRoom.dto.LoginRequest;
@@ -222,7 +223,6 @@ public class UserController {
         userService.createOrUpdateUser(user);
     }
 
-
     /**
      * 用户登录接口
      * <p>
@@ -344,5 +344,28 @@ public class UserController {
                 .body(Map.of(
                         "code", 200,
                         "message", "Logout successful"));
+    }
+
+    // 新增注册接口
+    @PostMapping("/register/employee")
+    public ResponseEntity<?> registerEmployee(@RequestBody RegisterRequest request) {
+        return doRegister(request, "employee");
+    }
+
+    @PostMapping("/register/customer")
+    public ResponseEntity<?> registerCustomer(@RequestBody RegisterRequest request) {
+        return doRegister(request, "customer");
+    }
+
+    private ResponseEntity<?> doRegister(RegisterRequest request, String roleType) {
+        try {
+            String userId = userService.registerUser(request, roleType);
+            return ResponseEntity.ok(Map.of("userId", userId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "code", 400,
+                    "message", e.getMessage()
+            ));
+        }
     }
 }
