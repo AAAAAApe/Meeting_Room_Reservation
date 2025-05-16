@@ -136,7 +136,7 @@ const handleSelectionChange = (selection: EmployeeInfo[]) => {
 
   // 获取当前页面上所有员工的ID
   const currentPageEmployeeIds = employeeList.value.map(employee => employee.userId);
-  
+
   // 从selectedEmployeesSet中移除当前页面上未被选中的员工
   currentPageEmployeeIds.forEach(id => {
     if (!selection.some(employee => employee.userId === id)) {
@@ -162,7 +162,7 @@ const { run: fetchEmployeeList, loading } = useRequest(
       pagination.value.current = data.data.current;
       pagination.value.total = data.data.total;
       pagination.value.size = data.data.size;
-      
+
       // 同步表格选中状态
       // 等待表格渲染完成后再进行选中状态的同步
       nextTick(() => {
@@ -179,79 +179,77 @@ const { run: fetchEmployeeList, loading } = useRequest(
     },
   }
 );
+
+// 表格斑马纹
+const tableRowClassName = ({ rowIndex }: { rowIndex: number }) => {
+  return rowIndex % 2 === 0 ? '' : 'even-row';
+};
 </script>
 
 <template>
   <el-container class="main-container">
     <el-header class="main-header">
       <div class="title-container">
-        <h2>员工列表</h2>
-        &nbsp;记录数：{{ pagination.total }}
+        <h2 class="title">员工列表</h2>
+        <span class="record-count">记录数：{{ pagination.total }}</span>
       </div>
       <div class="tool-bar">
         <!-- 姓名筛选 -->
-        <el-input v-model="nameFilter" placeholder="姓名筛选" clearable style="width: 150px; margin-right: 10px;" />
+        <el-input v-model="nameFilter" placeholder="姓名筛选" clearable class="filter-input" prefix-icon="el-icon-search" />
 
         <!-- 员工ID筛选 -->
-        <el-input v-model="userIdFilter" placeholder="员工ID筛选" clearable style="width: 150px; margin-right: 10px;" />
-
-        <!-- 院系筛选 多选下拉框 -->
-        <el-select class="dp-selector" v-model="departmentsSelected" placeholder="院系筛选" multiple collapse-tags
-          collapse-tags-tooltip>
-          <el-option v-for="item in departmentList?.data" :key="item.departmentId" :label="item.departmentName"
-            :value="item.departmentName" />
-        </el-select>
-
-        <!-- 职称筛选 多选下拉框 -->
-        <el-select class="dp-selector" v-model="titlesSelected" placeholder="职称筛选" multiple collapse-tags
-          collapse-tags-tooltip style="width: 150px; margin-right: 10px;">
-          <el-option v-for="item in titleOptions" :key="item" :label="item" :value="item" />
-        </el-select>
+        <el-input v-model="userIdFilter" placeholder="员工ID筛选" clearable class="filter-input"
+          prefix-icon="el-icon-user" />
 
         <!-- 确认按钮 -->
-        <el-button type="success" plain @click="handleFilterChange">搜索</el-button>
+        <el-button type="primary" @click="handleFilterChange" class="search-button">
+          <i class="el-icon-search"></i>
+          搜索
+        </el-button>
       </div>
     </el-header>
     <el-main class="table-container">
-      <el-table class="table-content" ref="multipleTableRef" :data="employeeList" border stripe v-loading="loading" row-key="userId"
-        @selection-change="handleSelectionChange">
-        <el-table-column v-if="isSelector" type="selection">
+      <el-table class="table-content" ref="multipleTableRef" :data="employeeList" border stripe v-loading="loading"
+        row-key="userId" @selection-change="handleSelectionChange" :header-cell-class-name="'table-header'"
+        :row-class-name="tableRowClassName">
+        <el-table-column v-if="isSelector" type="selection" width="55">
         </el-table-column>
-        <el-table-column label="员工ID" prop="userId" width="120">
-        </el-table-column>
-        <el-table-column label="姓名" prop="name" width="100">
-        </el-table-column>
-        <el-table-column label="性别" width="80">
-          <template #default="scope">
-            {{ scope.row.gender || '未设置' }}
+        <el-table-column label="员工ID" prop="userId" width="150">
+          <template #default="scope" >
+            <span class="employee-id">{{ scope.row.userId }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="所属院系" prop="departmentName">
-        </el-table-column>
-        <el-table-column label="职称" prop="title">
+        <el-table-column label="姓名" prop="name" width="180">
           <template #default="scope">
-            {{ scope.row.title || '未设置' }}
+            <span class="employee-name">{{ scope.row.name }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="性别" width="100">
+          <template #default="scope" >
+            <el-tag size="small" :type="scope.row.gender === '男' ? 'primary' : 'success'" effect="plain">
+              {{ scope.row.gender || '未设置' }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="入职年份" prop="startYear" width="100">
           <template #default="scope">
-            {{ scope.row.startYear || '未设置' }}
+            <span class="start-year">{{ scope.row.startYear || '未设置' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="联系电话" prop="phoneNumber" width="150">
+        <el-table-column label="联系电话" prop="phoneNumber" width="230">
           <template #default="scope">
-            {{ scope.row.phoneNumber || '未设置' }}
+            <span class="phone-number">{{ scope.row.phoneNumber || '未设置' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="邮箱" prop="email" show-overflow-tooltip>
           <template #default="scope">
-            {{ scope.row.email || '未设置' }}
+            <span class="email">{{ scope.row.email || '未设置' }}</span>
           </template>
         </el-table-column>
       </el-table>
     </el-main>
     <el-footer class="main-footer">
-      <el-pagination class="pagination" background layout="prev, pager, next" :total="pagination.total"
+      <el-pagination class="pagination" background layout="prev, pager, next, jumper" :total="pagination.total"
         :current-page="pagination.current" :page-size="pagination.size" @current-change="handleCurrentChange" />
     </el-footer>
   </el-container>
@@ -260,29 +258,58 @@ const { run: fetchEmployeeList, loading } = useRequest(
 <style lang="scss" scoped>
 .main-container {
   height: 100%;
+  background-color: #f5f7fa;
 
   .main-header {
     height: $main-content-header-footer-height;
-    background-color: #f5f7fa;
+    background-color: #fff;
     padding: 0 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #ebeef5;
 
     .title-container {
       height: 100%;
       display: flex;
       align-items: center;
+
+      .title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #303133;
+      }
+
+      .record-count {
+        margin-left: 10px;
+        color: #909399;
+        font-size: 14px;
+      }
     }
 
     .tool-bar {
       height: 100%;
       display: flex;
       align-items: center;
+      gap: 10px;
+
+      .filter-input {
+        width: 160px;
+        transition: all 0.3s;
+
+        &:focus-within {
+          width: 180px;
+        }
+      }
 
       .dp-selector {
         width: 240px;
-        margin-right: 10px;
+      }
+
+      .search-button {
+        margin-left: 5px;
       }
     }
   }
@@ -294,20 +321,71 @@ const { run: fetchEmployeeList, loading } = useRequest(
 
     .table-content {
       height: 100%;
+      background-color: #fff;
+      border-radius: 4px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+
+      .employee-id {
+        font-family: monospace;
+        color: #606266;
+      }
+
+      .employee-name {
+        font-weight: 500;
+        color: #303133;
+      }
+
+      .start-year {
+        color: #606266;
+      }
+
+      .phone-number {
+        font-weight: 600;
+        font-family: monospace;
+        color: #606266;
+        //字间距
+        letter-spacing: 1px;
+      }
+
+      .email {
+        color: #606266;
+      }
+    }
+
+    :deep(.table-header) {
+      background-color: #f5f7fa;
+      color: #303133;
+      font-weight: 600;
     }
   }
 
   .main-footer {
     height: $main-content-header-footer-height;
-    background-color: #f5f7fa;
+    background-color: #fff;
     padding: 0 20px;
     display: flex;
     justify-content: center;
     align-items: center;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.05);
+    border-top: 1px solid #ebeef5;
 
     .pagination {
       height: 100%;
+      display: flex;
+      align-items: center;
     }
   }
+}
+
+// 表格行样式
+:deep(.el-table__row) {
+  &:hover {
+    background-color: #f5f7fa !important;
+  }
+}
+
+// 添加表格行交替样式
+:deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
+  background-color: #fafafa;
 }
 </style>

@@ -26,6 +26,7 @@ public class MeetingRoomController {
     private final MeetingRoomService meetingRoomService;
 
     private MeetingRoomSelectionMapper meetingRoomSelectionMapper;
+
     /**
      * 构造函数，通过依赖注入初始化服务
      *
@@ -41,8 +42,8 @@ public class MeetingRoomController {
      * 该方法用于分页获取系统中所有会议室的基本信息。通过MeetingRoomService调用数据访问层，
      * 检索并返回指定页码和每页记录数的会议室记录。支持按院系ID列表筛选会议室。
      *
-     * @param current 当前页码，默认为1
-     * @param size    每页记录数，默认为16
+     * @param current       当前页码，默认为1
+     * @param size          每页记录数，默认为16
      * @param departmentIds 院系ID列表，用于筛选特定院系的会议室，为空时获取所有会议室
      * @return 包含分页会议室信息的Page对象，包含总记录数、总页数、当前页数据等信息
      */
@@ -54,7 +55,8 @@ public class MeetingRoomController {
             @RequestParam(value = "minPrice", required = false) BigDecimal minPrice,
             @RequestParam(value = "maxPrice", required = false) BigDecimal maxPrice,
             @RequestParam(value = "minCapacity", required = false) Integer minCapacity) {
-        return meetingRoomService.getAllMeetingRoomsByPage(current, size, departmentIds, minPrice, maxPrice, minCapacity);
+        return meetingRoomService.getAllMeetingRoomsByPage(current, size, departmentIds, minPrice, maxPrice,
+                minCapacity);
     }
 
     /**
@@ -63,35 +65,38 @@ public class MeetingRoomController {
      * 支持分页查询，默认每页16条记录
      *
      * @param current       当前页码，默认为1
-     * @param size         每页记录数，默认为16
+     * @param size          每页记录数，默认为16
      * @param meetingRoomId 会议室ID
      * @return 包含分页会议室信息的Page对象
      */
     @GetMapping("/meetingRoom/{meetingRoomId}")
-    public Page<MeetingRoomView> getMeetingRoomDetails(  // 修改返回类型
-                                                         @RequestParam(value = "current", defaultValue = "1") long current,
-                                                         @RequestParam(value = "size", defaultValue = "16") long size,
-                                                         @PathVariable Integer meetingRoomId) {
-        return meetingRoomService.getMeetingRoomDetails(meetingRoomId, current, size);  // 修改方法名
+    public Page<MeetingRoomView> getMeetingRoomDetails( // 修改返回类型
+            @RequestParam(value = "current", defaultValue = "1") long current,
+            @RequestParam(value = "size", defaultValue = "16") long size,
+            @PathVariable Integer meetingRoomId) {
+        return meetingRoomService.getMeetingRoomDetails(meetingRoomId, current, size); // 修改方法名
     }
-//    /**
-//     * 根据会议室ID获取会议室信息及关联的员工信息
-//     * <p>
-//     * 该方法用于根据会议室ID获取会议室的基本信息和关联的员工信息。通过MeetingRoomService调用数据访问层，
-//     * 检索并返回指定会议室ID的会议室记录及其关联的员工信息。支持分页查询。
-//     *
-//     * @param current 当前页码，默认为1
-//     * @param size   每页记录数，默认为16
-//     * @param meetingRoomId 会议室ID，用于指定需要查询的会议室
-//     * @return 包含分页会议室信息及员工信息的Page对象，包含总记录数、总页数、当前页数据等信息
-//     */
-//    @GetMapping("/meetingRoom/{meetingRoomId}")
-//    public Page<MeetingRoomWithEmployeeView> getMeetingRoomWithEmployeesByMeetingRoomId(
-//            @RequestParam(value = "current", defaultValue = "1") long current,
-//            @RequestParam(value = "size", defaultValue = "16") long size,
-//            @PathVariable Integer meetingRoomId) {
-//        return meetingRoomService.getMeetingRoomWithEmployeesByMeetingRoomId(meetingRoomId, current, size);
-//    }
+    // /**
+    // * 根据会议室ID获取会议室信息及关联的员工信息
+    // * <p>
+    // * 该方法用于根据会议室ID获取会议室的基本信息和关联的员工信息。通过MeetingRoomService调用数据访问层，
+    // * 检索并返回指定会议室ID的会议室记录及其关联的员工信息。支持分页查询。
+    // *
+    // * @param current 当前页码，默认为1
+    // * @param size 每页记录数，默认为16
+    // * @param meetingRoomId 会议室ID，用于指定需要查询的会议室
+    // * @return 包含分页会议室信息及员工信息的Page对象，包含总记录数、总页数、当前页数据等信息
+    // */
+    // @GetMapping("/meetingRoom/{meetingRoomId}")
+    // public Page<MeetingRoomWithEmployeeView>
+    // getMeetingRoomWithEmployeesByMeetingRoomId(
+    // @RequestParam(value = "current", defaultValue = "1") long current,
+    // @RequestParam(value = "size", defaultValue = "16") long size,
+    // @PathVariable Integer meetingRoomId) {
+    // return
+    // meetingRoomService.getMeetingRoomWithEmployeesByMeetingRoomId(meetingRoomId,
+    // current, size);
+    // }
 
     /**
      * 创建或更新会议室
@@ -99,7 +104,7 @@ public class MeetingRoomController {
      * 该方法用于创建新会议室或更新现有会议室的信息。通过MeetingRoomService调用数据访问层，
      * 将会议室信息和员工关联关系保存到数据库。创建者ID从当前登录用户中获取。
      *
-     * @param request HTTP请求对象，用于获取当前登录用户的ID
+     * @param request            HTTP请求对象，用于获取当前登录用户的ID
      * @param meetingRoomRequest 包含会议室信息和员工ID列表的请求对象
      * @return 会议室ID
      */
@@ -116,8 +121,7 @@ public class MeetingRoomController {
     @PostMapping("/meetingRoom/reverse")
     public boolean selectMeetingRoom(
             HttpServletRequest request,
-            @RequestBody MeetingRoomSelectRequest meetingRoomSelectRequest
-    ) {
+            @RequestBody MeetingRoomSelectRequest meetingRoomSelectRequest) {
         String customerId = (String) request.getAttribute("userId");
         System.out.println("用户ID: " + customerId);
         System.out.println("开始时间: " + meetingRoomSelectRequest.startTime());
@@ -131,10 +135,8 @@ public class MeetingRoomController {
                 meetingRoomSelectRequest.meetingRoomId(),
                 customerId,
                 startTime,
-                endTime
-        );
+                endTime);
     }
-
 
     @GetMapping("/customer/meetingRoom/getPage")
     public Page<MeetingRoomSelectView> getCustomerMeetingRoomSelections(
@@ -150,9 +152,8 @@ public class MeetingRoomController {
             @RequestParam(value = "current", defaultValue = "1") long current,
             @RequestParam(value = "size", defaultValue = "16") long size,
             @PathVariable Integer meetingRoomId,
-            @RequestParam(value = "employeeId") String employeeId
-    ) {
-        return meetingRoomService.getMeetingRoomCustomers(meetingRoomId,current, size);
+            @RequestParam(value = "employeeId") String employeeId) {
+        return meetingRoomService.getMeetingRoomCustomers(meetingRoomId, current, size);
     }
 
     @PutMapping("/meetingRoom/{meetingRoomId}/{customerId}/score")
@@ -160,20 +161,28 @@ public class MeetingRoomController {
             @PathVariable Integer meetingRoomId,
             @PathVariable String customerId,
             @RequestParam(value = "employeeId") String employeeId,
-            @RequestParam(value = "score") Double score
-    ) {
+            @RequestParam(value = "score") Double score) {
         return meetingRoomService.setMeetingRoomScore(meetingRoomId, customerId, score);
     }
 
     @PutMapping("/meetingRoom/{meetingRoomId}/pay")
     public boolean confirmPayment(
             @PathVariable Integer meetingRoomId,
-            HttpServletRequest request
-    ) {
+            HttpServletRequest request) {
         String customerId = (String) request.getAttribute("userId");
 
         return meetingRoomService.confirmPayment(meetingRoomId, customerId);
     }
 
+    /**
+     * 删除会议室
+     * @param meetingRoomId 会议室ID
+     * @return 是否删除成功
+     */
+    @DeleteMapping("/meetingRoom/{meetingRoomId}")
+    public boolean deleteMeetingRoom(@PathVariable Integer meetingRoomId) {
+        return meetingRoomService.deleteMeetingRoom(meetingRoomId);
+    }
 
+    
 }
