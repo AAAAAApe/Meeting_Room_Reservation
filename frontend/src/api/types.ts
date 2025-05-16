@@ -108,8 +108,7 @@ export interface MeetingRoomPublishInfo {
     hasProjector: boolean;
     hasAudio: boolean;
     hasNetwork: boolean;
-  },
-  employeeIds: string[];
+  }
 }
 // 登录请求参数
 export interface LoginParams {

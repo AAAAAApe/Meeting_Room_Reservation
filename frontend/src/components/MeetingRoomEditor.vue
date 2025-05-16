@@ -23,8 +23,7 @@ const meetingRoomForm = ref<MeetingRoomPublishInfo>({
     hasProjector: false, // 必须初始化为布尔值
     hasAudio: false,
     hasNetwork: false
-  },
-  employeeIds: [] // 保留字段但不再使用
+  }
 });
 
 // 表单验证规则（保留必要验证）

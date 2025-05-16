@@ -23,12 +23,14 @@ public class CancelRequestServiceImpl implements CancelRequestService {
     }
 
     @Override
-    public boolean applyCancel(Integer meetingRoomId, String customerId) {
-        // 查找订单是否存在
+    public boolean applyCancel(Integer meetingRoomId, String customerId, LocalDateTime startTime, LocalDateTime endTime) {
+        // 查找订单是否存在，且时间区间匹配
         LambdaQueryWrapper<MeetingRoomSelection> selectionWrapper = new LambdaQueryWrapper<>();
         selectionWrapper.eq(MeetingRoomSelection::getMeetingRoomId, meetingRoomId)
                 .eq(MeetingRoomSelection::getCustomerId, customerId)
-                .eq(MeetingRoomSelection::getStatus, "confirmed");
+                .eq(MeetingRoomSelection::getStatus, "confirmed")
+                .eq(MeetingRoomSelection::getStartTime, startTime)
+                .eq(MeetingRoomSelection::getEndTime, endTime);
 
         MeetingRoomSelection selection = meetingRoomSelectionMapper.selectOne(selectionWrapper);
         if (selection == null) {
@@ -45,21 +47,22 @@ public class CancelRequestServiceImpl implements CancelRequestService {
         existWrapper.eq(CancelRequest::getMeetingRoomId, meetingRoomId)
                 .eq(CancelRequest::getCustomerId, customerId)
                 .eq(CancelRequest::getStatus, "pending");
-        System.out.println("查询"+existWrapper);
+
         Long count = cancelRequestMapper.selectCount(existWrapper);
         if (count > 0) {
             return false;
         }
 
-        // 插入新取消申请
+        // 插入新取消申请，带上时间范围
         CancelRequest request = new CancelRequest();
         request.setMeetingRoomId(meetingRoomId);
         request.setCustomerId(customerId);
         request.setRequestTime(LocalDateTime.now());
         request.setStatus("pending");
-        System.out.println("要求"+request);
+
         return cancelRequestMapper.insert(request) > 0;
     }
+
 
     @Override
     public List<CancelRequest> getPendingRequests() {

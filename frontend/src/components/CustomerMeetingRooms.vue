@@ -48,7 +48,7 @@ const handleCurrentChange = (current: number) => {
 const showDetailDialog = ref(false);
 const selectedMeetingRoom = ref<MeetingRoomInfo>();
 
-const handleCancelReservation = async (room: MeetingRoomInfo) => {
+const handleCancelReservation = async (room: CustomerMeetingRoomSelection) => {
   const confirmed = await ElMessageBox.confirm(
       '确定取消预约？需提前24小时申请，审核通过后将执行退款。',
       '取消预约确认',
@@ -62,7 +62,9 @@ const handleCancelReservation = async (room: MeetingRoomInfo) => {
   if (!confirmed) return;
 
   try {
-    await meetingRoomService.cancelReservation({ meetingRoomId: room.meetingRoomId })
+    await meetingRoomService.cancelReservation(room.meetingRoomId,
+        formatDateTime(room.startTime),
+        formatDateTime(room.endTime))
     ElMessage.success('已提交取消申请，等待审核')
   } catch (e) {
     ElMessage.error('提交失败，请稍后重试')

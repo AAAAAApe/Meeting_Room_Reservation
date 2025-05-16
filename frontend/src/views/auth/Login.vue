@@ -129,7 +129,7 @@ const handleRegister = async () => {
     await registerFormRef.value?.validate()
 
     // 调用注册接口
-    await userService.register({
+    const response = await userService.register({
       roleType: registerForm.roleType,
       name: registerForm.name,
       password: registerForm.password,
@@ -137,7 +137,7 @@ const handleRegister = async () => {
       birthday: registerForm.birthday
     })
 
-    ElMessage.success('注册成功')
+    ElMessage.success(`注册成功，您的用户ID是：${response.data.userId}`)
     registerDialogVisible.value = false
 
     // 清空表单

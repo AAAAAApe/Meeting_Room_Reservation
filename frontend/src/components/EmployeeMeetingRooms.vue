@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRequest } from 'vue-hooks-plus';
-import type { MeetingRoomInfo, PaginationParams } from '../api/types';
+import type {MeetingRoomInfo, MeetingRoomPublishInfo, PaginationParams} from '../api/types';
 import { meetingRoomService } from '../api/index';
 import MeetingRoomDetail from './MeetingRoomDetail.vue';
+import {ElMessage} from "element-plus";
 
 // 会议室列表
 const meetingRoomList = ref<MeetingRoomInfo[]>([]);
@@ -48,6 +49,38 @@ const selectedMeetingRoom = ref<MeetingRoomInfo>();
 const handleShowDetail = (room: MeetingRoomInfo) => {
   selectedMeetingRoom.value = room;
   showDetailDialog.value = true;
+};
+const handleStatusChange = async (row: MeetingRoomInfo, newStatus: string) => {
+  try {
+    // 创建临时更新对象
+    const updatePayload = ref<MeetingRoomPublishInfo>({
+      meetingRoom: {
+        // 保留原有字段
+        ...row,
+        // 强制转换状态类型
+        status: newStatus as 'available' | 'locked' | 'reserved' | 'in_use' | 'maintenance',
+      }
+    });
+
+    // 调用更新接口
+    const response = await meetingRoomService.publishMeetingRoom(updatePayload.value);
+
+    if (response !== null && response !== undefined) {
+      ElMessage.success('状态更新成功');
+      // 局部更新列表数据（避免全量刷新）
+      const index = meetingRoomList.value.findIndex(
+          item => item.meetingRoomId === row.meetingRoomId
+      );
+      if (index !== -1) {
+        newStatus as typeof meetingRoomList.value[number]['status'];
+      }
+    } else {
+      ElMessage.error('状态更新失败');
+    }
+  } catch (error) {
+    ElMessage.error('更新状态时发生错误');
+    console.error('状态更新错误:', error);
+  }
 };
 
 // 初始化请求
@@ -94,7 +127,26 @@ fetchMeetingRooms(params.value);
         </el-table-column>
         <el-table-column label="容纳人数" prop="capacity" width="100px" />
         <el-table-column label="类型" prop="type" width="120px" />
-        <el-table-column label="状态" prop="status" width="120px" />
+        <el-table-column label="状态" width="120px">
+          <template #default="scope">
+            <el-table-column label="状态" width="120px">
+              <template #default="scope">
+                <el-select
+                    v-model="scope.row.status"
+                    @change="(val) => handleStatusChange(scope.row, val)"
+                    size="small"
+                    placeholder="选择状态"
+                >
+                  <el-option label="空闲" value="available" />
+                  <el-option label="锁定" value="locked" />
+                  <el-option label="预定" value="reserved" />
+                  <el-option label="使用中" value="in_use" />
+                  <el-option label="维护" value="maintenance" />
+                </el-select>
+              </template>
+            </el-table-column>
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="120px">
           <template #default="scope">
             <el-button type="primary" size="small" @click="handleShowDetail(scope.row)">

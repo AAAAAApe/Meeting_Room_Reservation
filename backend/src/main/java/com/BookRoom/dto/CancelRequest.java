@@ -27,3 +27,6 @@ public class CancelRequest {
 
     private Double refundAmount;
 }
+
+
+// 新增字段：取消的预约开始

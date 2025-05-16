@@ -104,8 +104,11 @@ const meetingRoomService = {
     return request.post('/meetingRoom/reverse', data)
   },
 
-  cancelReservation: (data: { meetingRoomId: number }) => {
-    return request.put('/cancelRequest/apply', data);
+  cancelReservation(meetingRoomId: number, startTime: string, endTime: string)  {
+    return request.put(`/cancelRequest/${meetingRoomId}/apply`, {
+      startTime,
+      endTime
+    });
   },
   /**
    * 顾客支付会议室租赁费

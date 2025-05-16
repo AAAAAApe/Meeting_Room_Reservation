@@ -1,6 +1,7 @@
 package com.BookRoom.controller;
 
 import com.BookRoom.dto.CancelRequest;
+import com.BookRoom.dto.PaymentRequest;
 import com.BookRoom.service.CancelRequestService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
@@ -18,15 +19,19 @@ public class CancelRequestController {
         this.cancelRequestService = cancelRequestService;
     }
 
-    @PutMapping("/apply")
+    @PutMapping("/{meetingRoomId}/apply")
     public boolean applyCancel(
+            @PathVariable Integer meetingRoomId,
             HttpServletRequest request,
-            @RequestBody Map<String, Object> payload
+            @RequestBody PaymentRequest payload
     ) {
         String customerId = (String) request.getAttribute("userId");
-        Integer meetingRoomId = (Integer) payload.get("meetingRoomId");
 
-        return cancelRequestService.applyCancel(meetingRoomId, customerId);
+        return cancelRequestService.applyCancel(
+                meetingRoomId,
+                customerId,
+                payload.getStartTime(),
+                payload.getEndTime());
     }
     @GetMapping("/pending")
     public List<CancelRequest> getPendingRequests() {
