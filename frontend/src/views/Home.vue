@@ -83,6 +83,10 @@ const handleSignOut = async () => {
     height: $main-header-height;
     /* 顶部导航栏固定高度 */
     border-bottom: 1px solid #ddd;
+    background-color: #fff;
+    /* 添加白色背景 */
+    color: #303133;
+    /* 添加深色文字 */
 
     .header-content {
       display: flex;
@@ -103,11 +107,13 @@ const handleSignOut = async () => {
       width: 250px;
       /* 侧边栏固定宽度保持导航结构稳定 */
       border-right: 1px solid #ddd;
+      background-color: #fff;
     }
 
     .main-content-container {
       height: 100%;
       width: 100%;
+      background-color: #fff;
     }
   }
 }

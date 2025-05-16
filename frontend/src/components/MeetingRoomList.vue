@@ -5,8 +5,8 @@ import type { MeetingRoomInfo, PaginationParams } from '../api/types';
 import MeetingRoomEditor from './MeetingRoomEditor.vue';
 import { useUserStore } from '../stores/userStore';
 import dayjs from 'dayjs'
-import {ElMessage} from "element-plus";
-import {meetingRoomService} from "@/api";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { meetingRoomService } from "@/api";
 
 const userStore = useUserStore();
 const userRole = computed(() => userStore.user?.roleName || '');
@@ -14,7 +14,7 @@ const userRole = computed(() => userStore.user?.roleName || '');
 // 存储会议室列表数据，用于表格展示
 const meetingRoomList = ref<MeetingRoomInfo[]>([]);
 
-// 存储用户选择的院系ID数组，用于筛选会议室
+// 存储用户选择的ID数组，用于筛选会议室
 const departmentsSelected = ref([]);
 
 // 翻页时携带参数，作用是提交筛选后，翻页时保留筛选条件
@@ -48,15 +48,15 @@ const params = ref<PaginationParams>({
 });
 
 const { run: fetchMeetingRoomList, loading } = useRequest(
-    meetingRoomService.getMeetingRoomList,
-    {
-      onSuccess: data => {
-        meetingRoomList.value = data.data.records;
-        pagination.value.current = data.data.current;
-        pagination.value.total = data.data.total;
-        pagination.value.size = data.data.size;
-      },
-    }
+  meetingRoomService.getMeetingRoomList,
+  {
+    onSuccess: data => {
+      meetingRoomList.value = data.data.records;
+      pagination.value.current = data.data.current;
+      pagination.value.total = data.data.total;
+      pagination.value.size = data.data.size;
+    },
+  }
 );
 
 const handleCurrentChange = (current: number) => {
@@ -67,10 +67,10 @@ const handleCurrentChange = (current: number) => {
 const handleDepartmentChange = () => {
   departmentIdsParams = departmentsSelected.value;
   fetchMeetingRoomList({
-        current: 1,
-        size: pagination.value.size
-      },
-      departmentsSelected.value);
+    current: 1,
+    size: pagination.value.size
+  },
+    departmentsSelected.value);
 };
 
 const showEditor = ref(false);
@@ -215,123 +215,160 @@ const handleFilterConfirm = async () => {
     ElMessage.error('查询失败')
   }
 }
+
+// 删除会议室的处理方法
+const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
+  try {
+    const confirmed = await ElMessageBox.confirm(
+      `确定要删除会议室"${meetingRoom.meetingRoomName}"吗？此操作不可恢复。`,
+      '删除确认',
+      {
+        confirmButtonText: '确认删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    ).catch(() => false);
+
+    if (!confirmed) return;
+
+    await meetingRoomService.deleteMeetingRoom(meetingRoom.meetingRoomId);
+    ElMessage.success('会议室删除成功');
+    // 刷新会议室列表
+    fetchMeetingRoomList(params.value, departmentIdsParams);
+  } catch (error) {
+    ElMessage.error('删除会议室失败');
+    console.error('删除会议室失败:', error);
+  }
+};
 </script>
 
 <template>
   <el-container class="main-container">
-    <el-dialog :title="currentMeetingRoom ? '编辑会议室' : '发布会议室'" width="95%" align-center v-model="showEditor" destroy-on-close>
-      <MeetingRoomEditor
-          :meetingRoom="currentMeetingRoom"
-          @success="handleEditorSuccess"
-          @close="showEditor = false"
-      />
+    <el-dialog :title="currentMeetingRoom ? '编辑会议室' : '发布会议室'" width="500px" align-center v-model="showEditor"
+      destroy-on-close>
+      <MeetingRoomEditor :meetingRoom="currentMeetingRoom" @success="handleEditorSuccess" @close="showEditor = false" />
     </el-dialog>
 
     <el-dialog v-model="showEmployeeList" title="会议室员工列表" align-center width="1000px" destroy-on-close>
       <MeetingRoomWithEmployeesList v-if="currentMeetingRoomId" :meetingRoomId="currentMeetingRoomId" />
     </el-dialog>
-    <el-dialog v-model="showTimePicker" title="选择时间" width="30%" align-center>
+
+    <!-- 时间选择对话框 -->
+    <el-dialog v-model="showTimePicker" title="选择预订时间" width="30%" align-center custom-class="time-picker-dialog">
       <el-form label-width="100px">
         <el-form-item label="日期">
-          <el-date-picker
-              v-model="selectedDate"
-              type="date"
-              placeholder="选择日期"
-              :disabled-date="(date) => {
-          const today = new Date()
-          const max = new Date()
-          max.setDate(today.getDate() + 60)
-          return date < today || date > max
-        }"
-          />
+          <el-date-picker v-model="selectedDate" type="date" placeholder="选择日期" class="full-width" :disabled-date="(date) => {
+            const today = new Date()
+            const max = new Date()
+            max.setDate(today.getDate() + 60)
+            return date < today || date > max
+          }" />
         </el-form-item>
 
         <el-form-item label="开始时间">
-          <el-select v-model="startHour" placeholder="选择开始时间">
-            <el-option
-                v-for="h in 13"
-                :key="h"
-                :label="`${h + 7}:00`"
-                :value="h + 7"
-            />
+          <el-select v-model="startHour" placeholder="选择开始时间" class="full-width">
+            <el-option v-for="h in 13" :key="h" :label="`${h + 7}:00`" :value="h + 7" />
           </el-select>
         </el-form-item>
 
         <el-form-item label="结束时间">
-          <el-select v-model="endHour" placeholder="选择结束时间">
-            <el-option
-                v-for="h in 13"
-                :key="h"
-                :label="`${h + 8}:00`"
-                :value="h + 8"
-            />
+          <el-select v-model="endHour" placeholder="选择结束时间" class="full-width">
+            <el-option v-for="h in 13" :key="h" :label="`${h + 8}:00`" :value="h + 8" />
           </el-select>
         </el-form-item>
 
-        <el-form-item>
-          <el-button type="primary" @click="handleTimeConfirm">确认</el-button>
+        <el-form-item class="dialog-footer">
+          <el-button type="primary" @click="handleTimeConfirm">确认预订</el-button>
           <el-button @click="showTimePicker = false">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
 
-    <el-dialog v-model="showFilterDialog" title="预约条件筛选" width="40%">
+    <!-- 筛选对话框 -->
+    <el-dialog v-model="showFilterDialog" title="预约条件筛选" width="40%" custom-class="filter-dialog">
       <el-form label-width="100px">
         <el-form-item label="日期">
-          <el-date-picker
-              v-model="filterForm.date"
-              type="date"
-              placeholder="选择日期"
-              :disabled-date="(date) => {
-              const today = new Date()
-              const max = new Date()
-              max.setDate(today.getDate() + 60)
-              return date < today || date > max
-            }"
-          />
+          <el-date-picker v-model="filterForm.date" type="date" placeholder="选择日期" class="full-width" :disabled-date="(date) => {
+            const today = new Date()
+            const max = new Date()
+            max.setDate(today.getDate() + 60)
+            return date < today || date > max
+          }" />
         </el-form-item>
-        <el-form-item label="开始时间">
-          <el-select v-model="filterForm.startHour">
-            <el-option v-for="h in 13" :key="h" :label="`${h + 7}:00`" :value="h + 7" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="结束时间">
-          <el-select v-model="filterForm.endHour">
-            <el-option v-for="h in 13" :key="h" :label="`${h + 8}:00`" :value="h + 8" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="参会人数">
-          <el-input-number v-model="filterForm.attendees" :min="1" />
-        </el-form-item>
+
+        <div class="form-row">
+          <el-form-item label="开始时间" class="form-item-half">
+            <el-select v-model="filterForm.startHour" class="full-width">
+              <el-option v-for="h in 13" :key="h" :label="`${h + 7}:00`" :value="h + 7" />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item label="结束时间" class="form-item-half">
+            <el-select v-model="filterForm.endHour" class="full-width">
+              <el-option v-for="h in 13" :key="h" :label="`${h + 8}:00`" :value="h + 8" />
+            </el-select>
+          </el-form-item>
+        </div>
+
+        <div class="form-row">
+          <el-form-item label="参会人数" class="form-item-half">
+            <el-input-number v-model="filterForm.attendees" :min="1" class="full-width" />
+          </el-form-item>
+
+          <el-form-item label="最低容量" class="form-item-half">
+            <el-input-number v-model="filterForm.minCapacity" :min="1" class="full-width" />
+          </el-form-item>
+        </div>
+
         <el-form-item label="价格区间">
-          <el-input-number v-model="filterForm.minPrice" placeholder="最小价格" :min="0" />
-          <el-input-number v-model="filterForm.maxPrice" placeholder="最大价格" :min="0" style="margin-left: 10px;" />
+          <div class="price-range">
+            <el-input-number v-model="filterForm.minPrice" placeholder="最小价格" :min="0" class="price-input" />
+            <span class="price-separator">至</span>
+            <el-input-number v-model="filterForm.maxPrice" placeholder="最大价格" :min="0" class="price-input" />
+          </div>
         </el-form-item>
-        <el-form-item label="最低容量">
-          <el-input-number v-model="filterForm.minCapacity" :min="1" />
-        </el-form-item>
+
         <el-form-item label="设备要求">
-          <el-checkbox v-model="filterForm.hasProjector">投影仪</el-checkbox>
-          <el-checkbox v-model="filterForm.hasAudio">音响</el-checkbox>
-          <el-checkbox v-model="filterForm.hasNetwork">网络</el-checkbox>
+          <div class="equipment-options">
+            <el-checkbox v-model="filterForm.hasProjector">
+              <div class="equipment-item">
+                <i class="el-icon-video-camera"></i>
+                <span>投影仪</span>
+              </div>
+            </el-checkbox>
+            <el-checkbox v-model="filterForm.hasAudio">
+              <div class="equipment-item">
+                <i class="el-icon-headset"></i>
+                <span>音响</span>
+              </div>
+            </el-checkbox>
+            <el-checkbox v-model="filterForm.hasNetwork">
+              <div class="equipment-item">
+                <i class="el-icon-connection"></i>
+                <span>网络</span>
+              </div>
+            </el-checkbox>
+          </div>
         </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleFilterConfirm">提交</el-button>
+
+        <el-form-item class="dialog-footer">
+          <el-button type="primary" @click="handleFilterConfirm">提交筛选</el-button>
           <el-button @click="showFilterDialog = false">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
 
+    <!-- 页面头部 -->
     <el-header class="main-header">
       <div class="title-container">
         <h2>会议室列表</h2>
-        &nbsp;记录数：{{ pagination.total }}
+        <span class="record-count">记录数：{{ pagination.total }}</span>
       </div>
       <div class="tool-bar">
-        <el-select class="dp-selector" v-model="departmentsSelected" placeholder="院系筛选" multiple collapse-tags
-                   collapse-tags-tooltip>
+        <el-select class="dp-selector" v-model="departmentsSelected" placeholder="会议室筛选" multiple collapse-tags
+          collapse-tags-tooltip>
           <el-option v-for="item in departmentList?.data" :key="item.departmentId" :label="item.departmentName"
-                     :value="item.departmentId" />
+            :value="item.departmentId" />
         </el-select>
         <el-button type="success" plain @click="handleDepartmentChange">搜索</el-button>
         <el-button type="primary" plain @click="showFilterDialog = true">提交预约要求</el-button>
@@ -339,57 +376,77 @@ const handleFilterConfirm = async () => {
         <el-button v-if="userRole === 'admin'" type="primary" plain @click="handleEditMeetingRoom()">发布会议室</el-button>
       </div>
     </el-header>
+
+    <!-- 表格内容 -->
     <el-main class="table-container">
-      <el-table class="table-content" :data="meetingRoomList" border stripe v-loading="loading">
-        <el-table-column label="编号" prop="meetingRoomId" width="100px">
+      <el-table class="table-content" :data="meetingRoomList" border stripe v-loading="loading"
+        :row-class-name="tableRowClassName">
+        <el-table-column label="会议室编号" prop="meetingRoomId" width="100px">
           <template #default="scope">
-            {{ String(scope.row.meetingRoomId).padStart(6, '0') }}
+            <span class="room-id">{{ String(scope.row.meetingRoomId).padStart(6, '0') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="院系" prop="departmentName" />
-        <el-table-column label="名称" prop="meetingRoomName" />
-        <el-table-column label="价格" prop="pricePerHour" width="100px">
+        <el-table-column label="会议室名称" prop="meetingRoomName" min-width="50px">
           <template #default="scope">
-            {{ scope.row.pricePerHour.toFixed(1) }}
+            <div class="room-name">{{ scope.row.meetingRoomName }}</div>
           </template>
         </el-table-column>
-        <el-table-column label="容量" prop="capacity" width="90px" />
-        <el-table-column label="类型" prop="type" width="120px">
+        <el-table-column label="价格" prop="pricePerHour" width="140px" >
           <template #default="scope">
-            {{ scope.row.type === 'classroom' ? '教室' : '圆桌' }}
+            <span class="price" >¥{{ scope.row.pricePerHour.toFixed(1) }}/小时</span>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="100px">
+        <el-table-column label="容量" prop="capacity" width="90px">
+          <template #default="scope">
+            <span class="capacity">{{ scope.row.capacity }}人</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="类型" prop="type" width="120px" align="center">
+          <template #default="scope">
+            <el-tag size="small" :type="scope.row.type === 'classroom' ? 'info' : 'success'" effect="plain">
+              {{ scope.row.type === 'classroom' ? '教室' : '圆桌' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="100px" align="center">
           <template #default="scope">
             <el-tag :type="statusTagType(scope.row.status)" size="small">
               {{ formatStatus(scope.row.status) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="设备" show-overflow-tooltip>
+        <el-table-column label="设备" show-overflow-tooltip align="center" width="300px">
           <template #default="scope">
-            {{ formatEquipment(scope.row) }}
+            <div class="equipment-list">
+              <el-tag v-if="scope.row.hasProjector" size="small" type="info" effect="plain"
+                class="equipment-tag">投影仪</el-tag>
+              <el-tag v-if="scope.row.hasAudio" size="small" type="info" effect="plain"
+                class="equipment-tag">音响</el-tag>
+              <el-tag v-if="scope.row.hasNetwork" size="small" type="info" effect="plain"
+                class="equipment-tag">网络</el-tag>
+              <span v-if="!scope.row.hasProjector && !scope.row.hasAudio && !scope.row.hasNetwork"
+                class="no-equipment">无</span>
+            </div>
           </template>
         </el-table-column>
-        <el-table-column label="简介" prop="description" show-overflow-tooltip />
-        <el-table-column label="创建者" width="150px">
-          <template #default="scope">
-            {{ scope.row.creatorName || scope.row.creatorId }}
-          </template>
-        </el-table-column>
-        <el-table-column label="员工数" prop="employeeCount" width="90px" />
-        <el-table-column label="操作" width="200">
+        <el-table-column label="操作" width="220">
           <template #default="{ row }">
-            <el-button size="small" @click="handleSelectMeetingRoom(row)">选择</el-button>
-            <el-button size="small" type="info" @click="handleMeetingRoomEmployeeList(row)">员工</el-button>
-            <el-button v-if="userRole === 'admin'" size="small" type="warning" @click="handleEditMeetingRoom(row)">编辑</el-button>
+            <div class="action-buttons">
+              <el-button size="small" type="primary" plain @click="handleSelectMeetingRoom(row)">预定</el-button>
+              <el-button v-if="userRole === 'admin'" size="small" type="warning" plain
+                @click="handleEditMeetingRoom(row)">编辑</el-button>
+              <el-button v-if="userRole === 'admin'" type="danger" size="small" plain
+                @click="handleDeleteMeetingRoom(row)">删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
     </el-main>
+
+    <!-- 页脚分页 -->
     <el-footer class="main-footer">
-      <el-pagination class="pagination" background layout="prev, pager, next" :total="pagination.total"
-                     :current-page="pagination.current" :page-size="pagination.size" @current-change="handleCurrentChange" />
+      <el-pagination class="pagination" background layout="prev, pager, next, jumper" :total="pagination.total"
+        :current-page="pagination.current" :page-size="pagination.size" @current-change="handleCurrentChange" />
     </el-footer>
   </el-container>
 </template>
@@ -397,19 +454,35 @@ const handleFilterConfirm = async () => {
 <style lang="scss" scoped>
 .main-container {
   height: 1px;
+  background-color: #f5f7fa;
 
   .main-header {
     height: $main-content-header-footer-height;
-    background-color: #f5f7fa;
+    background-color: #fff;
     padding: 0 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid #ebeef5;
 
     .title-container {
       height: 100%;
       display: flex;
       align-items: center;
+
+      h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #303133;
+      }
+
+      .record-count {
+        margin-left: 10px;
+        color: #909399;
+        font-size: 14px;
+      }
     }
 
     .tool-bar {
@@ -421,6 +494,10 @@ const handleFilterConfirm = async () => {
         width: 240px;
         margin-right: 10px;
       }
+
+      .el-button {
+        margin-left: 10px;
+      }
     }
   }
 
@@ -431,20 +508,154 @@ const handleFilterConfirm = async () => {
 
     .table-content {
       height: 100%;
+      background-color: #fff;
+      border-radius: 4px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+
+      .room-id {
+        font-family: monospace;
+        color: #606266;
+      }
+
+      .room-name {
+        font-weight: 500;
+        color: #303133;
+      }
+
+      .price {
+        color: #f56c6c;
+        font-weight: 500;
+      }
+
+      .capacity {
+        color: #606266;
+      }
+
+      .equipment-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+
+        .equipment-tag {
+          margin-right: 5px;
+        }
+
+        .no-equipment {
+          color: #909399;
+          font-size: 13px;
+        }
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 5px;
+      }
     }
   }
 
   .main-footer {
     height: $main-content-header-footer-height;
-    background-color: #f5f7fa;
+    background-color: #fff;
     padding: 0 20px;
     display: flex;
     justify-content: center;
     align-items: center;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.05);
+    border-top: 1px solid #ebeef5;
 
     .pagination {
       height: 100%;
     }
   }
+
+  // 对话框样式
+  :deep(.time-picker-dialog),
+  :deep(.filter-dialog) {
+    .el-dialog__body {
+      padding: 20px 30px;
+    }
+  }
+
+  // 表单行样式
+  .form-row {
+    display: flex;
+    gap: 20px;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .form-item-half {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .price-range {
+    display: flex;
+    align-items: center;
+
+    .price-input {
+      width: 45%;
+    }
+
+    .price-separator {
+      margin: 0 10px;
+      color: #909399;
+    }
+  }
+
+  .equipment-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    .equipment-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+
+      i {
+        font-size: 16px;
+        color: #409EFF;
+      }
+    }
+  }
+
+  .dialog-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+}
+
+// 表格行样式
+:deep(.el-table__row) {
+  &:hover {
+    background-color: #f5f7fa !important;
+  }
+}
+
+// 添加表格行状态样式
+.table-row-available {
+  background-color: #f0f9eb;
+}
+
+.table-row-locked {
+  background-color: #fef0f0;
+}
+
+.table-row-reserved {
+  background-color: #fdf6ec;
+}
+
+.table-row-maintenance {
+  background-color: #f4f4f5;
 }
 </style>

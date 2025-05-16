@@ -6,7 +6,7 @@
                 {{ userStore.user?.userId }}
             </el-descriptions-item>
 
-            <span v-if="userStore.user?.roleName === 'employee' || userStore.user?.roleName === 'customer'">
+            <span v-if="userStore.user?.roleName === 'employee' || userStore.user?.roleName === 'customer'" >
                 <el-descriptions-item label="姓名">{{ profile?.name }}</el-descriptions-item>
                 <el-descriptions-item label="性别">{{ profile?.gender }}</el-descriptions-item>
                 <el-descriptions-item label="生日">{{ profile?.birthday }}</el-descriptions-item>

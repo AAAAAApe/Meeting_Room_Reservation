@@ -43,8 +43,8 @@ const meetingRoomService = {
    * @param meetingRoomId 会议室ID
    * @returns Promise
    */
-  deleteMeetingRoom(meetingRoomId: string) {
-    return request.delete<void>(`/meetingRooms/${meetingRoomId}`);
+  deleteMeetingRoom(meetingRoomId: number) {
+    return request.delete<boolean>(`/meetingRoom/${meetingRoomId}`);
   },
 
   /**
