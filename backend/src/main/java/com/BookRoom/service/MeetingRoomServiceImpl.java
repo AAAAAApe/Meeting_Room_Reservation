@@ -1,5 +1,6 @@
 package com.BookRoom.service;
 
+import com.BookRoom.dto.MeetingRoomOrderSearchParams;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.entity.meetingRoom.MeetingRoom;
@@ -294,5 +295,16 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
                 queryWrapper.eq(MeetingRoom::getHasNetwork, v));
 
         return meetingRoomMapper.selectPage(page, queryWrapper);
+    }
+
+    @Override
+    public List<MeetingRoomSelection> searchMeetingRoomOrders(MeetingRoomOrderSearchParams params) {
+        LambdaQueryWrapper<MeetingRoomSelection> wrapper = new LambdaQueryWrapper<>();
+        if (params.getMeetingRoomId() != null) wrapper.eq(MeetingRoomSelection::getMeetingRoomId, params.getMeetingRoomId());
+        if (params.getCustomerId() != null) wrapper.eq(MeetingRoomSelection::getCustomerId, params.getCustomerId());
+        if (params.getStatus() != null) wrapper.eq(MeetingRoomSelection::getStatus, params.getStatus());
+        if (params.getStartTime() != null) wrapper.ge(MeetingRoomSelection::getStartTime, params.getStartTime());
+        if (params.getEndTime() != null) wrapper.le(MeetingRoomSelection::getEndTime, params.getEndTime());
+        return meetingRoomSelectionMapper.selectList(wrapper);
     }
 }

@@ -4,11 +4,13 @@ import com.BookRoom.dto.CancelRequest;
 import com.BookRoom.dto.PaymentRequest;
 import com.BookRoom.service.CancelRequestService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/cancelRequest")
 public class CancelRequestController {
@@ -27,11 +29,13 @@ public class CancelRequestController {
     ) {
         String customerId = (String) request.getAttribute("userId");
 
-        return cancelRequestService.applyCancel(
+        boolean flag = cancelRequestService.applyCancel(
                 meetingRoomId,
                 customerId,
                 payload.getStartTime(),
                 payload.getEndTime());
+        System.out.println("Apply cancel request flag: " + flag);
+        return flag;
     }
     @GetMapping("/pending")
     public List<CancelRequest> getPendingRequests() {
@@ -41,7 +45,7 @@ public class CancelRequestController {
 
     @PutMapping("/{id}/approve")
     public void approve(@PathVariable Long id) {
-        cancelRequestService.updateStatus(id, "approved");
+        cancelRequestService.approveAndDeleteOrder(id);
     }
 
     @PutMapping("/{id}/reject")

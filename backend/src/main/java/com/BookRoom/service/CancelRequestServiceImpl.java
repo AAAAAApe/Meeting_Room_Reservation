@@ -28,17 +28,20 @@ public class CancelRequestServiceImpl implements CancelRequestService {
         LambdaQueryWrapper<MeetingRoomSelection> selectionWrapper = new LambdaQueryWrapper<>();
         selectionWrapper.eq(MeetingRoomSelection::getMeetingRoomId, meetingRoomId)
                 .eq(MeetingRoomSelection::getCustomerId, customerId)
-                .eq(MeetingRoomSelection::getStatus, "confirmed")
+//                .eq(MeetingRoomSelection::getStatus, "confirmed")
                 .eq(MeetingRoomSelection::getStartTime, startTime)
                 .eq(MeetingRoomSelection::getEndTime, endTime);
-
+        System.out.println(meetingRoomId + ":" + customerId + ":" + startTime + ":" + endTime);
         MeetingRoomSelection selection = meetingRoomSelectionMapper.selectOne(selectionWrapper);
+
         if (selection == null) {
+            System.out.println("No selection found");
             return false;
         }
 
         // 是否至少提前24小时
         if (selection.getStartTime().isBefore(LocalDateTime.now().plusHours(24))) {
+            System.out.println("Start time is after end time");
             return false;
         }
 
@@ -50,6 +53,7 @@ public class CancelRequestServiceImpl implements CancelRequestService {
 
         Long count = cancelRequestMapper.selectCount(existWrapper);
         if (count > 0) {
+            System.out.println("Cancel request already exists");
             return false;
         }
 
@@ -57,10 +61,10 @@ public class CancelRequestServiceImpl implements CancelRequestService {
         CancelRequest request = new CancelRequest();
         request.setMeetingRoomId(meetingRoomId);
         request.setCustomerId(customerId);
-        request.setRequestTime(LocalDateTime.now());
+//        request.setRequestTime(LocalDateTime.now());
         request.setStatus("pending");
 
-        return cancelRequestMapper.insert(request) > 0;
+        return cancelRequestMapper.insertOrUpdate(request);
     }
 
 
@@ -77,5 +81,27 @@ public class CancelRequestServiceImpl implements CancelRequestService {
         update.setStatus(status);
         update.setReviewTime(LocalDateTime.now());
         cancelRequestMapper.updateById(update);
+    }
+
+    @Override
+    public void approveAndDeleteOrder(Long cancelRequestId) {
+        // 1. 先查找取消申请记录
+        CancelRequest cancelRequest = cancelRequestMapper.selectById(cancelRequestId);
+        if (cancelRequest == null) return;
+
+        // 2. 根据取消申请里的信息删除订单表中的数据
+        LambdaQueryWrapper<MeetingRoomSelection> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(MeetingRoomSelection::getMeetingRoomId, cancelRequest.getMeetingRoomId())
+                .eq(MeetingRoomSelection::getCustomerId, cancelRequest.getCustomerId());
+        // 如果 CancelRequest 有 startTime/endTime 字段，再加上这两个条件更精确
+        // wrapper.eq(MeetingRoomSelection::getStartTime, cancelRequest.getStartTime())
+        //        .eq(MeetingRoomSelection::getEndTime, cancelRequest.getEndTime());
+
+        meetingRoomSelectionMapper.delete(wrapper);
+
+        // 3. 更新取消申请状态为 approved
+        cancelRequest.setStatus("approved");
+        cancelRequest.setReviewTime(LocalDateTime.now());
+        cancelRequestMapper.updateById(cancelRequest);
     }
 }

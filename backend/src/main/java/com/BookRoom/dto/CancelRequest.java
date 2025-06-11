@@ -15,6 +15,7 @@ public class CancelRequest {
     private Long id;
 
     private Integer meetingRoomId;
+
     private String customerId;
 
     private LocalDateTime requestTime;

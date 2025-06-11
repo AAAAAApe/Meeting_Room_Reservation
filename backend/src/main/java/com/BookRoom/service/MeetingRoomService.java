@@ -1,5 +1,6 @@
 package com.BookRoom.service;
 
+import com.BookRoom.dto.MeetingRoomOrderSearchParams;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.entity.meetingRoom.MeetingRoom;
 import com.BookRoom.entity.meetingRoom.MeetingRoomSelection;
@@ -113,4 +114,6 @@ public interface MeetingRoomService {
                                             Boolean hasProjector,
                                             Boolean hasAudio,
                                             Boolean hasNetwork);
+
+    List<MeetingRoomSelection> searchMeetingRoomOrders(MeetingRoomOrderSearchParams params);
 }
