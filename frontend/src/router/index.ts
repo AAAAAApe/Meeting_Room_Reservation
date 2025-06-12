@@ -22,7 +22,7 @@ const routes = [
                 meta: { requiresAuth: true, role: 'employee' }
             },
             {
-                path: "employee", // 最终路由为 /employee/orderQuery
+                path: "employee/orderQuery",
                 component: () => import("../views/employee/EmployeeOrderQuery.vue"),
                 meta: { requiresAuth: true, role: "employee" }
             },
@@ -89,13 +89,13 @@ router.beforeEach((to, from, next) =>
 {
     const userStore = useUserStore();
     const tokenStore = useTokenStore();
-    
+
     // 如果需要认证但没有token，重定向到登录页
     if (to.meta.requiresAuth && !tokenStore.isAuthenticated) {
         next('/login');
         return;
     }
-    
+
     // 当访问根路径时，根据用户角色重定向
     if (to.path === '/' && tokenStore.isAuthenticated && userStore.user?.roleName) {
         switch (userStore.user.roleName) {

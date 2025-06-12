@@ -7,6 +7,7 @@ import { useUserStore } from '../stores/userStore';
 import dayjs from 'dayjs'
 import { ElMessage, ElMessageBox } from "element-plus";
 import { meetingRoomService } from '../api/index';
+import { fetchEmployeeMeetingRoomOrders } from '@/api/service/order';
 
 const userStore = useUserStore();
 const userRole = computed(() => userStore.user?.roleName || '');
@@ -233,6 +234,22 @@ const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
     ElMessage.error('删除会议室失败');
     console.error('删除会议室失败:', error);
   }
+
+  // 新增用于弹窗和数据的变量
+  const showOrderDialog = ref(false);
+  const orderList = ref<any[]>([]);
+  const orderLoading = ref(false);
+
+  // 预约订单表格字段映射（根据后端返回实际字段调整）
+  const fetchOrders = async () => {
+    orderLoading.value = true;
+    try {
+      const { data } = await fetchEmployeeMeetingRoomOrders();
+      orderList.value = data;
+    } finally {
+      orderLoading.value = false;
+    }
+  };
 };
 </script>
 
@@ -352,6 +369,18 @@ const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
       </el-form>
     </el-dialog>
 
+    <!-- 员工角色查看所有预约会议室订单 -->
+    <el-dialog v-model="showOrderDialog" title="已预约会议室" width="60%">
+      <el-table :data="orderList" v-loading="orderLoading" style="width: 100%">
+        <el-table-column prop="meetingRoomName" label="会议室" />
+        <el-table-column prop="userName" label="预约用户" />
+        <el-table-column prop="startTime" label="开始时间" />
+        <el-table-column prop="endTime" label="结束时间" />
+        <!-- 可根据实际字段增加更多信息 -->
+      </el-table>
+      <el-empty v-if="!orderLoading && orderList.length === 0" description="暂无预约数据" />
+    </el-dialog>
+
     <!-- 页面头部 -->
     <el-header class="main-header">
       <div class="title-container">
@@ -361,6 +390,14 @@ const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
       <div class="tool-bar">
         <el-button type="primary" plain @click="showFilterDialog = true">提交预约要求</el-button>
         <el-divider v-if="userRole === 'admin'" direction="vertical" />
+        <el-button
+            v-if="userRole === 'employee'"
+            type="success"
+            plain
+            @click="showOrderDialog = true; fetchOrders();"
+        >
+          查看已预约会议室
+        </el-button>
         <el-button v-if="userRole === 'admin'" type="primary" plain @click="handleEditMeetingRoom()">发布会议室</el-button>
       </div>
     </el-header>
