@@ -120,4 +120,6 @@ public interface MeetingRoomService {
 
     List<MeetingRoomSelection> searchMeetingRoomOrders();
 
+    boolean reserve(Long roomId, String userId, LocalDateTime startTime, LocalDateTime endTime);
+
 }

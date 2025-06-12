@@ -1,6 +1,7 @@
 package com.BookRoom.service;
 
 import com.BookRoom.dto.MeetingRoomOrderSearchParams;
+import com.BookRoom.entity.meetingRoom.MeetingRoomReservation;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.entity.meetingRoom.MeetingRoom;
@@ -28,6 +29,7 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
     private final MeetingRoomSelectionMapper meetingRoomSelectionMapper;
     private final MeetingRoomViewMapper meetingRoomViewMapper;
     private final MeetingRoomSelectViewMapper meetingRoomSelectViewMapper;
+//    private final MeetingRoomReservationMapper meetingRoomReservationMapper;
 
     /**
      * 构造函数，通过依赖注入初始化所有数据访问对象
@@ -301,5 +303,21 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
     @Override
     public List<MeetingRoomSelection> searchMeetingRoomOrders() {
         return meetingRoomSelectionMapper.selectList(null); // 查全部
+    }
+
+    @Override
+    public boolean reserve(Long roomId, String userId, LocalDateTime startTime, LocalDateTime endTime) {
+        // 判断时间段是否冲突
+//        int count = M.countConflict(roomId, startTime, endTime);
+//        if (count > 0) {
+//            return false;
+//        }
+//        MeetingRoomReservation reservation = new MeetingRoomReservation();
+//        reservation.setRoomId(roomId);
+//        reservation.setUserId(userId);
+//        reservation.setStartTime(startTime);
+//        reservation.setEndTime(endTime);
+//        reservationMapper.insert(reservation);
+        return true;
     }
 }
