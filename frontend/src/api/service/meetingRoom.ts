@@ -11,6 +11,7 @@ import type {
   CustomerMeetingRoomSelection,
   CancelRequestInfo
 } from '../types';
+import axios from "axios";
 
 /**
  * 会议室API服务
@@ -143,6 +144,26 @@ const meetingRoomService = {
   }) {
     return request.post<PaginationResult<CustomerMeetingRoomSelection>>('/meetingRoom/available', data);
   },
+
+  fetchAllOrders() {
+    const token = localStorage.getItem('token');
+    return axios.get('/api/employee/query', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  },
+
+  // 新增多条件查询接口
+  queryOrders(params: any) {
+    const token = localStorage.getItem('token');
+    return axios.get('/api/employee/query', { params ,
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    })
+  },
+
 };
 
 export default meetingRoomService;

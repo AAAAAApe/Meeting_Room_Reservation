@@ -1,6 +1,9 @@
 <template>
   <div>
     <el-form :inline="true" :model="queryForm" class="query-form" @submit.native.prevent="handleQuery">
+      <el-form-item label="订单ID">
+        <el-input v-model="queryForm.id" placeholder="订单ID" />
+      </el-form-item>
       <el-form-item label="会议室ID">
         <el-input v-model="queryForm.meetingRoomId" placeholder="会议室ID" />
       </el-form-item>
@@ -16,22 +19,6 @@
           <el-option label="已取消" value="cancelled" />
         </el-select>
       </el-form-item>
-      <el-form-item label="开始时间">
-        <el-date-picker
-            v-model="queryForm.startTime"
-            type="datetime"
-            placeholder="开始时间"
-            style="width: 180px"
-        />
-      </el-form-item>
-      <el-form-item label="结束时间">
-        <el-date-picker
-            v-model="queryForm.endTime"
-            type="datetime"
-            placeholder="结束时间"
-            style="width: 180px"
-        />
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="handleQuery">查询</el-button>
         <el-button @click="resetForm">重置</el-button>
@@ -42,60 +29,73 @@
       <el-table-column prop="id" label="订单ID" width="80" />
       <el-table-column prop="meetingRoomId" label="会议室ID" width="100" />
       <el-table-column prop="customerId" label="用户ID" width="120" />
-      <el-table-column prop="status" label="状态" width="100" />
+      <el-table-column prop="selectionTime" label="选定时间" width="180" />
       <el-table-column prop="startTime" label="开始时间" width="180" />
       <el-table-column prop="endTime" label="结束时间" width="180" />
-      <!-- 你可以根据实际需求添加更多字段 -->
+      <el-table-column prop="attendeesCount" label="人数" width="80" />
+      <el-table-column prop="status" label="状态" width="100" />
+      <el-table-column prop="totalPrice" label="总价" width="100" />
+      <el-table-column prop="paymentStatus" label="支付状态" width="100" />
+      <el-table-column prop="paymentTime" label="支付时间" width="180" />
+      <el-table-column prop="cancellationTime" label="取消时间" width="180" />
+      <el-table-column prop="refundAmount" label="退款金额" width="100" />
+      <el-table-column prop="createdAt" label="创建时间" width="180" />
+      <el-table-column prop="updatedAt" label="更新时间" width="180" />
     </el-table>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import axios from 'axios'
+import { meetingRoomService } from '@/api/index'
 
-// 查询表单数据
 const queryForm = ref({
+  id: '',
   meetingRoomId: '',
   customerId: '',
-  status: '',
-  startTime: null,
-  endTime: null
+  status: ''
 })
 
-const orderList = ref([])
+const allOrders = ref([]) // 全部订单
+const orderList = ref([]) // 显示的订单
 
-const handleQuery = async () => {
+const fetchAllOrders = async () => {
   try {
-    // 格式化时间（如果后端需要字符串格式可自行调整）
-    const params = {
-      ...queryForm.value,
-      startTime: queryForm.value.startTime
-          ? new Date(queryForm.value.startTime).toISOString()
-          : undefined,
-      endTime: queryForm.value.endTime
-          ? new Date(queryForm.value.endTime).toISOString()
-          : undefined
-    }
-    const { data } = await axios.get('/employee/query', {})
-    orderList.value = data
-  } catch (err) {
-    ElMessage.error('查询失败，请稍后重试')
-
+    const response = await meetingRoomService.fetchAllOrders()
+    allOrders.value = response.data
+    orderList.value = response.data // 初始显示所有
+  } catch (e) {
+    ElMessage.error('获取全部订单失败')
+    allOrders.value = []
+    orderList.value = []
   }
+}
+
+const handleQuery = () => {
+  if (
+      !queryForm.value.id &&
+      !queryForm.value.meetingRoomId &&
+      !queryForm.value.customerId &&
+      !queryForm.value.status
+  ) {
+    ElMessage.warning('请至少填写一个查询条件')
+    return
+  }
+  orderList.value = allOrders.value.filter(order =>
+      (!queryForm.value.id || String(order.id).includes(queryForm.value.id)) &&
+      (!queryForm.value.meetingRoomId || String(order.meetingRoomId).includes(queryForm.value.meetingRoomId)) &&
+      (!queryForm.value.customerId || String(order.customerId).includes(queryForm.value.customerId)) &&
+      (!queryForm.value.status || order.status === queryForm.value.status)
+  )
 }
 
 const resetForm = () => {
-  queryForm.value = {
-    meetingRoomId: '',
-    customerId: '',
-    status: '',
-    startTime: null,
-    endTime: null
-  }
-  orderList.value = []
+  queryForm.value = { id: '', meetingRoomId: '', customerId: '', status: '' }
+  orderList.value = allOrders.value
 }
+
+onMounted(fetchAllOrders)
 </script>
 
 <style scoped>
@@ -103,4 +103,3 @@ const resetForm = () => {
   margin-bottom: 20px;
 }
 </style>
-32

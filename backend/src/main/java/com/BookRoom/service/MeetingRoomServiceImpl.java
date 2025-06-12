@@ -8,6 +8,7 @@ import com.BookRoom.entity.meetingRoom.MeetingRoomSelection;
 import com.BookRoom.entity.view.MeetingRoomSelectView;
 import com.BookRoom.entity.view.MeetingRoomView;
 import com.BookRoom.mapper.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -299,8 +300,6 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
 
     @Override
     public List<MeetingRoomSelection> searchMeetingRoomOrders() {
-        LambdaQueryWrapper<MeetingRoomSelection> wrapper = new LambdaQueryWrapper<>();
-        // 不加任何条件，就是查全部
-        return meetingRoomSelectionMapper.selectList(wrapper);
+        return meetingRoomSelectionMapper.selectList(null); // 查全部
     }
 }
