@@ -298,13 +298,9 @@ public class MeetingRoomServiceImpl implements MeetingRoomService {
     }
 
     @Override
-    public List<MeetingRoomSelection> searchMeetingRoomOrders(MeetingRoomOrderSearchParams params) {
+    public List<MeetingRoomSelection> searchMeetingRoomOrders() {
         LambdaQueryWrapper<MeetingRoomSelection> wrapper = new LambdaQueryWrapper<>();
-        if (params.getMeetingRoomId() != null) wrapper.eq(MeetingRoomSelection::getMeetingRoomId, params.getMeetingRoomId());
-        if (params.getCustomerId() != null) wrapper.eq(MeetingRoomSelection::getCustomerId, params.getCustomerId());
-        if (params.getStatus() != null) wrapper.eq(MeetingRoomSelection::getStatus, params.getStatus());
-        if (params.getStartTime() != null) wrapper.ge(MeetingRoomSelection::getStartTime, params.getStartTime());
-        if (params.getEndTime() != null) wrapper.le(MeetingRoomSelection::getEndTime, params.getEndTime());
+        // 不加任何条件，就是查全部
         return meetingRoomSelectionMapper.selectList(wrapper);
     }
 }

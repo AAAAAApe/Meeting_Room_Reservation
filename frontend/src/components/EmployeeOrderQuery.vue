@@ -78,10 +78,11 @@ const handleQuery = async () => {
           ? new Date(queryForm.value.endTime).toISOString()
           : undefined
     }
-    const { data } = await axios.get('/order/employee/query', { params })
+    const { data } = await axios.get('/employee/query', {})
     orderList.value = data
   } catch (err) {
     ElMessage.error('查询失败，请稍后重试')
+
   }
 }
 

@@ -21,11 +21,7 @@ const routes = [
                 component: () => import("../views/employee/EmployeeDashboard.vue"),
                 meta: { requiresAuth: true, role: 'employee' }
             },
-            {
-                path: "employee/orderQuery",
-                component: () => import("../views/employee/EmployeeOrderQuery.vue"),
-                meta: { requiresAuth: true, role: "employee" }
-            },
+
             {
                 path: "customer",
                 component: () => import("../views/customer/CustomerDashboard.vue"),
@@ -50,6 +46,11 @@ const routes = [
                 path: "employee/cancelRequests",
                 component: () => import("../components/EmployeeCancelRequests.vue"),
                 meta: { requiresAuth: true, role: 'employee' }
+            },
+            {
+                path: "employee/query",
+                component: () => import("../components/EmployeeOrderQuery.vue"),
+                meta: { requiresAuth: true, role: "employee" }
             },
             {
                 path: "customers",

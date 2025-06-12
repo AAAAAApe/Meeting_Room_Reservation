@@ -1,11 +1,13 @@
 package com.BookRoom.service;
 
 import com.BookRoom.dto.MeetingRoomOrderSearchParams;
+import com.BookRoom.mapper.MeetingRoomSelectionMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.BookRoom.entity.meetingRoom.MeetingRoom;
 import com.BookRoom.entity.meetingRoom.MeetingRoomSelection;
 import com.BookRoom.entity.view.MeetingRoomSelectView;
 import com.BookRoom.entity.view.MeetingRoomView;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -115,5 +117,6 @@ public interface MeetingRoomService {
                                             Boolean hasAudio,
                                             Boolean hasNetwork);
 
-    List<MeetingRoomSelection> searchMeetingRoomOrders(MeetingRoomOrderSearchParams params);
+
+    List<MeetingRoomSelection> searchMeetingRoomOrders();
 }
