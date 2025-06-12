@@ -211,6 +211,22 @@ const clearFilter = () => {
   meetingRoomChooseList.value = [];
 };
 
+// 新增用于弹窗和数据的变量
+const showOrderDialog = ref(false);
+const orderList = ref<any[]>([]);
+const orderLoading = ref(false);
+
+// 预约订单表格字段映射（根据后端返回实际字段调整）
+const fetchOrders = async () => {
+  orderLoading.value = true;
+  try {
+    const { data } = await fetchEmployeeMeetingRoomOrders();
+    orderList.value = data;
+  } finally {
+    orderLoading.value = false;
+  }
+};
+
 // 删除会议室的处理方法
 const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
   try {
@@ -234,22 +250,6 @@ const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
     ElMessage.error('删除会议室失败');
     console.error('删除会议室失败:', error);
   }
-
-  // 新增用于弹窗和数据的变量
-  const showOrderDialog = ref(false);
-  const orderList = ref<any[]>([]);
-  const orderLoading = ref(false);
-
-  // 预约订单表格字段映射（根据后端返回实际字段调整）
-  const fetchOrders = async () => {
-    orderLoading.value = true;
-    try {
-      const { data } = await fetchEmployeeMeetingRoomOrders();
-      orderList.value = data;
-    } finally {
-      orderLoading.value = false;
-    }
-  };
 };
 </script>
 
