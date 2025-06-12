@@ -10,7 +10,7 @@ import { meetingRoomService } from '../api/index';
 import { fetchEmployeeMeetingRoomOrders } from '@/api/service/order';
 
 const userStore = useUserStore();
-const userRole = computed(() => userStore.user?.roleName || '');
+const userRole = computed(() => userStore.user?.value?.roleName || '');
 
 // 存储会议室列表数据，用于表格展示
 const meetingRoomList = ref<MeetingRoomInfo[]>([]);
@@ -390,14 +390,7 @@ const handleDeleteMeetingRoom = async (meetingRoom: MeetingRoomInfo) => {
       <div class="tool-bar">
         <el-button type="primary" plain @click="showFilterDialog = true">提交预约要求</el-button>
         <el-divider v-if="userRole === 'admin'" direction="vertical" />
-        <el-button
-            v-if="userRole === 'employee'"
-            type="success"
-            plain
-            @click="showOrderDialog = true; fetchOrders();"
-        >
-          查看已预约会议室
-        </el-button>
+
         <el-button v-if="userRole === 'admin'" type="primary" plain @click="handleEditMeetingRoom()">发布会议室</el-button>
       </div>
     </el-header>

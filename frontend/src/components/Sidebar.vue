@@ -31,6 +31,10 @@
         </template>
         <el-menu-item index="/employee/meetingRooms">我的会议室</el-menu-item>
         <el-menu-item index="/employee/cancelRequests">取消订单审核</el-menu-item>
+        <el-menu-item
+            v-if="userRole === 'employee'"
+            index="/employee/orderQuery"
+        >查看所有预约订单</el-menu-item>
       </el-sub-menu>
     </template>
 
