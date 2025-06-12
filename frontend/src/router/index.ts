@@ -22,6 +22,11 @@ const routes = [
                 meta: { requiresAuth: true, role: 'employee' }
             },
             {
+                path: "employee", // 最终路由为 /employee/orderQuery
+                component: () => import("../views/employee/EmployeeOrderQuery.vue"),
+                meta: { requiresAuth: true, role: "employee" }
+            },
+            {
                 path: "customer",
                 component: () => import("../views/customer/CustomerDashboard.vue"),
                 meta: { requiresAuth: true, role: 'customer' }
@@ -60,7 +65,9 @@ const routes = [
                 path: "profile",
                 component: () => import("../components/Profile.vue"),
                 meta: { requiresAuth: false }
-            }
+            },
+
+
         ]
     },
     {
@@ -78,7 +85,8 @@ const router = createRouter({
 import { useUserStore } from "../stores/userStore";
 import { useTokenStore } from "../stores/tokenStore";
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from, next) =>
+{
     const userStore = useUserStore();
     const tokenStore = useTokenStore();
     
